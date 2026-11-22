@@ -1,0 +1,49 @@
+// Espelho das tabelas em supabase/migrations. Toda coluna/relacionamento novo
+// no banco precisa de um campo aqui.
+
+export type Papel = "anciao" | "pastor";
+export type Origem = "associacao" | "distrito" | "local";
+
+export const ORIGENS: Record<Origem, { nome: string; classe: string }> = {
+  associacao: { nome: "Associação", classe: "bg-violet-100 text-violet-800 border-violet-300" },
+  distrito: { nome: "Distrito", classe: "bg-amber-100 text-amber-900 border-amber-300" },
+  local: { nome: "Local", classe: "bg-sky-100 text-sky-800 border-sky-300" },
+};
+
+export interface Perfil {
+  id: string;
+  igreja_id: string;
+  nome: string;
+  papel: Papel;
+  email: string;
+  whatsapp: string | null;
+}
+
+export interface Departamento {
+  id: string;
+  igreja_id: string;
+  nome: string;
+  cor: string;
+  anciao_id: string | null;
+  lider_nome: string | null;
+  lider_whatsapp: string | null;
+  anciao?: Pick<Perfil, "id" | "nome"> | null;
+}
+
+export interface Programacao {
+  id: string;
+  igreja_id: string;
+  titulo: string;
+  descricao: string | null;
+  data: string; // yyyy-MM-dd
+  hora_inicio: string | null; // HH:mm[:ss]
+  hora_fim: string | null;
+  local: string | null;
+  origem: Origem;
+  departamento_id: string | null;
+  lider_avisado_em: string | null;
+  lider_avisado_por: string | null;
+  criado_por: string | null;
+  atualizado_por: string | null;
+  departamento?: Departamento | null;
+}

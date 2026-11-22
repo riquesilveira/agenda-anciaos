@@ -1,0 +1,30 @@
+# Contexto do projeto: Agenda dos Anciãos
+
+Antes de planejar algo novo, leia **`PRD.md`** (requisitos e o que ficou fora da v1).
+
+## Stack
+Next.js 15 (App Router, Server Actions) + Supabase (Auth + Postgres + RLS) +
+Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
+
+## Estrutura
+- `supabase/migrations/`: schema e policies RLS. Mudança de banco = migration nova.
+- `src/lib/conflitos.ts`, `src/lib/resumo.ts`: regras de negócio puras, testadas em `src/lib/__tests__/`.
+- `src/app/(app)/acoes.ts`: todas as Server Actions (gravação).
+- `src/app/api/cron/resumos`: envio dos resumos por e-mail (service role).
+
+## Convenções (manter)
+- **Toda coluna/relação nova no banco precisa de um campo em `src/lib/tipos.ts`.**
+- **Isolamento por igreja é feito no RLS** (`minha_igreja()`), não só no código.
+  O código do app usa o cliente com sessão (`supabaseServidor`); `supabaseAdmin`
+  (service role) só no cron e em scripts, e lá o filtro por `igreja_id` é manual.
+- **Identidade vem da sessão** (`exigirPerfil`), nunca de um id vindo do formulário.
+- **Datas** são `date` + `time` sem fuso; "hoje" sempre por `hojeISO()` (Brasília),
+  porque o servidor da Vercel roda em UTC.
+- **Conflito é aviso, não bloqueio.**
+- `scripts/seed.ts` é idempotente (upsert): mantenha assim.
+
+## Validação
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+DATABASE_URL=postgres://postgres:postgres@localhost/teste_agenda npm run test:db
+```
