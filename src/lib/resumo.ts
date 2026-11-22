@@ -1,4 +1,4 @@
-import { dataCurta, dataLonga, diasAte, horaCurta, nomeDoMes, somarDias } from "./datas";
+import { dataLonga, diasAte, fimDe, horaCurta, nomeDoMes, periodoCurto, somarDias } from "./datas";
 import type { Departamento, Perfil, Programacao } from "./tipos";
 
 /** Janela do resumo semanal: tudo que acontece nos próximos 30 dias. */
@@ -25,23 +25,41 @@ export interface Resumo {
   texto: string;
 }
 
-export function tratamento(p: Pick<Perfil, "nome" | "papel">): string {
-  return `${p.papel === "pastor" ? "Pastor" : "Ancião"} ${p.nome}`;
+type Identificacao = Pick<Perfil, "nome" | "papel"> & { tratamento?: string | null };
+
+export function tratamento(p: Identificacao): string {
+  const padrao = p.papel === "pastor" ? "Pastor" : "Ancião";
+  return `${p.tratamento?.trim() || padrao} ${p.nome}`;
 }
 
 /**
  * Quais programações entram no resumo de alguém:
  * - ancião: só as dos departamentos pelos quais é responsável;
- * - pastor: todas.
+ * - pastor: todas, menos as da Associação sem departamento (essas são o pano
+ *   de fundo do calendário; com centenas por ano, afogariam o resumo).
  */
 export function programacoesDe(
   pessoa: Pick<Perfil, "id" | "papel">,
   programacoes: Programacao[],
   departamentos: Departamento[],
 ): Programacao[] {
-  if (pessoa.papel === "pastor") return programacoes;
+  if (pessoa.papel === "pastor") {
+    return programacoes.filter((p) => p.departamento_id || p.origem !== "associacao");
+  }
   const meus = new Set(departamentos.filter((d) => d.anciao_id === pessoa.id).map((d) => d.id));
   return programacoes.filter((p) => p.departamento_id && meus.has(p.departamento_id));
+}
+
+export function descreverPrazo(diasRestantes: number): string {
+  if (diasRestantes < 0) return "em andamento";
+  if (diasRestantes === 0) return "é hoje";
+  if (diasRestantes === 1) return "é amanhã";
+  return `faltam ${diasRestantes} dias`;
+}
+
+export function ultimoDiaDoMes(mes: string): string {
+  const [a, m] = mes.split("-").map(Number);
+  return `${mes}-${String(new Date(Date.UTC(a, m, 0)).getUTCDate()).padStart(2, "0")}`;
 }
 
 function linhaItem(item: ItemResumo, nomesAnciaos: Map<string, string>): string {
@@ -49,19 +67,19 @@ function linhaItem(item: ItemResumo, nomesAnciaos: Map<string, string>): string 
   const d = item.departamento;
   const hora = p.hora_inicio ? ` ${horaCurta(p.hora_inicio)}` : "";
   const dep = d ? ` (${d.nome})` : "";
-  const linhas = [`• ${dataCurta(p.data)}${hora}: ${p.titulo}${dep}`];
+  const linhas = [`• ${periodoCurto(p)}${hora}: ${p.titulo}${dep}`];
 
   if (d) {
     const lider = d.lider_nome ? `${d.lider_nome} (líder de ${d.nome})` : `o líder de ${d.nome}`;
     if (item.responsavel) {
-      linhas.push(`  Você é o ancião responsável por ${d.nome}: lembre ${lider} sobre esta programação.`);
+      linhas.push(`  Você acompanha ${d.nome}: lembre ${lider} sobre esta programação.`);
     } else {
       const anciao = d.anciao_id ? nomesAnciaos.get(d.anciao_id) : null;
-      linhas.push(`  Ancião responsável: ${anciao ?? "ninguém definido"}.`);
+      linhas.push(`  Responsável: ${anciao ?? "ninguém definido"}.`);
     }
   }
 
-  const quando = item.diasRestantes === 0 ? "é hoje" : item.diasRestantes === 1 ? "é amanhã" : `faltam ${item.diasRestantes} dias`;
+  const quando = descreverPrazo(item.diasRestantes);
   linhas.push(item.avisado ? `  ✅ Líder já avisado (${quando})` : `  ⚠️ Líder ainda não avisado (${quando})`);
   return linhas.join("\n");
 }
@@ -71,7 +89,7 @@ export function gerarResumo(opcoes: {
   destinatario: Perfil;
   programacoes: Programacao[];
   departamentos: Departamento[];
-  perfis: Pick<Perfil, "id" | "nome" | "papel">[];
+  perfis: (Pick<Perfil, "id" | "nome" | "papel"> & { tratamento?: string | null })[];
   hoje: string; // yyyy-MM-dd
   mes?: string; // yyyy-MM (mensal); padrão: mês de "hoje"
 }): Resumo {
@@ -80,10 +98,13 @@ export function gerarResumo(opcoes: {
   const porId = new Map(departamentos.map((d) => [d.id, d]));
   const nomesAnciaos = new Map(opcoes.perfis.map((p) => [p.id, tratamento(p)]));
   const limiteSemanal = somarDias(hoje, JANELA_SEMANAL_DIAS);
+  const fimDoMes = ultimoDiaDoMes(mes);
 
   const itens: ItemResumo[] = programacoesDe(destinatario, opcoes.programacoes, departamentos)
-    .filter((p) => p.data >= hoje)
-    .filter((p) => (tipo === "mensal" ? p.data.startsWith(mes) : p.data <= limiteSemanal))
+    .filter((p) => fimDe(p) >= hoje)
+    .filter((p) =>
+      tipo === "mensal" ? p.data <= fimDoMes && fimDe(p) >= `${mes}-01` : p.data <= limiteSemanal,
+    )
     .sort((a, b) => (a.data + (a.hora_inicio ?? "")).localeCompare(b.data + (b.hora_inicio ?? "")))
     .map((p) => {
       const departamento = p.departamento_id ? porId.get(p.departamento_id) ?? null : null;
@@ -131,14 +152,16 @@ export function normalizarWhatsapp(numero: string | null): string | null {
 export function mensagemParaLider(
   p: Programacao,
   departamento: Departamento,
-  remetente: Pick<Perfil, "nome" | "papel">,
+  remetente: Identificacao,
 ): string {
   const ola = departamento.lider_nome ? `Olá, ${departamento.lider_nome}!` : "Olá!";
   const hora = p.hora_inicio ? `, às ${horaCurta(p.hora_inicio)}` : "";
   const local = p.local ? `, em ${p.local}` : "";
+  const quando =
+    p.data_fim && p.data_fim !== p.data ? `de ${dataLonga(p.data)} a ${dataLonga(p.data_fim)}` : dataLonga(p.data);
   return (
     `${ola} Passando para lembrar da programação *${p.titulo}* (${departamento.nome}), ` +
-    `${dataLonga(p.data)}${hora}${local}. Conte comigo para o que precisar. ${tratamento(remetente)}`
+    `${quando}${hora}${local}. Conte comigo para o que precisar. ${tratamento(remetente)}`
   );
 }
 

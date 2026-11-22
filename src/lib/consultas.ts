@@ -15,13 +15,16 @@ export async function listarPerfis(supabase: SupabaseClient) {
   return data ?? [];
 }
 
-/** Programações entre duas datas (inclusive), com o departamento. */
+/**
+ * Programações com pelo menos um dia entre `de` e `ate` (inclusive), com o
+ * departamento. Inclui eventos de vários dias que começaram antes de `de`.
+ */
 export async function listarProgramacoes(supabase: SupabaseClient, de: string, ate: string) {
   const { data } = await supabase
     .from("programacoes")
     .select("*, departamento:departamentos(*)")
-    .gte("data", de)
     .lte("data", ate)
+    .or(`data.gte.${de},data_fim.gte.${de}`)
     .order("data")
     .order("hora_inicio", { nullsFirst: true })
     .returns<Programacao[]>();

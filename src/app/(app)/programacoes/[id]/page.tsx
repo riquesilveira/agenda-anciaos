@@ -31,15 +31,18 @@ export default async function DetalheProgramacao({ params }: { params: Promise<{
     <div className="mx-auto max-w-2xl space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="text-lg font-semibold">{p.titulo}</h1>
-        <SeloOrigem origem={p.origem} />
+        <SeloOrigem origem={p.origem} fonte={p.fonte} />
       </div>
-      <p className="text-sm text-slate-500 capitalize">{dataLonga(p.data)}</p>
+      <p className="text-sm text-slate-500">
+        <span className="capitalize">{dataLonga(p.data)}</span>
+        {p.data_fim && p.data_fim !== p.data && <> até {dataLonga(p.data_fim)}</>}
+      </p>
 
       {dep && (
         <section className="cartao space-y-3">
           <div className="text-sm">
             <div><span className="text-slate-500">Departamento:</span> {dep.nome}</div>
-            <div><span className="text-slate-500">Ancião responsável:</span> {nome(dep.anciao_id)}</div>
+            <div><span className="text-slate-500">Responsável:</span> {nome(dep.anciao_id)}</div>
             <div><span className="text-slate-500">Líder:</span> {dep.lider_nome ?? "não cadastrado"}</div>
           </div>
 

@@ -1,0 +1,1434 @@
+{
+ "ano": 2027,
+ "origem": "associacao",
+ "eventos": [
+  {
+   "data": "2027-01-05",
+   "data_fim": "2027-01-10",
+   "titulo": "Campori DSA",
+   "titulo_original": "CAMPORI DSA",
+   "fonte": "DSA"
+  },
+  {
+   "data": "2027-01-13",
+   "data_fim": null,
+   "titulo": "Retorno das Férias Pastorais",
+   "titulo_original": "RETORNO DAS FÉRIAS PASTORAIS.",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-16",
+   "data_fim": "2027-01-30",
+   "titulo": "Escola Cristã de Férias - Local",
+   "titulo_original": "ESCOLA CRISTÃ DE FÉRIAS - LOCAL",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-16",
+   "data_fim": "2027-01-29",
+   "titulo": "Missão Calebe",
+   "titulo_original": "MISSÃO CALEBE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-19",
+   "data_fim": null,
+   "titulo": "PAMP Janeiro",
+   "titulo_original": "PAMP JANEIRO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-23",
+   "data_fim": null,
+   "titulo": "Treinamento Integrado - Londrina",
+   "titulo_original": "TREINAMENTO INTEGRADO - LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-24",
+   "data_fim": null,
+   "titulo": "Treinamento Integrado - Cambará",
+   "titulo_original": "TREINAMENTO INTEGRADO - CAMBARÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-27",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-01-28",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-01-30",
+   "data_fim": null,
+   "titulo": "Treinamento Integrado - Maringá",
+   "titulo_original": "TREINAMENTO INTEGRADO - MARINGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-01-31",
+   "data_fim": null,
+   "titulo": "Treinamento Integrado - Paranavaí",
+   "titulo_original": "TREINAMENTO INTEGRADO - PARANAVAÍ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-02",
+   "data_fim": null,
+   "titulo": "PAMP",
+   "titulo_original": "PAMP",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-05",
+   "data_fim": "2027-02-10",
+   "titulo": "Acamps de Carnaval",
+   "titulo_original": "ACAMPS DE CARNAVAL",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-08",
+   "data_fim": "2027-02-10",
+   "titulo": "Carnaval",
+   "titulo_original": "CARNAVAL",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-02-12",
+   "data_fim": null,
+   "titulo": "Mentoria On-Line - Líderes do Ministerio do Homem",
+   "titulo_original": "MENTORIA ON-LINE - LÍDERES DO MINISTERIO DO HOMEM",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-13",
+   "data_fim": null,
+   "titulo": "Encontro de Distritais da Secretaria da Escola Sabatina",
+   "titulo_original": "ENCONTRO DE DISTRITAIS DA SECRETARIA DA ESCOLA SABATINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-13",
+   "data_fim": null,
+   "titulo": "Encontro de Líderes MC (Distritais e Coordenadoras)",
+   "titulo_original": "ENCONTRO DE LÍDERES MC (DISTRITAIS E COORDENADORAS)",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-13",
+   "data_fim": null,
+   "titulo": "Encontro de Líderes MM (Distritais e Coordenadoras)",
+   "titulo_original": "ENCONTRO DE LÍDERES MM (DISTRITAIS E COORDENADORAS)",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-14",
+   "data_fim": null,
+   "titulo": "Plantão MC - Vivos em Jesus",
+   "titulo_original": "PLANTÃO MC - VIVOS EM JESUS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-17",
+   "data_fim": null,
+   "titulo": "PGP - Pastores e Mentores",
+   "titulo_original": "PGP - PASTORES E MENTORES",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-18",
+   "data_fim": "2027-02-27",
+   "titulo": "10 Dias de Clamor",
+   "titulo_original": "10 DIAS DE CLAMOR",
+   "fonte": "DSA"
+  },
+  {
+   "data": "2027-02-18",
+   "data_fim": null,
+   "titulo": "Devolutiva ANP",
+   "titulo_original": "DEVOLUTIVA ANP",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-02-19",
+   "data_fim": "2027-02-21",
+   "titulo": "Concílio de Distritais JA",
+   "titulo_original": "CONCÍLIO DE DISTRITAIS JA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-23",
+   "data_fim": "2027-02-27",
+   "titulo": "Treinamento OYM",
+   "titulo_original": "TREINAMENTO OYM",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-02-24",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-02-25",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-02-27",
+   "data_fim": null,
+   "titulo": "Dia D (27/02) Estudos Bíblicos/One Voice nas Casas",
+   "titulo_original": "DIA D (27/02) ESTUDOS BÍBLICOS/ONE VOICE NAS CASAS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-02-28",
+   "data_fim": "2027-03-04",
+   "titulo": "Concilio de Ministeriais e Líderes AFAM na FAP",
+   "titulo_original": "CONCILIO DE MINISTERIAIS E LÍDERES AFAM NA FAP",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-02-28",
+   "data_fim": null,
+   "titulo": "Convenção MDA",
+   "titulo_original": "CONVENÇÃO MDA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-05",
+   "data_fim": null,
+   "titulo": "Encontro Homens do Reino LDR",
+   "titulo_original": "ENCONTRO HOMENS DO REINO LDR",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-06",
+   "data_fim": "2027-03-07",
+   "titulo": "Treinamento da Diretoria MDA",
+   "titulo_original": "TREINAMENTO DA DIRETORIA MDA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-07",
+   "data_fim": "2027-03-10",
+   "titulo": "Concílio MJA e Comunicação",
+   "titulo_original": "CONCÍLIO MJA E COMUNICAÇÃO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-07",
+   "data_fim": "2027-03-10",
+   "titulo": "Concílio de Colportores Permanentes na CPB",
+   "titulo_original": "CONCÍLIO DE COLPORTORES PERMANENTES NA CPB",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-07",
+   "data_fim": "2027-03-10",
+   "titulo": "Encontro da Secretaria DSA",
+   "titulo_original": "ENCONTRO DA SECRETARIA DSA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-08",
+   "data_fim": "2027-03-11",
+   "titulo": "Concílio de Evangelistas e MIPES",
+   "titulo_original": "CONCÍLIO DE EVANGELISTAS E MIPES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-09",
+   "data_fim": "2027-03-10",
+   "titulo": "Encontro Pastoral Escolar",
+   "titulo_original": "ENCONTRO PASTORAL ESCOLAR",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-12",
+   "data_fim": null,
+   "titulo": "Encontro Homens do Reino MGÁ",
+   "titulo_original": "ENCONTRO HOMENS DO REINO MGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-13",
+   "data_fim": null,
+   "titulo": "Encontro de Comunicadores",
+   "titulo_original": "ENCONTRO DE COMUNICADORES",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-13",
+   "data_fim": "2027-03-14",
+   "titulo": "Encontro de Distritais de Evangelismo, Ministério Pessoal e Novo Tempo",
+   "titulo_original": "ENCONTRO DE DISTRITAIS DE EVANGELISMO, MINISTÉRIO PESSOAL E NOVO TEMPO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-13",
+   "data_fim": null,
+   "titulo": "Encontro de Líderes MA (Distritais e Coordenadores)",
+   "titulo_original": "ENCONTRO DE LÍDERES MA (DISTRITAIS E COORDENADORES)",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-14",
+   "data_fim": null,
+   "titulo": "Plantão MA",
+   "titulo_original": "PLANTÃO MA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-17",
+   "data_fim": null,
+   "titulo": "PAMP - Pastores",
+   "titulo_original": "PAMP - PASTORES",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-18",
+   "data_fim": null,
+   "titulo": "Mentoria On-Line Líderes do Min. Família",
+   "titulo_original": "MENTORIA ON-LINE LÍDERES DO MIN. FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-20",
+   "data_fim": null,
+   "titulo": "Dia Mundial do Jovem Adventista",
+   "titulo_original": "DIA MUNDIAL DO JOVEM ADVENTISTA",
+   "fonte": "DSA"
+  },
+  {
+   "data": "2027-03-20",
+   "data_fim": "2027-03-27",
+   "titulo": "Semana Santa",
+   "titulo_original": "SEMANA SANTA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-03-24",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-03-25",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-03-26",
+   "data_fim": null,
+   "titulo": "Paixão de Cristo",
+   "titulo_original": "PAIXÃO DE CRISTO",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-03-27",
+   "data_fim": null,
+   "titulo": "13º Sábado - Tudo Começa em Casa",
+   "titulo_original": "13º SÁBADO - TUDO COMEÇA EM CASA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-03-28",
+   "data_fim": null,
+   "titulo": "Domingo de Páscoa",
+   "titulo_original": "DOMINGO DE PÁSCOA",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-03-31",
+   "data_fim": null,
+   "titulo": "Adoração em Família",
+   "titulo_original": "ADORAÇÃO EM FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-03",
+   "data_fim": "2027-04-04",
+   "titulo": "Plantio e Revitalização",
+   "titulo_original": "PLANTIO E REVITALIZAÇÃO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-04",
+   "data_fim": null,
+   "titulo": "Curso de Noivos - MGÁ",
+   "titulo_original": "CURSO DE NOIVOS - MGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-09",
+   "data_fim": null,
+   "titulo": "Lançamento Curso de Liderança Feminina",
+   "titulo_original": "LANÇAMENTO CURSO DE LIDERANÇA FEMININA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-11",
+   "data_fim": null,
+   "titulo": "Curso de Noivos - Londrina",
+   "titulo_original": "CURSO DE NOIVOS - LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-11",
+   "data_fim": null,
+   "titulo": "Treinamento de Clubes Vida e Saúde",
+   "titulo_original": "TREINAMENTO DE CLUBES VIDA E SAÚDE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-14",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-04-15",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-04-17",
+   "data_fim": null,
+   "titulo": "Encontro de Grupos Musicais",
+   "titulo_original": "ENCONTRO DE GRUPOS MUSICAIS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-17",
+   "data_fim": null,
+   "titulo": "Sábado Igreja Acolhedora",
+   "titulo_original": "SÁBADO IGREJA ACOLHEDORA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-18",
+   "data_fim": null,
+   "titulo": "Encontro Secretaria",
+   "titulo_original": "ENCONTRO SECRETARIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-18",
+   "data_fim": null,
+   "titulo": "Treinamento da Equipe Distrital de Mordomia Cristã (EDMC)",
+   "titulo_original": "TREINAMENTO DA EQUIPE DISTRITAL DE MORDOMIA CRISTÃ (EDMC)",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-21",
+   "data_fim": null,
+   "titulo": "Tiradentes",
+   "titulo_original": "TIRADENTES",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-04-22",
+   "data_fim": null,
+   "titulo": "Santa Convocação",
+   "titulo_original": "SANTA CONVOCAÇÃO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-23",
+   "data_fim": "2027-04-25",
+   "titulo": "Final de Semana de Reavivamento",
+   "titulo_original": "FINAL DE SEMANA DE REAVIVAMENTO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-04-26",
+   "data_fim": "2027-04-29",
+   "titulo": "Concílio MM e MCA",
+   "titulo_original": "CONCÍLIO MM E MCA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-01",
+   "data_fim": null,
+   "titulo": "Dia do Trabalhador",
+   "titulo_original": "DIA DO TRABALHADOR",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-05-01",
+   "data_fim": "2027-05-07",
+   "titulo": "Dias de Semeadura",
+   "titulo_original": "DIAS DE SEMEADURA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-01",
+   "data_fim": null,
+   "titulo": "Encontro MAP",
+   "titulo_original": "ENCONTRO MAP",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-02",
+   "data_fim": "2027-05-05",
+   "titulo": "Encontro dos Jubilados - Catre SC",
+   "titulo_original": "ENCONTRO DOS JUBILADOS - CATRE SC",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-07",
+   "data_fim": null,
+   "titulo": "Encontro Homens do Reino Paranavaí",
+   "titulo_original": "ENCONTRO HOMENS DO REINO PARANAVAÍ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-09",
+   "data_fim": null,
+   "titulo": "Dia das Mães",
+   "titulo_original": "DIA DAS MÃES",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-05-09",
+   "data_fim": "2027-05-14",
+   "titulo": "Semana do Lenço AVT",
+   "titulo_original": "SEMANA DO LENÇO AVT",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-10",
+   "data_fim": null,
+   "titulo": "Aniversário Maringá",
+   "titulo_original": "ANIVERSÁRIO MARINGÁ",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-05-11",
+   "data_fim": null,
+   "titulo": "Comissão Ministerial",
+   "titulo_original": "COMISSÃO MINISTERIAL",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-05-12",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-05-13",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-05-14",
+   "data_fim": null,
+   "titulo": "Encontro Homens do Reino Cambará",
+   "titulo_original": "ENCONTRO HOMENS DO REINO CAMBARÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-15",
+   "data_fim": null,
+   "titulo": "Dia Mundial dos Aventureiros",
+   "titulo_original": "DIA MUNDIAL DOS AVENTUREIROS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-15",
+   "data_fim": null,
+   "titulo": "Sábado da Criança Adventista",
+   "titulo_original": "SÁBADO DA CRIANÇA ADVENTISTA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-16",
+   "data_fim": "2027-05-22",
+   "titulo": "Escola de Evangelismo",
+   "titulo_original": "ESCOLA DE EVANGELISMO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-17",
+   "data_fim": "2027-05-20",
+   "titulo": "Encontro de Educação - Pedagógico",
+   "titulo_original": "ENCONTRO DE EDUCAÇÃO - PEDAGÓGICO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-18",
+   "data_fim": null,
+   "titulo": "Encontro de Administradores",
+   "titulo_original": "ENCONTRO DE ADMINISTRADORES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-19",
+   "data_fim": "2027-05-20",
+   "titulo": "Plenária",
+   "titulo_original": "PLENÁRIA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-22",
+   "data_fim": null,
+   "titulo": "Trimestral MCA e Escola Sabatina - Maringá",
+   "titulo_original": "TRIMESTRAL MCA E ESCOLA SABATINA - MARINGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-23",
+   "data_fim": "2027-05-26",
+   "titulo": "In Mission e Concílio",
+   "titulo_original": "IN MISSION E CONCÍLIO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-23",
+   "data_fim": null,
+   "titulo": "Trimestral MCA e Escola Sabatina - Londrina",
+   "titulo_original": "TRIMESTRAL MCA E ESCOLA SABATINA - LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-27",
+   "data_fim": null,
+   "titulo": "Corpus Christi (Facultativo)",
+   "titulo_original": "CORPUS CHRISTI (FACULTATIVO)",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-05-27",
+   "data_fim": "2027-05-29",
+   "titulo": "I Will Go",
+   "titulo_original": "I WILL GO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-05-30",
+   "data_fim": null,
+   "titulo": "Encontro de Psicólogos",
+   "titulo_original": "ENCONTRO DE PSICÓLOGOS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-05-30",
+   "data_fim": "2027-06-04",
+   "titulo": "Semana do Lenço - MEL",
+   "titulo_original": "SEMANA DO LENÇO - MEL",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-06-05",
+   "data_fim": null,
+   "titulo": "Sábado Missionário Mulher",
+   "titulo_original": "SÁBADO MISSIONÁRIO MULHER",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-05",
+   "data_fim": null,
+   "titulo": "Treinamento Imersão - Londrina",
+   "titulo_original": "TREINAMENTO IMERSÃO - LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-06",
+   "data_fim": "2027-06-08",
+   "titulo": "Concílio de Líderes Estudantes",
+   "titulo_original": "CONCÍLIO DE LÍDERES ESTUDANTES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-06-06",
+   "data_fim": null,
+   "titulo": "Congresso MM - Cada Mulher Uma Voz",
+   "titulo_original": "CONGRESSO MM - CADA MULHER UMA VOZ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-06",
+   "data_fim": "2027-06-09",
+   "titulo": "Encontro de Educação - Administrativo",
+   "titulo_original": "ENCONTRO DE EDUCAÇÃO - ADMINISTRATIVO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-06-11",
+   "data_fim": "2027-06-13",
+   "titulo": "Fim de Semana da Família - Tudo Começa em",
+   "titulo_original": "FIM DE SEMANA DA FAMÍLIA - TUDO COMEÇA EM",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-06-12",
+   "data_fim": null,
+   "titulo": "Dia dos Namorados",
+   "titulo_original": "DIA DOS NAMORADOS",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-06-16",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-06-17",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-06-17",
+   "data_fim": null,
+   "titulo": "Mentoria On-Line Líderes do Min. Família",
+   "titulo_original": "MENTORIA ON-LINE LÍDERES DO MIN. FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-19",
+   "data_fim": "2027-06-20",
+   "titulo": "Curso de Liderança MDA",
+   "titulo_original": "CURSO DE LIDERANÇA MDA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-19",
+   "data_fim": null,
+   "titulo": "Formatura Maringá - Novo Tempo",
+   "titulo_original": "FORMATURA MARINGÁ - NOVO TEMPO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-19",
+   "data_fim": null,
+   "titulo": "Lançamento da Recolta - Uma Voz em Ação",
+   "titulo_original": "LANÇAMENTO DA RECOLTA - UMA VOZ EM AÇÃO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-19",
+   "data_fim": null,
+   "titulo": "Treinamento Imersão - Maringá",
+   "titulo_original": "TREINAMENTO IMERSÃO - MARINGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-20",
+   "data_fim": null,
+   "titulo": "Formatura Londrina - Novo Tempo",
+   "titulo_original": "FORMATURA LONDRINA - NOVO TEMPO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-23",
+   "data_fim": "2027-07-14",
+   "titulo": "Missão Albânia",
+   "titulo_original": "MISSÃO ALBÂNIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-24",
+   "data_fim": "2027-07-06",
+   "titulo": "Send Me - Cabo Verde",
+   "titulo_original": "SEND ME - CABO VERDE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-26",
+   "data_fim": null,
+   "titulo": "13º Sábado - Tudo Começa em Casa",
+   "titulo_original": "13º SÁBADO - TUDO COMEÇA EM CASA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-06-26",
+   "data_fim": null,
+   "titulo": "Dia do Ancionato",
+   "titulo_original": "DIA DO ANCIONATO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-07-02",
+   "data_fim": null,
+   "titulo": "Live - Evangelismo",
+   "titulo_original": "LIVE - EVANGELISMO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-07-04",
+   "data_fim": null,
+   "titulo": "Treinamento de Instrutores - Cozinha Saudável Missionária",
+   "titulo_original": "TREINAMENTO DE INSTRUTORES - COZINHA SAUDÁVEL MISSIONÁRIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-07-10",
+   "data_fim": null,
+   "titulo": "Dia do Colportor",
+   "titulo_original": "DIA DO COLPORTOR",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-07-21",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-07-22",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-07-23",
+   "data_fim": null,
+   "titulo": "Laçamento 40 Dias de Oração - One Voice",
+   "titulo_original": "LAÇAMENTO 40 DIAS DE ORAÇÃO - ONE VOICE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-07-24",
+   "data_fim": "2027-08-30",
+   "titulo": "40 Dias de Oração One Voice",
+   "titulo_original": "40 DIAS DE ORAÇÃO ONE VOICE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-07-24",
+   "data_fim": "2027-07-31",
+   "titulo": "Semana de Oração JA",
+   "titulo_original": "SEMANA DE ORAÇÃO JA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-07-25",
+   "data_fim": "2027-07-28",
+   "titulo": "Encontro de Filhos de Obreiros",
+   "titulo_original": "ENCONTRO DE FILHOS DE OBREIROS",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-01",
+   "data_fim": "2027-08-05",
+   "titulo": "Concílio de Administradores de Uniões, Instituições e Campos",
+   "titulo_original": "CONCÍLIO DE ADMINISTRADORES DE UNIÕES, INSTITUIÇÕES E CAMPOS",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-07",
+   "data_fim": null,
+   "titulo": "Curso de Liderança Master Avançado DBV",
+   "titulo_original": "CURSO DE LIDERANÇA MASTER AVANÇADO DBV",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-07",
+   "data_fim": null,
+   "titulo": "Dia da ASA",
+   "titulo_original": "DIA DA ASA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-07",
+   "data_fim": "2027-08-08",
+   "titulo": "Plantio e Revitalização",
+   "titulo_original": "PLANTIO E REVITALIZAÇÃO",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-08",
+   "data_fim": null,
+   "titulo": "Dia dos Pais",
+   "titulo_original": "DIA DOS PAIS",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-08-10",
+   "data_fim": "2027-08-12",
+   "titulo": "Concílio Pastoral",
+   "titulo_original": "CONCÍLIO PASTORAL",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-11",
+   "data_fim": "2027-08-14",
+   "titulo": "DSA - VI Congresso Sul-Americano de Pesquisa e I Encontro de Fundamentos",
+   "titulo_original": "DSA - VI CONGRESSO SUL-AMERICANO DE PESQUISA E I ENCONTRO DE FUNDAMENTOS",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-12",
+   "data_fim": null,
+   "titulo": "Início das Assinaturas Maná 2027",
+   "titulo_original": "INÍCIO DAS ASSINATURAS MANÁ 2027",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-13",
+   "data_fim": "2027-08-15",
+   "titulo": "Jornada de Oração",
+   "titulo_original": "JORNADA DE ORAÇÃO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-14",
+   "data_fim": null,
+   "titulo": "Congresso Missionário de Líderes - MP, Evangelismo, MM, NT e Calebe",
+   "titulo_original": "CONGRESSO MISSIONÁRIO DE LÍDERES - MP, EVANGELISMO, MM, NT E CALEBE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-21",
+   "data_fim": null,
+   "titulo": "Mega Vigília JA",
+   "titulo_original": "MEGA VIGÍLIA JA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-21",
+   "data_fim": null,
+   "titulo": "Projeto Quebrando o Silêncio",
+   "titulo_original": "PROJETO QUEBRANDO O SILÊNCIO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-22",
+   "data_fim": "2027-08-27",
+   "titulo": "CADE - USB",
+   "titulo_original": "CADE - USB",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-08-29",
+   "data_fim": null,
+   "titulo": "Concílio de Ancionato e Cônjuges",
+   "titulo_original": "CONCÍLIO DE ANCIONATO E CÔNJUGES",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-08-30",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-08-31",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-08-31",
+   "data_fim": null,
+   "titulo": "Encerramento dos 40 Dias de Oração One Voice",
+   "titulo_original": "ENCERRAMENTO DOS 40 DIAS DE ORAÇÃO ONE VOICE",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-03",
+   "data_fim": "2027-09-05",
+   "titulo": "Concílio de Aspirantes ao Ministério e Esposas",
+   "titulo_original": "CONCÍLIO DE ASPIRANTES AO MINISTÉRIO E ESPOSAS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-03",
+   "data_fim": "2027-09-05",
+   "titulo": "Congresso de Surdos (A Ver)",
+   "titulo_original": "CONGRESSO DE SURDOS (A VER)",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-04",
+   "data_fim": null,
+   "titulo": "Trimestral MCA",
+   "titulo_original": "TRIMESTRAL MCA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-07",
+   "data_fim": null,
+   "titulo": "Dia da Independência",
+   "titulo_original": "DIA DA INDEPENDÊNCIA",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-09-11",
+   "data_fim": "2027-09-18",
+   "titulo": "Semana Evangelismo Primavera",
+   "titulo_original": "SEMANA EVANGELISMO PRIMAVERA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-12",
+   "data_fim": null,
+   "titulo": "Dia D - Maná",
+   "titulo_original": "DIA D - MANÁ",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-12",
+   "data_fim": "2027-09-17",
+   "titulo": "Semana do Lenço DBV",
+   "titulo_original": "SEMANA DO LENÇO DBV",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-18",
+   "data_fim": null,
+   "titulo": "Batismo da Primavera",
+   "titulo_original": "BATISMO DA PRIMAVERA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-18",
+   "data_fim": null,
+   "titulo": "Dia Mundial dos Desbravadores",
+   "titulo_original": "DIA MUNDIAL DOS DESBRAVADORES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-19",
+   "data_fim": null,
+   "titulo": "Caravana do Reencontro - SC",
+   "titulo_original": "CARAVANA DO REENCONTRO - SC",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-21",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-09-23",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-09-25",
+   "data_fim": null,
+   "titulo": "13º Sábado - Tudo Começa em Casa",
+   "titulo_original": "13º SÁBADO - TUDO COMEÇA EM CASA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-09-25",
+   "data_fim": null,
+   "titulo": "Dia do Secretário de Igreja",
+   "titulo_original": "DIA DO SECRETÁRIO DE IGREJA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-27",
+   "data_fim": "2027-09-29",
+   "titulo": "Entrevista Formandos FAP e UNASP",
+   "titulo_original": "ENTREVISTA FORMANDOS FAP E UNASP",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-09-28",
+   "data_fim": null,
+   "titulo": "Mentoria On-Line Líderes do Min. Família",
+   "titulo_original": "MENTORIA ON-LINE LÍDERES DO MIN. FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-02",
+   "data_fim": null,
+   "titulo": "Grande Vigília Homens do Reino - Maringá",
+   "titulo_original": "GRANDE VIGÍLIA HOMENS DO REINO - MARINGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-02",
+   "data_fim": null,
+   "titulo": "Sábado da Educação",
+   "titulo_original": "SÁBADO DA EDUCAÇÃO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-03",
+   "data_fim": null,
+   "titulo": "Encontro de Empreendedores, Empresários e Produtores Rurais",
+   "titulo_original": "ENCONTRO DE EMPREENDEDORES, EMPRESÁRIOS E PRODUTORES RURAIS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-08",
+   "data_fim": "2027-10-12",
+   "titulo": "Campori ANP",
+   "titulo_original": "CAMPORI ANP",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-09",
+   "data_fim": null,
+   "titulo": "175 Anos da Escola Sabatina",
+   "titulo_original": "175 ANOS DA ESCOLA SABATINA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-09",
+   "data_fim": "2027-10-15",
+   "titulo": "Dias da Semeadura",
+   "titulo_original": "DIAS DA SEMEADURA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-12",
+   "data_fim": null,
+   "titulo": "Nossa Senhora de Aparecida - Feriado",
+   "titulo_original": "NOSSA SENHORA DE APARECIDA - FERIADO",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-10-13",
+   "data_fim": null,
+   "titulo": "Término do Maná",
+   "titulo_original": "TÉRMINO DO MANÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-15",
+   "data_fim": "2027-10-17",
+   "titulo": "Aventuri ANP",
+   "titulo_original": "AVENTURI ANP",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-15",
+   "data_fim": null,
+   "titulo": "Dia do Professor",
+   "titulo_original": "DIA DO PROFESSOR",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-10-16",
+   "data_fim": null,
+   "titulo": "Simpósio Universitários",
+   "titulo_original": "SIMPÓSIO UNIVERSITÁRIOS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-19",
+   "data_fim": null,
+   "titulo": "Comissão Ministerial",
+   "titulo_original": "COMISSÃO MINISTERIAL",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-10-20",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-10-21",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-10-22",
+   "data_fim": "2027-10-23",
+   "titulo": "Convenção Virtual da AFAM",
+   "titulo_original": "CONVENÇÃO VIRTUAL DA AFAM",
+   "fonte": "DSA"
+  },
+  {
+   "data": "2027-10-23",
+   "data_fim": null,
+   "titulo": "Sábado da Criação",
+   "titulo_original": "SÁBADO DA CRIAÇÃO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-24",
+   "data_fim": null,
+   "titulo": "Formatura Curso de Liderança Feminina",
+   "titulo_original": "FORMATURA CURSO DE LIDERANÇA FEMININA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-25",
+   "data_fim": "2027-10-28",
+   "titulo": "Concílio Funcionários ANP",
+   "titulo_original": "CONCÍLIO FUNCIONÁRIOS ANP",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-10-28",
+   "data_fim": null,
+   "titulo": "Dia do Servidor Público",
+   "titulo_original": "DIA DO SERVIDOR PÚBLICO",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-10-30",
+   "data_fim": null,
+   "titulo": "Dia do Pastor e das Vocações Ministeriais",
+   "titulo_original": "DIA DO PASTOR E DAS VOCAÇÕES MINISTERIAIS",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-30",
+   "data_fim": null,
+   "titulo": "Término da Recolta",
+   "titulo_original": "TÉRMINO DA RECOLTA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-10-31",
+   "data_fim": null,
+   "titulo": "Encontro de Casais Líderes do Min. Família",
+   "titulo_original": "ENCONTRO DE CASAIS LÍDERES DO MIN. FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-11-02",
+   "data_fim": null,
+   "titulo": "Finados - Feriado",
+   "titulo_original": "FINADOS - FERIADO",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-11-06",
+   "data_fim": null,
+   "titulo": "Dia do Espírito de Profecia",
+   "titulo_original": "DIA DO ESPÍRITO DE PROFECIA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-06",
+   "data_fim": null,
+   "titulo": "Lançamento do Mutirão de Natal",
+   "titulo_original": "LANÇAMENTO DO MUTIRÃO DE NATAL",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-07",
+   "data_fim": null,
+   "titulo": "Encontro de Casais de Líderes do MF",
+   "titulo_original": "ENCONTRO DE CASAIS DE LÍDERES DO MF",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-11-07",
+   "data_fim": null,
+   "titulo": "Imersão Jovem",
+   "titulo_original": "IMERSÃO JOVEM",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-08",
+   "data_fim": "2027-11-09",
+   "titulo": "Pós Mentoria",
+   "titulo_original": "PÓS MENTORIA",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-09",
+   "data_fim": "2027-11-11",
+   "titulo": "GEPEA - USB",
+   "titulo_original": "GEPEA - USB",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-10",
+   "data_fim": null,
+   "titulo": "Reunião Administradores",
+   "titulo_original": "REUNIÃO ADMINISTRADORES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-11",
+   "data_fim": null,
+   "titulo": "Concílio Anual",
+   "titulo_original": "CONCÍLIO ANUAL",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-13",
+   "data_fim": "2027-11-20",
+   "titulo": "Semana de Evangelismo",
+   "titulo_original": "SEMANA DE EVANGELISMO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-11-14",
+   "data_fim": null,
+   "titulo": "Curso de Noivos - MGÁ",
+   "titulo_original": "CURSO DE NOIVOS - MGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-11-15",
+   "data_fim": null,
+   "titulo": "Proclamação da República - Feriado",
+   "titulo_original": "PROCLAMAÇÃO DA REPÚBLICA - FERIADO",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-11-17",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-11-18",
+   "data_fim": null,
+   "titulo": "Comissão Diretiva",
+   "titulo_original": "COMISSÃO DIRETIVA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-11-20",
+   "data_fim": null,
+   "titulo": "Dia da Consciência Negra",
+   "titulo_original": "DIA DA CONSCIÊNCIA NEGRA",
+   "fonte": "NACIONAL"
+  },
+  {
+   "data": "2027-11-20",
+   "data_fim": null,
+   "titulo": "Ordenação de Pastores",
+   "titulo_original": "ORDENAÇÃO DE PASTORES",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-11-27",
+   "data_fim": null,
+   "titulo": "Trimestral MCA - Londrina",
+   "titulo_original": "TRIMESTRAL MCA - LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-11-28",
+   "data_fim": null,
+   "titulo": "Trimestral MCA - Maringá",
+   "titulo_original": "TRIMESTRAL MCA - MARINGÁ",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-04",
+   "data_fim": "2027-12-05",
+   "titulo": "Celebra Teen",
+   "titulo_original": "CELEBRA TEEN",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-04",
+   "data_fim": null,
+   "titulo": "Dia do Missionário Voluntário",
+   "titulo_original": "DIA DO MISSIONÁRIO VOLUNTÁRIO",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-12-06",
+   "data_fim": "2027-12-08",
+   "titulo": "Concílio de Líderes Estudantes",
+   "titulo_original": "CONCÍLIO DE LÍDERES ESTUDANTES",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-12-07",
+   "data_fim": null,
+   "titulo": "Mentoria On-Line Líderes do Min. Família",
+   "titulo_original": "MENTORIA ON-LINE LÍDERES DO MIN. FAMÍLIA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-08",
+   "data_fim": null,
+   "titulo": "Comissão Interna",
+   "titulo_original": "COMISSÃO INTERNA",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-12-09",
+   "data_fim": null,
+   "titulo": "Concílio Anual (S)",
+   "titulo_original": "CONCÍLIO ANUAL (S)",
+   "fonte": "COMISSÕES"
+  },
+  {
+   "data": "2027-12-10",
+   "data_fim": null,
+   "titulo": "Aniversário Londrina",
+   "titulo_original": "ANIVERSÁRIO LONDRINA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-12",
+   "data_fim": null,
+   "titulo": "Encerramento Pastores - Programa",
+   "titulo_original": "ENCERRAMENTO PASTORES - PROGRAMA",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-13",
+   "data_fim": null,
+   "titulo": "Férias Pastorais",
+   "titulo_original": "FÉRIAS PASTORAIS",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-18",
+   "data_fim": null,
+   "titulo": "13º Sábado - Tudo Começa em Casa (Antecipado)",
+   "titulo_original": "13º SÁBADO - TUDO COMEÇA EM CASA (ANTECIPADO)",
+   "fonte": "ANP"
+  },
+  {
+   "data": "2027-12-18",
+   "data_fim": null,
+   "titulo": "Mutirão de Natal",
+   "titulo_original": "MUTIRÃO DE NATAL",
+   "fonte": "USB"
+  },
+  {
+   "data": "2027-12-25",
+   "data_fim": null,
+   "titulo": "Natal",
+   "titulo_original": "NATAL",
+   "fonte": "NACIONAL"
+  }
+ ]
+}

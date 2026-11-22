@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
-import { dataLonga, horaCurta } from "@/lib/datas";
+import { dataLonga, fimDe, horaCurta } from "@/lib/datas";
 import { ORIGENS, type Programacao } from "@/lib/tipos";
 
-export function SeloOrigem({ origem }: { origem: Programacao["origem"] }) {
+export function SeloOrigem({ origem, fonte }: { origem: Programacao["origem"]; fonte?: string | null }) {
   return (
-    <span className={`rounded-full border px-2 py-0.5 text-xs ${ORIGENS[origem].classe}`}>{ORIGENS[origem].nome}</span>
+    <span className={`rounded-full border px-2 py-0.5 text-xs ${ORIGENS[origem].classe}`}>
+      {ORIGENS[origem].nome}
+      {fonte && ` · ${fonte}`}
+    </span>
   );
 }
 
@@ -20,10 +23,13 @@ export function ListaProgramacoes({ programacoes, hoje }: { programacoes: Progra
         <li key={p.id}>
           <Link
             href={`/programacoes/${p.id}`}
-            className={`cartao flex flex-col gap-1 hover:border-indigo-300 sm:flex-row sm:items-center sm:justify-between ${p.data < hoje ? "opacity-60" : ""}`}
+            className={`cartao flex flex-col gap-1 hover:border-indigo-300 sm:flex-row sm:items-center sm:justify-between ${fimDe(p) < hoje ? "opacity-60" : ""}`}
           >
             <div className="space-y-1">
-              <div className="text-xs font-medium text-slate-500 capitalize">{dataLonga(p.data)}</div>
+              <div className="text-xs font-medium text-slate-500">
+                <span className="capitalize">{dataLonga(p.data)}</span>
+                {p.data_fim && p.data_fim !== p.data && <> até {dataLonga(p.data_fim)}</>}
+              </div>
               <div className="font-medium">{p.titulo}</div>
               <div className="flex flex-wrap gap-3 text-xs text-slate-500">
                 {p.hora_inicio && (
@@ -42,7 +48,7 @@ export function ListaProgramacoes({ programacoes, hoje }: { programacoes: Progra
                   {p.departamento.nome}
                 </span>
               )}
-              <SeloOrigem origem={p.origem} />
+              <SeloOrigem origem={p.origem} fonte={p.fonte} />
               {p.departamento &&
                 (p.lider_avisado_em ? (
                   <span className="text-xs text-emerald-700">✅ líder avisado</span>

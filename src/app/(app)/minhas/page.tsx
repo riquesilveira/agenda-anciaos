@@ -2,8 +2,16 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { listarDepartamentos, listarPerfis, listarProgramacoes } from "@/lib/consultas";
-import { dataCurta, hojeISO, horaCurta, nomeDoMes, somarDias } from "@/lib/datas";
-import { gerarResumo, JANELA_SEMANAL_DIAS, linkWhatsapp, mensagemParaLider, type TipoResumo } from "@/lib/resumo";
+import { hojeISO, horaCurta, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
+import {
+  descreverPrazo,
+  gerarResumo,
+  JANELA_SEMANAL_DIAS,
+  linkWhatsapp,
+  mensagemParaLider,
+  tratamento,
+  type TipoResumo,
+} from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { marcarAvisado } from "../acoes";
 
@@ -44,7 +52,7 @@ export default async function MinhasProgramacoes({
           {perfil.papel === "pastor"
             ? "Como pastor, você vê as programações de todos os departamentos."
             : meusDeps.length
-              ? `Você é o ancião responsável por: ${meusDeps.map((d) => d.nome).join(", ")}.`
+              ? `Você acompanha: ${meusDeps.map((d) => d.nome).join(", ")}.`
               : "Você ainda não é responsável por nenhum departamento. Defina em Departamentos."}
         </p>
       </div>
@@ -68,21 +76,24 @@ export default async function MinhasProgramacoes({
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <Link href={`/programacoes/${p.id}`} className="hover:underline">
                   <span className="font-medium">
-                    {dataCurta(p.data)}
+                    {periodoCurto(p)}
                     {p.hora_inicio && ` ${horaCurta(p.hora_inicio)}`}: {p.titulo}
                   </span>
                   {d && <span className="text-slate-500"> ({d.nome})</span>}
                 </Link>
                 <span className="text-xs text-slate-500">
-                  {diasRestantes === 0 ? "hoje" : diasRestantes === 1 ? "amanhã" : `em ${diasRestantes} dias`}
+                  {descreverPrazo(diasRestantes)}
                 </span>
               </div>
 
               {d && (
                 <p className="mt-1 text-sm text-slate-600">
                   {responsavel
-                    ? <>Você é o ancião responsável por <b>{d.nome}</b>: lembre <b>{d.lider_nome ?? "o líder"}</b> sobre esta programação.</>
-                    : <>Ancião responsável: {perfis.find((x) => x.id === d.anciao_id)?.nome ?? "ninguém definido"}.</>}
+                    ? <>Você acompanha <b>{d.nome}</b>: lembre <b>{d.lider_nome ?? "o líder"}</b> sobre esta programação.</>
+                    : <>Responsável: {(() => {
+                        const a = perfis.find((x) => x.id === d.anciao_id);
+                        return a ? tratamento(a) : "ninguém definido";
+                      })()}.</>}
                 </p>
               )}
 

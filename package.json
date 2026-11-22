@@ -9,8 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx --env-file=.env.local scripts/seed.ts",
-    "test:db": "bash supabase/testes/rodar.sh"
+    "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
+    "test:db": "bash supabase/testes/rodar.sh",
+    "importar": "tsx --env-file-if-exists=.env.local scripts/importar.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

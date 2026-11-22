@@ -1,22 +1,24 @@
+import { duracaoDias, periodosSeCruzam } from "./datas";
 import type { Programacao } from "./tipos";
 
 export type MotivoConflito = "mesmo_departamento" | "associacao_no_dia" | "mesmo_local_horario";
 
 export interface Conflito {
   motivo: MotivoConflito;
-  programacao: Pick<Programacao, "id" | "titulo" | "data" | "hora_inicio" | "origem">;
+  programacao: Pick<Programacao, "id" | "titulo" | "data" | "data_fim" | "hora_inicio" | "origem">;
   mensagem: string;
 }
 
-type Candidata = Pick<
-  Programacao,
-  "data" | "hora_inicio" | "hora_fim" | "local" | "origem" | "departamento_id"
-> & { id?: string | null };
+type Campos = "data" | "data_fim" | "hora_inicio" | "hora_fim" | "local" | "origem" | "departamento_id";
+type Candidata = Pick<Programacao, Campos> & { id?: string | null };
+type Existente = Pick<Programacao, Campos | "id" | "titulo">;
 
-type Existente = Pick<
-  Programacao,
-  "id" | "titulo" | "data" | "hora_inicio" | "hora_fim" | "local" | "origem" | "departamento_id"
->;
+/**
+ * Campanhas longas da Associação (Missão Calebe, 40 Dias de Oração, Semana
+ * Santa…) são períodos, não choques de agenda: só avisamos de programações
+ * da Associação com até este número de dias (ex: um fim de semana).
+ */
+export const MAX_DIAS_CHOQUE_ASSOCIACAO = 3;
 
 function minutos(hora: string | null): number | null {
   if (!hora) return null;
@@ -42,34 +44,42 @@ function normalizar(texto: string | null): string {
 
 /**
  * Detecta conflitos de uma programação nova (ou editada) com as já cadastradas.
- * É só aviso — quem cadastra decide se salva mesmo assim.
+ * É só aviso: quem cadastra decide se salva mesmo assim.
  */
 export function detectarConflitos(nova: Candidata, existentes: Existente[]): Conflito[] {
   const conflitos: Conflito[] = [];
 
   for (const p of existentes) {
-    if (p.data !== nova.data) continue;
+    if (!periodosSeCruzam(nova, p)) continue;
     if (nova.id && p.id === nova.id) continue;
 
-    const resumo = { id: p.id, titulo: p.titulo, data: p.data, hora_inicio: p.hora_inicio, origem: p.origem };
+    const resumo = {
+      id: p.id,
+      titulo: p.titulo,
+      data: p.data,
+      data_fim: p.data_fim,
+      hora_inicio: p.hora_inicio,
+      origem: p.origem,
+    };
 
     if (nova.departamento_id && p.departamento_id === nova.departamento_id) {
       conflitos.push({
         motivo: "mesmo_departamento",
         programacao: resumo,
-        mensagem: `Já existe "${p.titulo}" para este departamento neste dia.`,
+        mensagem: `Já existe "${p.titulo}" para este departamento nesse período.`,
       });
       continue;
     }
 
-    if (p.origem === "associacao" || nova.origem === "associacao") {
+    const associacaoCurta = (x: Candidata | Existente) =>
+      x.origem === "associacao" && duracaoDias(x) <= MAX_DIAS_CHOQUE_ASSOCIACAO;
+    if (associacaoCurta(p) || associacaoCurta(nova)) {
       conflitos.push({
         motivo: "associacao_no_dia",
         programacao: resumo,
-        mensagem:
-          p.origem === "associacao"
-            ? `A Associação já tem "${p.titulo}" neste dia.`
-            : `Este dia já tem "${p.titulo}", e esta é uma programação da Associação.`,
+        mensagem: associacaoCurta(p)
+          ? `A Associação já tem "${p.titulo}" nesse período.`
+          : `Esse período já tem "${p.titulo}", e esta é uma programação da Associação.`,
       });
       continue;
     }

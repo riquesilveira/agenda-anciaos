@@ -35,13 +35,15 @@ igrejas depois não exige reescrever nada.
 |---|---|---|
 | 1 | Calendário mensal + lista, com cor por origem e filtro por departamento e origem | ✅ |
 | 2 | Cadastro e edição de programação (título, data, horário, local, origem, departamento, descrição) | ✅ |
-| 3 | Aviso de conflito (mesmo departamento no dia, Associação no dia, mesmo local e horário). É aviso, não bloqueio | ✅ |
+| 3 | Aviso de conflito (mesmo departamento no período, Associação no período, mesmo local e horário). É aviso, não bloqueio. Campanhas da Associação com mais de 3 dias não geram aviso | ✅ |
 | 4 | Departamentos com ancião responsável e líder (nome + WhatsApp) | ✅ |
 | 5 | "Minhas programações": resumo dos próximos 30 dias e do mês | ✅ |
 | 6 | "Avisei o líder": marcar ou desmarcar, com quem marcou e quando | ✅ |
 | 7 | Botão de WhatsApp com a mensagem pronta para o líder | ✅ |
 | 8 | E-mail automático: resumo mensal (dia 1º) e semanal (toda segunda) | ✅ |
-| 9 | Importar o calendário da Associação a partir de planilha | ⏳ próxima etapa |
+| 9 | Importar o calendário da Associação a partir do PDF anual (com ligação automática a departamentos) | ✅ |
+| 11 | Programações de vários dias (Missão Calebe, 40 Dias de Oração…) | ✅ |
+| 12 | Tratamento configurável por pessoa nos resumos (Ancião, Anciã, Pastor…) | ✅ |
 | 10 | Histórico de quem criou e quem alterou | ✅ |
 
 ### Regra dos lembretes
@@ -50,6 +52,12 @@ igrejas depois não exige reescrever nada.
   Cada programação aparece cerca de 4 vezes antes da data, sem configuração por evento.
 - **Resumo mensal** (dia 1º): tudo do mês.
 - Depois de "avisei o líder", a programação continua no resumo, marcada como ✅.
+
+### Calendário da Associação
+Chega em **PDF** (grade mensal, cor = origem: ANP, USB, DSA, Nacional,
+Comissões). `scripts/extrair-calendario-pdf.py` converte para JSON e
+`npm run importar` grava. O resumo do pastor não inclui eventos da Associação
+sem departamento (são ~90 por ano e afogariam o resumo); eles aparecem no calendário.
 
 ## Fora da v1
 - Importar do Google Agenda (ainda não se sabe se o calendário da Associação chega por lá)

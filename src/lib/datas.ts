@@ -21,9 +21,12 @@ export function diasAte(dataISO: string, hoje: string): number {
   return differenceInCalendarDays(parseISO(dataISO), parseISO(hoje));
 }
 
+const DIAS_ABREV = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
 /** "14/12 (sáb)" */
 export function dataCurta(dataISO: string): string {
-  return format(parseISO(dataISO), "dd/MM (EEE)", { locale: ptBR });
+  const d = parseISO(dataISO);
+  return `${format(d, "dd/MM")} (${DIAS_ABREV[d.getDay()]})`;
 }
 
 /** "sábado, 14 de dezembro" */
@@ -41,4 +44,27 @@ export function horaCurta(hora: string | null): string {
   if (!hora) return "";
   const [h, m] = hora.split(":");
   return m && m !== "00" ? `${Number(h)}h${m}` : `${Number(h)}h`;
+}
+
+/** Último dia da programação (data_fim ou a própria data). */
+export function fimDe(p: { data: string; data_fim: string | null }): string {
+  return p.data_fim ?? p.data;
+}
+
+/** As duas programações têm pelo menos um dia em comum? */
+export function periodosSeCruzam(
+  a: { data: string; data_fim: string | null },
+  b: { data: string; data_fim: string | null },
+): boolean {
+  return a.data <= fimDe(b) && b.data <= fimDe(a);
+}
+
+/** "14/12 (sáb)" ou "16/01 (sáb) a 29/01 (sex)" */
+export function periodoCurto(p: { data: string; data_fim: string | null }): string {
+  return p.data_fim && p.data_fim !== p.data ? `${dataCurta(p.data)} a ${dataCurta(p.data_fim)}` : dataCurta(p.data);
+}
+
+/** Quantos dias a programação dura. */
+export function duracaoDias(p: { data: string; data_fim: string | null }): number {
+  return diasAte(fimDe(p), p.data) + 1;
 }

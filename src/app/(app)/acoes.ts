@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { detectarConflitos, type Conflito } from "@/lib/conflitos";
 import { exigirPerfil } from "@/lib/sessao";
-import type { Origem, Programacao } from "@/lib/tipos";
+import { listarProgramacoes } from "@/lib/consultas";
+import type { Origem } from "@/lib/tipos";
 
 export interface EstadoFormProgramacao {
   erro?: string;
@@ -30,6 +31,7 @@ export async function salvarProgramacao(
     titulo: texto(form, "titulo"),
     descricao: texto(form, "descricao"),
     data: texto(form, "data"),
+    data_fim: texto(form, "data_fim"),
     hora_inicio: texto(form, "hora_inicio"),
     hora_fim: texto(form, "hora_fim"),
     local: texto(form, "local"),
@@ -40,6 +42,10 @@ export async function salvarProgramacao(
   if (!dados.titulo || !dados.data) return { erro: "Título e data são obrigatórios." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dados.data)) return { erro: "Data inválida." };
   if (!ORIGENS_VALIDAS.includes(origem)) return { erro: "Origem inválida." };
+  if (dados.data_fim === dados.data) dados.data_fim = null;
+  if (dados.data_fim && (!/^\d{4}-\d{2}-\d{2}$/.test(dados.data_fim) || dados.data_fim < dados.data)) {
+    return { erro: "A data final precisa ser depois da data inicial." };
+  }
   if (dados.hora_inicio && dados.hora_fim && dados.hora_fim < dados.hora_inicio) {
     return { erro: "O horário de término é antes do início." };
   }
@@ -47,12 +53,8 @@ export async function salvarProgramacao(
   // Conflitos são só aviso: na primeira tentativa mostramos, e o usuário
   // pode confirmar com "Salvar mesmo assim".
   if (form.get("confirmar") !== "1") {
-    const { data: doDia } = await supabase
-      .from("programacoes")
-      .select("id, titulo, data, hora_inicio, hora_fim, local, origem, departamento_id")
-      .eq("data", dados.data)
-      .returns<Programacao[]>();
-    const conflitos = detectarConflitos({ ...dados, id, data: dados.data }, doDia ?? []);
+    const doPeriodo = await listarProgramacoes(supabase, dados.data, dados.data_fim ?? dados.data);
+    const conflitos = detectarConflitos({ ...dados, id, data: dados.data }, doPeriodo);
     if (conflitos.length) return { conflitos };
   }
 

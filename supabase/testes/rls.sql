@@ -52,6 +52,24 @@ begin
     raise exception 'FALHOU: aceitou hora_fim < hora_inicio';
   exception when check_violation then null;
   end;
+
+  update perfis set tratamento = 'Anciã' where id = auth.uid();
+
+  begin
+    insert into programacoes (igreja_id, titulo, data, data_fim)
+      values ('00000000-0000-0000-0000-00000000000a', 'Fim antes do início', '2026-12-20', '2026-12-19');
+    raise exception 'FALHOU: aceitou data_fim < data';
+  exception when check_violation then null;
+  end;
+
+  insert into programacoes (igreja_id, titulo, data, chave_importacao)
+    values ('00000000-0000-0000-0000-00000000000a', 'Importado', '2027-01-16', 'anp-2027:x');
+  begin
+    insert into programacoes (igreja_id, titulo, data, chave_importacao)
+      values ('00000000-0000-0000-0000-00000000000a', 'Importado de novo', '2027-01-16', 'anp-2027:x');
+    raise exception 'FALHOU: duplicou importação';
+  exception when unique_violation then null;
+  end;
 end $$;
 
 -- Sem login não vê nada.

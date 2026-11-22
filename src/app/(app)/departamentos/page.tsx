@@ -18,7 +18,7 @@ function FormDepartamento({ d, perfis }: { d?: Departamento; perfis: Perfil[] })
         <input className="campo" name="nome" required defaultValue={d?.nome} placeholder="Ex: Jovens" />
       </div>
       <div>
-        <label className="rotulo">Ancião responsável</label>
+        <label className="rotulo">Responsável (ancionato)</label>
         <select className="campo" name="anciao_id" defaultValue={d?.anciao_id ?? ""}>
           <option value="">—</option>
           {perfis.map((p) => (
@@ -48,7 +48,7 @@ export default async function PaginaDepartamentos() {
       <div>
         <h1 className="text-lg font-semibold">Departamentos</h1>
         <p className="text-sm text-slate-500">
-          Defina o ancião responsável e o líder de cada departamento. É isso que monta os lembretes de cada ancião.
+          Defina quem do ancionato acompanha cada departamento e quem é o líder. É isso que monta os lembretes de cada um.
         </p>
       </div>
 

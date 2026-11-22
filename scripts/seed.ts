@@ -16,7 +16,7 @@ import { createClient } from "@supabase/supabase-js";
 // que NÃO vai para o git (o repositório é público). Sem ele, usa o exemplo.
 interface Dados {
   igreja: string;
-  usuarios: { email: string; nome: string; papel: "anciao" | "pastor" }[];
+  usuarios: { email: string; nome: string; papel: "anciao" | "pastor"; tratamento?: string | null }[];
   departamentos: { nome: string; cor: string; anciao: string | null; lider_nome: string | null; lider_whatsapp: string | null }[];
 }
 const arquivoLocal = join(__dirname, "dados.local.json");
@@ -60,7 +60,16 @@ async function main() {
   for (const u of dados.usuarios) {
     const id = await garantirUsuario(u.email);
     ids.set(u.email, id);
-    await check(db.from("perfis").upsert({ id, igreja_id: IGREJA.id, nome: u.nome, papel: u.papel, email: u.email }));
+    await check(
+      db.from("perfis").upsert({
+        id,
+        igreja_id: IGREJA.id,
+        nome: u.nome,
+        papel: u.papel,
+        email: u.email,
+        tratamento: u.tratamento ?? null,
+      }),
+    );
   }
 
   console.log("Departamentos…");

@@ -17,6 +17,8 @@ export interface Perfil {
   papel: Papel;
   email: string;
   whatsapp: string | null;
+  /** "Ancião", "Anciã", "Pastor"… Vazio = padrão pelo papel. */
+  tratamento: string | null;
 }
 
 export interface Departamento {
@@ -35,11 +37,15 @@ export interface Programacao {
   igreja_id: string;
   titulo: string;
   descricao: string | null;
-  data: string; // yyyy-MM-dd
+  data: string; // yyyy-MM-dd (início)
+  data_fim: string | null; // yyyy-MM-dd; null = um dia só
   hora_inicio: string | null; // HH:mm[:ss]
   hora_fim: string | null;
   local: string | null;
   origem: Origem;
+  /** Detalhe da origem vindo da importação: ANP, USB, DSA, NACIONAL… */
+  fonte: string | null;
+  chave_importacao: string | null;
   departamento_id: string | null;
   lider_avisado_em: string | null;
   lider_avisado_por: string | null;

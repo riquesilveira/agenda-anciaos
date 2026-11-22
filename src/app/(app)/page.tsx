@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
-import { hojeISO, nomeDoMes } from "@/lib/datas";
+import { fimDe, hojeISO, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
@@ -42,8 +42,11 @@ export default async function PaginaCalendario({
   const programacoes = todas.filter(
     (p) => (!params.dep || p.departamento_id === params.dep) && (!params.origem || p.origem === params.origem),
   );
+  // Eventos de vários dias aparecem em cada dia do período.
   const porDia = new Map<string, Programacao[]>();
-  for (const p of programacoes) porDia.set(p.data, [...(porDia.get(p.data) ?? []), p]);
+  for (const dia of dias) {
+    porDia.set(dia, programacoes.filter((p) => p.data <= dia && fimDe(p) >= dia));
+  }
 
   const link = (extra: Record<string, string | undefined>) => {
     const q = new URLSearchParams();
@@ -122,7 +125,11 @@ export default async function PaginaCalendario({
                 </div>
                 <div className="hidden space-y-1 sm:block">
                   {doDia.slice(0, 3).map((p) => (
-                    <div key={p.id} className={`truncate rounded border px-1 text-[11px] ${ORIGENS[p.origem].classe}`}>
+                    <div
+                      key={p.id}
+                      className={`truncate rounded border px-1 text-[11px] ${ORIGENS[p.origem].classe}`}
+                      title={p.fonte ? `${p.titulo} (${p.fonte})` : p.titulo}
+                    >
                       {p.titulo}
                     </div>
                   ))}
@@ -136,7 +143,10 @@ export default async function PaginaCalendario({
 
       <section>
         <h2 className="mb-3 font-semibold">Programações do mês</h2>
-        <ListaProgramacoes programacoes={programacoes.filter((p) => p.data.startsWith(mes))} hoje={hoje} />
+        <ListaProgramacoes
+          programacoes={programacoes.filter((p) => p.data <= `${mes}-31` && fimDe(p) >= `${mes}-01`)}
+          hoje={hoje}
+        />
       </section>
     </div>
   );

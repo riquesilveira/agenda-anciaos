@@ -3,7 +3,7 @@
 import { startTransition, useActionState, useRef } from "react";
 import { AlertTriangle } from "lucide-react";
 import { salvarProgramacao, type EstadoFormProgramacao } from "@/app/(app)/acoes";
-import { dataCurta, horaCurta } from "@/lib/datas";
+import { horaCurta, periodoCurto } from "@/lib/datas";
 import { ORIGENS, type Departamento, type Origem, type Programacao } from "@/lib/tipos";
 
 export function FormProgramacao({
@@ -40,11 +40,18 @@ export function FormProgramacao({
         <input className="campo" id="titulo" name="titulo" required defaultValue={p?.titulo} placeholder="Ex: Culto Jovem" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="rotulo" htmlFor="data">Data *</label>
           <input className="campo" id="data" name="data" type="date" required defaultValue={p?.data ?? dataInicial} />
         </div>
+        <div>
+          <label className="rotulo" htmlFor="data_fim">Até (se durar vários dias)</label>
+          <input className="campo" id="data_fim" name="data_fim" type="date" defaultValue={p?.data_fim ?? ""} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="rotulo" htmlFor="hora_inicio">Início</label>
           <input className="campo" id="hora_inicio" name="hora_inicio" type="time" defaultValue={p?.hora_inicio?.slice(0, 5)} />
@@ -97,7 +104,7 @@ export function FormProgramacao({
               <li key={c.programacao.id + c.motivo}>
                 {c.mensagem}{" "}
                 <span className="text-amber-700">
-                  ({dataCurta(c.programacao.data)}
+                  ({periodoCurto(c.programacao)}
                   {c.programacao.hora_inicio && ` ${horaCurta(c.programacao.hora_inicio)}`})
                 </span>
               </li>

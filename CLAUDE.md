@@ -11,6 +11,8 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
 - `src/lib/conflitos.ts`, `src/lib/resumo.ts`: regras de negócio puras, testadas em `src/lib/__tests__/`.
 - `src/app/(app)/acoes.ts`: todas as Server Actions (gravação).
 - `src/app/api/cron/resumos`: envio dos resumos por e-mail (service role).
+- `scripts/extrair-calendario-pdf.py` (PDF da Associação -> `dados/*.json`) e
+  `scripts/importar.ts` (JSON -> banco). Regras de departamento em `src/lib/importacao.ts`.
 
 ## Convenções (manter)
 - **Toda coluna/relação nova no banco precisa de um campo em `src/lib/tipos.ts`.**
@@ -21,6 +23,10 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
 - **Datas** são `date` + `time` sem fuso; "hoje" sempre por `hojeISO()` (Brasília),
   porque o servidor da Vercel roda em UTC.
 - **Conflito é aviso, não bloqueio.**
+- **Programação pode ter vários dias** (`data` a `data_fim`). Ao filtrar por
+  período, use `listarProgramacoes`/`fimDe`/`periodosSeCruzam`, nunca só `data`.
+- Textos para pessoas usam `tratamento()` e redação neutra ("Você acompanha…"),
+  nunca "o ancião" fixo.
 - `scripts/seed.ts` é idempotente (upsert): mantenha assim.
 - **O repositório é público:** nada de nomes, e-mails ou telefones reais no código.
   Dados reais só em `scripts/dados.local.json` (ignorado pelo git) ou no banco.
