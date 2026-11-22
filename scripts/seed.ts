@@ -5,32 +5,28 @@
  *   npm run seed            # igreja, usuários, departamentos
  *   npm run seed -- --exemplos   # + algumas programações de exemplo
  *
- * Edite as listas abaixo com os dados reais antes de rodar.
+ * Copie scripts/dados.exemplo.json para scripts/dados.local.json e preencha.
  * Precisa de NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env.local.
  */
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
-const IGREJA = { id: "a0e00000-0000-4000-8000-000000000001", nome: "Igreja do Aeroporto" };
+// Dados reais (nomes, e-mails, telefones) ficam em scripts/dados.local.json,
+// que NÃO vai para o git (o repositório é público). Sem ele, usa o exemplo.
+interface Dados {
+  igreja: string;
+  usuarios: { email: string; nome: string; papel: "anciao" | "pastor" }[];
+  departamentos: { nome: string; cor: string; anciao: string | null; lider_nome: string | null; lider_whatsapp: string | null }[];
+}
+const arquivoLocal = join(__dirname, "dados.local.json");
+const arquivo = existsSync(arquivoLocal) ? arquivoLocal : join(__dirname, "dados.exemplo.json");
+const dados: Dados = JSON.parse(readFileSync(arquivo, "utf8"));
 
-// Senha inicial de todos; cada um troca depois em "Esqueci a senha" do Supabase.
+const IGREJA = { id: "a0e00000-0000-4000-8000-000000000001", nome: dados.igreja };
+
+// Senha inicial de todos; cada um troca depois.
 const SENHA_INICIAL = process.env.SEED_SENHA ?? "trocar-esta-senha";
-
-const USUARIOS = [
-  { email: "henrique@exemplo.com", nome: "Henrique", papel: "anciao" },
-  { email: "anciao2@exemplo.com", nome: "Ancião 2", papel: "anciao" },
-  { email: "anciao3@exemplo.com", nome: "Ancião 3", papel: "anciao" },
-  { email: "pastor@exemplo.com", nome: "Pastor", papel: "pastor" },
-] as const;
-
-// anciao = e-mail do ancião responsável (da lista acima)
-const DEPARTAMENTOS = [
-  { nome: "Jovens", cor: "#6366f1", anciao: "henrique@exemplo.com" },
-  { nome: "Infantil", cor: "#f59e0b", anciao: "henrique@exemplo.com" },
-  { nome: "Música", cor: "#ec4899", anciao: "anciao2@exemplo.com" },
-  { nome: "Mordomia", cor: "#10b981", anciao: "anciao2@exemplo.com" },
-  { nome: "Ministério da Mulher", cor: "#8b5cf6", anciao: "anciao3@exemplo.com" },
-  { nome: "Escola Sabatina", cor: "#0ea5e9", anciao: "anciao3@exemplo.com" },
-];
 
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
@@ -55,12 +51,13 @@ async function main() {
     throw new Error("Defina NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env.local");
   }
 
+  console.log(`Usando ${arquivo === arquivoLocal ? "dados.local.json" : "dados.exemplo.json (exemplo!)"}`);
   console.log("Igreja…");
   await check(db.from("igrejas").upsert(IGREJA));
 
   console.log("Usuários…");
   const ids = new Map<string, string>();
-  for (const u of USUARIOS) {
+  for (const u of dados.usuarios) {
     const id = await garantirUsuario(u.email);
     ids.set(u.email, id);
     await check(db.from("perfis").upsert({ id, igreja_id: IGREJA.id, nome: u.nome, papel: u.papel, email: u.email }));
@@ -69,7 +66,14 @@ async function main() {
   console.log("Departamentos…");
   await check(
     db.from("departamentos").upsert(
-      DEPARTAMENTOS.map((d) => ({ igreja_id: IGREJA.id, nome: d.nome, cor: d.cor, anciao_id: ids.get(d.anciao) ?? null })),
+      dados.departamentos.map((d) => ({
+        igreja_id: IGREJA.id,
+        nome: d.nome,
+        cor: d.cor,
+        anciao_id: (d.anciao && ids.get(d.anciao)) ?? null,
+        lider_nome: d.lider_nome,
+        lider_whatsapp: d.lider_whatsapp,
+      })),
       { onConflict: "igreja_id,nome" },
     ),
   );

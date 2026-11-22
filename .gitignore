@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dados reais da igreja (nomes, e-mails, telefones) — nunca commitar
+scripts/dados.local.json

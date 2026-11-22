@@ -22,6 +22,8 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
   porque o servidor da Vercel roda em UTC.
 - **Conflito é aviso, não bloqueio.**
 - `scripts/seed.ts` é idempotente (upsert): mantenha assim.
+- **O repositório é público:** nada de nomes, e-mails ou telefones reais no código.
+  Dados reais só em `scripts/dados.local.json` (ignorado pelo git) ou no banco.
 
 ## Validação
 ```bash

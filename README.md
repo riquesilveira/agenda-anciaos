@@ -14,8 +14,9 @@ Requisitos em [`PRD.md`](PRD.md).
    cp .env.example .env.local   # preencha com as chaves de Project Settings > API
    npm install
    ```
-4. Edite as listas no topo de `scripts/seed.ts` (e-mails reais dos anciãos e
-   do pastor, departamentos e responsáveis) e rode:
+4. Copie `scripts/dados.exemplo.json` para `scripts/dados.local.json` e preencha
+   com os dados reais (anciãos, pastor, departamentos, líderes). Esse arquivo
+   **não vai para o git**, porque o repositório é público. Depois rode:
    ```bash
    SEED_SENHA=uma-senha-inicial npm run seed
    ```
