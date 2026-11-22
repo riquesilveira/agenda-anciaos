@@ -1,0 +1,55 @@
+name: Resumos por e-mail
+
+# Dispara o envio dos resumos para cada ancião/pastor.
+# Horários em UTC: 11h UTC = 8h em Brasília.
+#   - semanal: toda segunda (próximos 30 dias)
+#   - mensal: todo dia 1º (o mês inteiro)
+#
+# Precisa, no GitHub (Settings > Secrets and variables > Actions):
+#   secret   CRON_SECRET  = o mesmo CRON_SECRET configurado no Render
+#   variable APP_URL      = https://agenda-anciaos.onrender.com (sem barra no fim)
+
+on:
+  schedule:
+    - cron: "0 11 * * 1"
+    - cron: "0 11 1 * *"
+  workflow_dispatch:
+    inputs:
+      tipo:
+        description: "semanal ou mensal"
+        default: semanal
+      teste:
+        description: "1 = só mostra os resumos, sem enviar e-mail"
+        default: "1"
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar o sistema
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          if [ -n "${{ github.event.inputs.tipo }}" ]; then
+            TIPO="${{ github.event.inputs.tipo }}"
+            TESTE="${{ github.event.inputs.teste }}"
+          elif [ "${{ github.event.schedule }}" = "0 11 1 * *" ]; then
+            TIPO=mensal; TESTE=0
+          else
+            TIPO=semanal; TESTE=0
+          fi
+          URL="$APP_URL/api/cron/resumos?tipo=$TIPO&teste=$TESTE"
+          echo "Chamando $APP_URL/api/cron/resumos?tipo=$TIPO&teste=$TESTE"
+
+          # O plano grátis do Render dorme quando parado: a 1ª chamada acorda o
+          # servidor (pode levar ~1 min) e às vezes falha. Tenta até 3 vezes.
+          for tentativa in 1 2 3; do
+            code=$(curl -s -o resposta.json -w "%{http_code}" --max-time 120 \
+              -H "Authorization: Bearer $CRON_SECRET" "$URL" || echo 000)
+            echo "Tentativa $tentativa: HTTP $code"
+            [ "$code" = "200" ] && break
+            sleep 20
+          done
+          cat resposta.json; echo
+          test "$code" = "200"

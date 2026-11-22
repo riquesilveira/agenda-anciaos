@@ -1,0 +1,29 @@
+# Blueprint do Render: New > Blueprint > escolher este repositório.
+# As variáveis marcadas com sync: false são pedidas no painel na criação.
+services:
+  - type: web
+    name: agenda-anciaos
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_REMETENTE
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      # Mesmo valor do secret CRON_SECRET no GitHub (Settings > Secrets > Actions)
+      - key: CRON_SECRET
+        generateValue: true

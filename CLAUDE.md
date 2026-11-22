@@ -4,7 +4,7 @@ Antes de planejar algo novo, leia **`PRD.md`** (requisitos e o que ficou fora da
 
 ## Stack
 Next.js 15 (App Router, Server Actions) + Supabase (Auth + Postgres + RLS) +
-Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
+Tailwind 4 + date-fns + lucide-react. E-mail via Resend, site no Render, agendamento via GitHub Actions (`.github/workflows/resumos.yml`).
 
 ## Estrutura
 - `supabase/migrations/`: schema e policies RLS. Mudança de banco = migration nova.
@@ -21,7 +21,7 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, cron via Vercel.
   (service role) só no cron e em scripts, e lá o filtro por `igreja_id` é manual.
 - **Identidade vem da sessão** (`exigirPerfil`), nunca de um id vindo do formulário.
 - **Datas** são `date` + `time` sem fuso; "hoje" sempre por `hojeISO()` (Brasília),
-  porque o servidor da Vercel roda em UTC.
+  porque o servidor (Render) roda em UTC.
 - **Conflito é aviso, não bloqueio.**
 - **Programação pode ter vários dias** (`data` a `data_fim`). Ao filtrar por
   período, use `listarProgramacoes`/`fimDe`/`periodosSeCruzam`, nunca só `data`.

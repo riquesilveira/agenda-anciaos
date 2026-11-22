@@ -68,5 +68,6 @@ sem departamento (são ~90 por ano e afogariam o resumo); eles aparecem no calen
 - Programações recorrentes (cultos semanais)
 
 ## Stack
-Next.js 15 (App Router) + Supabase (Auth + Postgres + RLS) + Resend (e-mail) +
-Vercel (hospedagem + Cron). Tudo cabe nos planos gratuitos.
+Next.js 15 (App Router) + Supabase (Auth + Postgres + RLS) + Resend (e-mail).
+Site hospedado no **Render** (mesma conta do Helsis); resumos agendados pelo
+**GitHub Actions**. Tudo cabe nos planos gratuitos.

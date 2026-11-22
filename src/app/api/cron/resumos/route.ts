@@ -9,7 +9,7 @@ import type { Departamento, Perfil, Programacao } from "@/lib/tipos";
 export const dynamic = "force-dynamic";
 
 /**
- * Chamado pela Vercel Cron (ver vercel.json):
+ * Chamado pelo GitHub Actions (ver .github/workflows/resumos.yml):
  *   /api/cron/resumos?tipo=semanal  toda segunda
  *   /api/cron/resumos?tipo=mensal   todo dia 1º
  * Envia a cada ancião/pastor o resumo dos seus departamentos.

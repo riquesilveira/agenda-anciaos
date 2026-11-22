@@ -41,19 +41,34 @@ npm run importar -- dados/associacao-2027.json            # grava
 
 O de 2027 já está extraído em `dados/associacao-2027.json`.
 
-## Publicar (Vercel)
+## Publicar (Render)
 
-1. Importe o repositório na Vercel e copie as variáveis do `.env.local`.
-2. Gere um `CRON_SECRET` aleatório; a Vercel o envia automaticamente aos crons.
-3. Crie uma conta no [Resend](https://resend.com), verifique o domínio do
-   remetente e preencha `RESEND_API_KEY` e `EMAIL_REMETENTE`.
-4. Os crons em `vercel.json` disparam os resumos às 8h (Brasília):
-   semanal toda segunda e mensal todo dia 1º.
+O site roda no Render; banco e login continuam no Supabase.
 
-Para ver os resumos sem enviar e-mail:
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" "https://SEU-APP/api/cron/resumos?tipo=semanal&teste=1"
-```
+1. No Render: **New > Blueprint**, escolha este repositório. O `render.yaml`
+   cria o serviço `agenda-anciaos` (plano free) e pede as variáveis do
+   `.env.example`. `CRON_SECRET` é gerado sozinho.
+2. Depois do primeiro deploy, preencha `NEXT_PUBLIC_APP_URL` com o endereço
+   do Render (ex: `https://agenda-anciaos.onrender.com`) e faça **Manual Deploy**.
+   Variáveis `NEXT_PUBLIC_*` entram no build, então mudança nelas pede novo deploy.
+3. No Supabase: **Authentication > URL Configuration > Site URL** = o mesmo endereço.
+4. E-mail: crie uma conta no [Resend](https://resend.com), verifique o domínio
+   do remetente e preencha `RESEND_API_KEY` e `EMAIL_REMETENTE`.
+
+### Resumos automáticos (GitHub Actions)
+`.github/workflows/resumos.yml` chama o sistema às 8h (Brasília): semanal toda
+segunda e mensal todo dia 1º. Configure no GitHub
+(**Settings > Secrets and variables > Actions**):
+- secret `CRON_SECRET`: copie o valor gerado no Render;
+- variable `APP_URL`: o endereço do Render, sem barra no fim.
+
+Para testar: **Actions > Resumos por e-mail > Run workflow** (com `teste = 1`
+mostra os resumos no log sem enviar e-mail).
+
+> **Plano grátis do Render:** o site dorme depois de ~15 min parado e a 1ª
+> abertura demora uns 30 s. **Não** coloque keep-alive aqui: as 750 h grátis
+> por mês são compartilhadas por todos os serviços da conta, e o keep-alive do
+> Helsis já usa quase todas.
 
 ## Validar mudanças
 ```bash
