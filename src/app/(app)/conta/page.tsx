@@ -37,7 +37,7 @@ export default async function MinhaConta() {
         <button className="botao">Salvar</button>
       </form>
 
-      <FormSenha />
+      <FormSenha email={perfil.email} />
     </div>
   );
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 
 function FormLogin() {
-  const router = useRouter();
   const params = useSearchParams();
   const [erro, setErro] = useState(
     params.get("erro") === "sem-perfil" ? "Seu usuário ainda não foi vinculado a uma igreja. Fale com o administrador." : "",
@@ -15,14 +14,24 @@ function FormLogin() {
   async function entrar(form: FormData) {
     setCarregando(true);
     setErro("");
-    const { error } = await supabaseNavegador().auth.signInWithPassword({
-      email: String(form.get("email")),
-      password: String(form.get("senha")),
-    });
-    setCarregando(false);
-    if (error) return setErro("E-mail ou senha incorretos.");
-    router.replace("/");
-    router.refresh();
+    const email = String(form.get("email")).trim();
+    const senha = String(form.get("senha"));
+    const { error } = await supabaseNavegador().auth.signInWithPassword({ email, password: senha });
+    if (error) {
+      setCarregando(false);
+      return setErro("E-mail ou senha incorretos.");
+    }
+    // Pede ao navegador para salvar a senha (Chrome/Edge/Android). Onde não
+    // existir, a navegação completa abaixo deixa o Safari/Firefox perceberem
+    // o login e oferecerem "Salvar senha".
+    try {
+      const Credencial = (window as unknown as { PasswordCredential?: new (d: { id: string; password: string }) => Credential })
+        .PasswordCredential;
+      if (Credencial && navigator.credentials) await navigator.credentials.store(new Credencial({ id: email, password: senha }));
+    } catch {
+      // usuário recusou ou navegador não suporta: segue o login normalmente
+    }
+    window.location.assign("/");
   }
 
   return (
@@ -40,7 +49,7 @@ function FormLogin() {
       </div>
       <div>
         <label className="rotulo" htmlFor="email">E-mail</label>
-        <input className="campo" id="email" name="email" type="email" autoComplete="email" required />
+        <input className="campo" id="email" name="email" type="email" autoComplete="username" inputMode="email" required />
       </div>
       <div>
         <label className="rotulo" htmlFor="senha">Senha</label>

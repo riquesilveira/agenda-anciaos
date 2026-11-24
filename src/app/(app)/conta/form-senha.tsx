@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 
-export function FormSenha() {
+export function FormSenha({ email }: { email: string }) {
   const [msg, setMsg] = useState<{ tipo: "ok" | "erro"; texto: string } | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -29,6 +29,8 @@ export function FormSenha() {
       className="cartao space-y-4"
     >
       <h2 className="font-semibold">Trocar senha</h2>
+      {/* Diz ao gerenciador de senhas de qual conta é a senha nova */}
+      <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
       <div>
         <label className="rotulo" htmlFor="senha">Nova senha</label>
         <input className="campo" id="senha" name="senha" type="password" autoComplete="new-password" required />
