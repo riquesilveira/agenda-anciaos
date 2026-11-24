@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
-import { fimDe, hojeISO, nomeDoMes } from "@/lib/datas";
+import { fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
@@ -64,7 +64,7 @@ export default async function PaginaCalendario({
           <Link href={link({ mes: anterior })} className="botao-secundario px-2" aria-label="Mês anterior">
             <ChevronLeft size={18} />
           </Link>
-          <h1 className="min-w-44 text-center text-lg font-semibold capitalize">{nomeDoMes(mes)}</h1>
+          <h1 className="min-w-44 text-center text-lg font-semibold">{maiuscula(nomeDoMes(mes))}</h1>
           <Link href={link({ mes: proximo })} className="botao-secundario px-2" aria-label="Próximo mês">
             <ChevronRight size={18} />
           </Link>

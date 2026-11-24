@@ -72,10 +72,22 @@ begin
   end;
 end $$;
 
+-- Chave de administrador (cron/scripts) lê e grava tudo.
+reset role;
+set role service_role;
+do $$ begin
+  assert (select count(*) from programacoes) >= 2, 'service_role deveria ver todas as igrejas';
+  insert into departamentos (igreja_id, nome) values ('00000000-0000-0000-0000-00000000000b', 'Via service_role');
+end $$;
+
 -- Sem login não vê nada.
 reset role;
 set role anon;
 select set_config('request.jwt.claim.sub', '', false);
-do $$ begin assert (select count(*) from programacoes) = 0, 'anon viu dados'; end $$;
+do $$ begin
+  perform count(*) from programacoes;
+  raise exception 'FALHOU: anon conseguiu ler programações';
+exception when insufficient_privilege then null;
+end $$;
 
 \echo 'RLS OK'

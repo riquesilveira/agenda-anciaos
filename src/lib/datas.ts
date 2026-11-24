@@ -68,3 +68,8 @@ export function periodoCurto(p: { data: string; data_fim: string | null }): stri
 export function duracaoDias(p: { data: string; data_fim: string | null }): number {
   return diasAte(fimDe(p), p.data) + 1;
 }
+
+/** Só a primeira letra maiúscula: "janeiro de 2027" -> "Janeiro de 2027". */
+export function maiuscula(texto: string): string {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}

@@ -4,7 +4,7 @@ import { BotaoConfirmar } from "@/components/botao-confirmar";
 import { FormProgramacao } from "@/components/form-programacao";
 import { SeloOrigem } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
-import { dataLonga } from "@/lib/datas";
+import { dataLonga, maiuscula } from "@/lib/datas";
 import { linkWhatsapp, mensagemParaLider, tratamento } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Programacao } from "@/lib/tipos";
@@ -34,7 +34,7 @@ export default async function DetalheProgramacao({ params }: { params: Promise<{
         <SeloOrigem origem={p.origem} fonte={p.fonte} />
       </div>
       <p className="text-sm text-slate-500">
-        <span className="capitalize">{dataLonga(p.data)}</span>
+        <span>{maiuscula(dataLonga(p.data))}</span>
         {p.data_fim && p.data_fim !== p.data && <> até {dataLonga(p.data_fim)}</>}
       </p>
 

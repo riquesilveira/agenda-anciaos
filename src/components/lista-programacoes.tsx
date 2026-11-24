@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
-import { dataLonga, fimDe, horaCurta } from "@/lib/datas";
+import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { ORIGENS, type Programacao } from "@/lib/tipos";
 
 export function SeloOrigem({ origem, fonte }: { origem: Programacao["origem"]; fonte?: string | null }) {
@@ -27,7 +27,7 @@ export function ListaProgramacoes({ programacoes, hoje }: { programacoes: Progra
           >
             <div className="space-y-1">
               <div className="text-xs font-medium text-slate-500">
-                <span className="capitalize">{dataLonga(p.data)}</span>
+                <span>{maiuscula(dataLonga(p.data))}</span>
                 {p.data_fim && p.data_fim !== p.data && <> até {dataLonga(p.data_fim)}</>}
               </div>
               <div className="font-medium">{p.titulo}</div>

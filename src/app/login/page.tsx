@@ -26,7 +26,14 @@ function FormLogin() {
   }
 
   return (
-    <form action={entrar} className="cartao w-full max-w-sm space-y-4 p-6">
+    <form
+      // onSubmit (e não action=) para o React não limpar o e-mail após senha errada
+      onSubmit={(e) => {
+        e.preventDefault();
+        entrar(new FormData(e.currentTarget));
+      }}
+      className="cartao w-full max-w-sm space-y-4 p-6"
+    >
       <div>
         <h1 className="text-xl font-semibold">Agenda dos Anciãos</h1>
         <p className="text-sm text-slate-500">Entre com seu e-mail e senha.</p>

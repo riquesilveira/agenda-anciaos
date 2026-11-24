@@ -57,7 +57,12 @@ async function main() {
 
   console.log("Usuários…");
   const ids = new Map<string, string>();
+  const emailValido = (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && !e.includes("PREENCHER");
   for (const u of dados.usuarios) {
+    if (!emailValido(u.email)) {
+      console.log(`  pulando ${u.nome}: e-mail ainda não preenchido`);
+      continue;
+    }
     const id = await garantirUsuario(u.email);
     ids.set(u.email, id);
     await check(

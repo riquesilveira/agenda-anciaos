@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { listarDepartamentos, listarPerfis, listarProgramacoes } from "@/lib/consultas";
-import { hojeISO, horaCurta, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
+import { hojeISO, horaCurta, maiuscula, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
 import {
   descreverPrazo,
   gerarResumo,
@@ -60,10 +60,10 @@ export default async function MinhasProgramacoes({
       <div className="flex flex-wrap gap-2">
         <Link href="/minhas" className={aba(tipo === "semanal")}>Próximos {JANELA_SEMANAL_DIAS} dias</Link>
         <Link href={`/minhas?tipo=mensal&mes=${hoje.slice(0, 7)}`} className={aba(tipo === "mensal" && mes === hoje.slice(0, 7))}>
-          <span className="capitalize">{nomeDoMes(hoje.slice(0, 7)).split(" ")[0]}</span>
+          {maiuscula(nomeDoMes(hoje.slice(0, 7)).split(" ")[0])}
         </Link>
         <Link href={`/minhas?tipo=mensal&mes=${proximoMes}`} className={aba(tipo === "mensal" && mes === proximoMes)}>
-          <span className="capitalize">{nomeDoMes(proximoMes).split(" ")[0]}</span>
+          {maiuscula(nomeDoMes(proximoMes).split(" ")[0])}
         </Link>
       </div>
 
