@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Bell, Users, Plus, LogOut } from "lucide-react";
+import { CalendarDays, Bell, Users, Plus, LogOut, UserRound } from "lucide-react";
 import { exigirPerfil } from "@/lib/sessao";
 import { tratamento } from "@/lib/resumo";
 import { sair } from "./acoes";
@@ -26,7 +26,10 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-500 md:inline">{tratamento(perfil)}</span>
+            <Link href="/conta" className="text-sm text-slate-500 hover:text-indigo-700" title="Minha conta">
+              <span className="hidden md:inline">{tratamento(perfil)}</span>
+              <UserRound size={18} className="md:hidden" aria-label="Minha conta" />
+            </Link>
             <form action={sair}>
               <button className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="Sair" aria-label="Sair">
                 <LogOut size={18} />

@@ -126,3 +126,15 @@ export async function sair() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function salvarMeuPerfil(form: FormData) {
+  const { supabase, perfil } = await exigirPerfil();
+  const nome = texto(form, "nome");
+  if (!nome) return;
+  // Só o próprio perfil (id da sessão); papel e igreja não são editáveis (grant por coluna).
+  await supabase
+    .from("perfis")
+    .update({ nome, tratamento: texto(form, "tratamento"), whatsapp: texto(form, "whatsapp") })
+    .eq("id", perfil.id);
+  revalidatePath("/", "layout");
+}
