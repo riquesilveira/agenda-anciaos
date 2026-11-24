@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
-import { fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
@@ -22,12 +22,14 @@ const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 export default async function PaginaCalendario({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; dep?: string; origem?: string }>;
+  searchParams: Promise<{ mes?: string; dep?: string; origem?: string; dia?: string }>;
 }) {
   const params = await searchParams;
   const { supabase } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
+  // Dia selecionado (toque no celular ou "+N" no computador): a lista mostra só ele.
+  const dia = /^\d{4}-\d{2}-\d{2}$/.test(params.dia ?? "") ? params.dia! : null;
 
   const inicioMes = parseISO(`${mes}-01`);
   const inicioGrade = startOfWeek(startOfMonth(inicioMes));
@@ -104,20 +106,35 @@ export default async function PaginaCalendario({
           {DIAS_SEMANA.map((d) => <div key={d} className="py-2">{d}</div>)}
         </div>
         <div className="grid grid-cols-7">
-          {dias.map((dia) => {
-            const doDia = porDia.get(dia) ?? [];
-            const foraDoMes = !isSameMonth(parseISO(dia), inicioMes);
+          {dias.map((d) => {
+            const doDia = porDia.get(d) ?? [];
+            const foraDoMes = !isSameMonth(parseISO(d), inicioMes);
+            const selecionado = d === dia;
             return (
-              <Link
-                key={dia}
-                href={`/programacoes/nova?data=${dia}`}
-                className={`min-h-16 border-r border-b border-slate-100 p-1 hover:bg-indigo-50 sm:min-h-28 ${foraDoMes ? "bg-slate-50 text-slate-400" : ""}`}
-                title="Nova programação neste dia"
+              <div
+                key={d}
+                className={`group relative min-h-16 border-r border-b border-slate-100 p-1 sm:min-h-28 ${foraDoMes ? "bg-slate-50 text-slate-400" : ""} ${selecionado ? "ring-2 ring-indigo-500 ring-inset" : ""}`}
               >
-                <div className={`mb-1 text-xs ${dia === hoje ? "inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}`}>
-                  {Number(dia.slice(8))}
+                {/* celular: tocar no dia mostra os eventos dele na lista abaixo */}
+                <Link
+                  href={`${link({ dia: d })}#lista`}
+                  className="absolute inset-0 sm:hidden"
+                  aria-label={`Ver programações de ${dataLonga(d)}`}
+                />
+                <div className="mb-1 flex items-center justify-between">
+                  <span className={`text-xs ${d === hoje ? "inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" : ""}`}>
+                    {Number(d.slice(8))}
+                  </span>
+                  <Link
+                    href={`/programacoes/nova?data=${d}`}
+                    className="hidden h-5 w-5 items-center justify-center rounded text-slate-400 opacity-0 group-hover:opacity-100 hover:bg-indigo-100 hover:text-indigo-700 focus:opacity-100 sm:inline-flex"
+                    title="Nova programação neste dia"
+                    aria-label={`Nova programação em ${dataLonga(d)}`}
+                  >
+                    <Plus size={14} />
+                  </Link>
                 </div>
-                {/* celular: só pontinhos; telas maiores: títulos */}
+                {/* celular: só pontinhos; telas maiores: títulos clicáveis */}
                 <div className="flex flex-wrap gap-1 sm:hidden">
                   {doDia.map((p) => (
                     <span key={p.id} className={`h-2 w-2 rounded-full border ${ORIGENS[p.origem].classe}`} />
@@ -125,28 +142,51 @@ export default async function PaginaCalendario({
                 </div>
                 <div className="hidden space-y-1 sm:block">
                   {doDia.slice(0, 3).map((p) => (
-                    <div
+                    <Link
                       key={p.id}
-                      className={`truncate rounded border px-1 text-[11px] ${ORIGENS[p.origem].classe}`}
-                      title={p.fonte ? `${p.titulo} (${p.fonte})` : p.titulo}
+                      href={`/programacoes/${p.id}`}
+                      className={`block truncate rounded border px-1 text-[11px] hover:brightness-95 ${ORIGENS[p.origem].classe}`}
+                      title={`${p.fonte ? `${p.titulo} (${p.fonte})` : p.titulo}. Clique para ver ou editar`}
                     >
                       {p.titulo}
-                    </div>
+                    </Link>
                   ))}
-                  {doDia.length > 3 && <div className="text-[11px] text-slate-500">+{doDia.length - 3}</div>}
+                  {doDia.length > 3 && (
+                    <Link href={`${link({ dia: d })}#lista`} className="block text-[11px] text-slate-500 hover:text-indigo-700">
+                      +{doDia.length - 3} mais
+                    </Link>
+                  )}
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
       </div>
 
-      <section>
-        <h2 className="mb-3 font-semibold">Programações do mês</h2>
-        <ListaProgramacoes
-          programacoes={programacoes.filter((p) => p.data <= `${mes}-31` && fimDe(p) >= `${mes}-01`)}
-          hoje={hoje}
-        />
+      <section id="lista" className="scroll-mt-4">
+        {dia ? (
+          <>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-semibold">{maiuscula(dataLonga(dia))}</h2>
+              <div className="flex gap-2">
+                <Link href={link({})} className="botao-secundario">Ver o mês todo</Link>
+                <Link href={`/programacoes/nova?data=${dia}`} className="botao">
+                  <Plus size={16} /> Nova neste dia
+                </Link>
+              </div>
+            </div>
+            <ListaProgramacoes programacoes={porDia.get(dia) ?? programacoes.filter((p) => p.data <= dia && fimDe(p) >= dia)} hoje={hoje} />
+          </>
+        ) : (
+          <>
+            <h2 className="mb-3 font-semibold">Programações do mês</h2>
+            <ListaProgramacoes
+              programacoes={programacoes.filter((p) => p.data <= `${mes}-31` && fimDe(p) >= `${mes}-01`)}
+              hoje={hoje}
+            />
+          </>
+        )}
+        <p className="mt-3 text-xs text-slate-500">Toque numa programação para ver detalhes ou editar.</p>
       </section>
     </div>
   );

@@ -73,7 +73,10 @@ export default async function DetalheProgramacao({ params }: { params: Promise<{
         </section>
       )}
 
-      <FormProgramacao programacao={p} departamentos={departamentos} />
+      <section className="space-y-2">
+        <h2 className="font-semibold">Editar programação</h2>
+        <FormProgramacao programacao={p} departamentos={departamentos} />
+      </section>
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span>Cadastrado por {nome(p.criado_por)} · última alteração por {nome(p.atualizado_por)}</span>
