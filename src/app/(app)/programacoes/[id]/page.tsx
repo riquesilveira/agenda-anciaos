@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { MessageCircle, Trash2 } from "lucide-react";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
+import { Voltar } from "@/components/voltar";
 import { FormProgramacao } from "@/components/form-programacao";
 import { SeloOrigem } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
@@ -29,6 +30,7 @@ export default async function DetalheProgramacao({ params }: { params: Promise<{
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
+      <Voltar href={`/?mes=${p.data.slice(0, 7)}`} />
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="text-lg font-semibold">{p.titulo}</h1>
         <SeloOrigem origem={p.origem} fonte={p.fonte} />

@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
-import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { dataLonga, fimDe, hojeISO, horaCurta, maiuscula, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
@@ -47,7 +47,13 @@ export default async function PaginaCalendario({
   // Eventos de vários dias aparecem em cada dia do período.
   const porDia = new Map<string, Programacao[]>();
   for (const dia of dias) {
-    porDia.set(dia, programacoes.filter((p) => p.data <= dia && fimDe(p) >= dia));
+    porDia.set(
+      dia,
+      programacoes
+        .filter((p) => p.data <= dia && fimDe(p) >= dia)
+        // sem horário (o dia todo / vários dias) primeiro, depois por horário
+        .sort((a, b) => (a.hora_inicio ?? "").localeCompare(b.hora_inicio ?? "")),
+    );
   }
 
   const link = (extra: Record<string, string | undefined>) => {
@@ -148,6 +154,7 @@ export default async function PaginaCalendario({
                       className={`block truncate rounded border px-1 text-[11px] hover:brightness-95 ${ORIGENS[p.origem].classe}`}
                       title={`${p.fonte ? `${p.titulo} (${p.fonte})` : p.titulo}. Clique para ver ou editar`}
                     >
+                      {p.hora_inicio && <span className="font-semibold">{horaCurta(p.hora_inicio)} </span>}
                       {p.titulo}
                     </Link>
                   ))}
