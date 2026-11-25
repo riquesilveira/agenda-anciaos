@@ -2,7 +2,8 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { listarDepartamentos, listarPerfis, listarProgramacoes } from "@/lib/consultas";
-import { hojeISO, horaCurta, maiuscula, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
+import { ListaProgramacoes } from "@/components/lista-programacoes";
+import { fimDe, hojeISO, horaCurta, maiuscula, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
 import {
   descreverPrazo,
   gerarResumo,
@@ -13,6 +14,7 @@ import {
   type TipoResumo,
 } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
+import type { Programacao } from "@/lib/tipos";
 import { marcarAvisado } from "../acoes";
 
 export default async function MinhasProgramacoes({
@@ -43,6 +45,7 @@ export default async function MinhasProgramacoes({
     ehLider ? d.lideres?.some((l) => l.perfil_id === perfil.id) : d.anciao_id === perfil.id,
   );
   const proximoMes = format(addMonths(parseISO(`${hoje.slice(0, 7)}-01`), 1), "yyyy-MM");
+  const abaDepartamento = params.tipo === "departamento";
 
   const aba = (ativo: boolean) =>
     `rounded-lg px-3 py-1.5 text-sm ${ativo ? "bg-indigo-600 text-white" : "bg-white text-slate-600 border border-slate-300"}`;
@@ -63,14 +66,21 @@ export default async function MinhasProgramacoes({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Link href="/minhas" className={aba(tipo === "semanal")}>Próximos {JANELA_SEMANAL_DIAS} dias</Link>
-        <Link href={`/minhas?tipo=mensal&mes=${hoje.slice(0, 7)}`} className={aba(tipo === "mensal" && mes === hoje.slice(0, 7))}>
+        <Link href="/minhas" className={aba(tipo === "semanal" && !abaDepartamento)}>Próximos {JANELA_SEMANAL_DIAS} dias</Link>
+        <Link href={`/minhas?tipo=mensal&mes=${hoje.slice(0, 7)}`} className={aba(tipo === "mensal" && mes === hoje.slice(0, 7) && !abaDepartamento)}>
           {maiuscula(nomeDoMes(hoje.slice(0, 7)).split(" ")[0])}
         </Link>
-        <Link href={`/minhas?tipo=mensal&mes=${proximoMes}`} className={aba(tipo === "mensal" && mes === proximoMes)}>
+        <Link href={`/minhas?tipo=mensal&mes=${proximoMes}`} className={aba(tipo === "mensal" && mes === proximoMes && !abaDepartamento)}>
           {maiuscula(nomeDoMes(proximoMes).split(" ")[0])}
         </Link>
+        <Link href="/minhas?tipo=departamento" className={aba(abaDepartamento)}>
+          Do meu departamento
+        </Link>
       </div>
+
+      {abaDepartamento ? (
+        <DoMeuDepartamento perfilId={perfil.id} departamentoIds={meusDeps.map((d) => d.id)} ehLider={ehLider} hoje={hoje} />
+      ) : (
 
       <section className="cartao space-y-4">
         <p className="font-medium">{resumo.introducao}</p>
@@ -143,6 +153,63 @@ export default async function MinhasProgramacoes({
           >
             <MessageCircle size={16} /> Compartilhar este resumo no WhatsApp
           </a>
+        )}
+      </section>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Aba "Do meu departamento": próximas programações que a pessoa cadastrou e
+ * as dos departamentos que ela acompanha (ancião responsável) ou lidera.
+ */
+async function DoMeuDepartamento({
+  perfilId,
+  departamentoIds,
+  ehLider,
+  hoje,
+}: {
+  perfilId: string;
+  departamentoIds: string[];
+  ehLider: boolean;
+  hoje: string;
+}) {
+  const { supabase } = await exigirPerfil();
+  const filtro = departamentoIds.length
+    ? `criado_por.eq.${perfilId},departamento_id.in.(${departamentoIds.join(",")})`
+    : `criado_por.eq.${perfilId}`;
+  const { data } = await supabase
+    .from("programacoes")
+    .select("*, departamento:departamentos(*)")
+    .or(filtro)
+    .gte("data", somarDias(hoje, -366)) // eventos longos que começaram antes de hoje
+    .order("data")
+    .order("hora_inicio", { nullsFirst: true })
+    .limit(300)
+    .returns<Programacao[]>();
+  const proximas = (data ?? []).filter((p) => fimDe(p) >= hoje);
+  const criadas = proximas.filter((p) => p.criado_por === perfilId);
+  const doDepartamento = proximas.filter((p) => p.criado_por !== perfilId);
+
+  return (
+    <div className="space-y-6">
+      <section className="space-y-2">
+        <h2 className="font-semibold">Que eu cadastrei ({criadas.length})</h2>
+        <ListaProgramacoes programacoes={criadas} hoje={hoje} />
+      </section>
+      <section className="space-y-2">
+        <h2 className="font-semibold">
+          {ehLider ? "Dos departamentos que eu lidero" : "Dos departamentos que eu acompanho"} ({doDepartamento.length})
+        </h2>
+        {departamentoIds.length === 0 ? (
+          <p className="cartao text-sm text-slate-500">
+            {ehLider
+              ? "Você ainda não está como líder de nenhum departamento."
+              : "Você ainda não é responsável por nenhum departamento. Defina em Departamentos."}
+          </p>
+        ) : (
+          <ListaProgramacoes programacoes={doDepartamento} hoje={hoje} />
         )}
       </section>
     </div>
