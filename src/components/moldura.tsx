@@ -68,12 +68,12 @@ export function CabecalhoSemana() {
   );
 }
 
-/** Número do dia (hoje em círculo). */
+/** Número do dia (hoje em azul). */
 export function NumeroDia({ dia, hoje, foraDoMes }: { dia: string; hoje: string; foraDoMes: boolean }) {
   return (
     <span
       className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-1 text-sm sm:h-9 sm:min-w-9 sm:text-base ${
-        dia === hoje ? "bg-indigo-600 font-semibold text-white" : foraDoMes ? "text-slate-300" : "text-slate-800"
+        dia === hoje ? "font-bold text-indigo-600" : foraDoMes ? "text-slate-300" : "text-slate-800"
       }`}
     >
       {Number(dia.slice(8))}
