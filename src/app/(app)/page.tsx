@@ -10,13 +10,12 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { CalendarioMes, LegendaOrigens } from "@/components/calendario-mes";
-import { FiltrosCalendario } from "@/components/filtros-calendario";
+import { CalendarioMes } from "@/components/calendario-mes";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
-import type { Programacao } from "@/lib/tipos";
+import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
 export default async function PaginaCalendario({
   searchParams,
@@ -89,10 +88,47 @@ export default async function PaginaCalendario({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <FiltrosCalendario departamentos={departamentos} />
-        <LegendaOrigens />
-      </div>
+      {/* Abas de origem (a cor de cada uma é a mesma do calendário) */}
+      <nav className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm" aria-label="Origem">
+        {([["", "Todas"], ...(Object.keys(ORIGENS) as Origem[]).map((o) => [o, ORIGENS[o].nome])] as [string, string][]).map(
+          ([valor, rotulo]) => {
+            const ativa = (params.origem ?? "") === valor;
+            return (
+              <Link
+                key={rotulo}
+                href={link({ origem: valor || undefined, dia: undefined })}
+                aria-current={ativa ? "page" : undefined}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm whitespace-nowrap transition ${
+                  ativa ? "bg-indigo-600 font-semibold text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {valor && <span className={`h-2.5 w-2.5 rounded-full ${ORIGENS[valor as Origem].ponto} ${ativa ? "ring-2 ring-white" : ""}`} />}
+                {rotulo}
+              </Link>
+            );
+          },
+        )}
+      </nav>
+
+      {/* Filtro por departamento */}
+      <form action="/" className="flex gap-2">
+        <input type="hidden" name="mes" value={mes} />
+        {params.origem && <input type="hidden" name="origem" value={params.origem} />}
+        <select
+          name="dep"
+          aria-label="Departamento"
+          defaultValue={params.dep ?? ""}
+          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 sm:max-w-xs"
+        >
+          <option value="">Todos os departamentos</option>
+          {departamentos.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.sigla ? `${d.sigla} · ${d.nome}` : d.nome}
+            </option>
+          ))}
+        </select>
+        <button className="botao">Filtrar</button>
+      </form>
 
       <CalendarioMes
         dias={dias}
