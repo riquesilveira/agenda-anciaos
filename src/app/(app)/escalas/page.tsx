@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, MessageCircle, Mic } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GradeEscala } from "@/components/grade-escala";
@@ -50,7 +50,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-3xl space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-500">Escalas</p>
+          <p className="text-sm font-medium text-slate-500">Escala de pregação</p>
           <h1 className="text-2xl font-bold tracking-tight">
             {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
           </h1>
@@ -68,12 +68,6 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
         </div>
       </div>
 
-      {/* Abas de escala (por enquanto só Pregação; outras escalas entram aqui) */}
-      <nav className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm" aria-label="Escalas">
-        <span aria-current="page" className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white sm:flex-none">
-          <Mic size={16} /> Pregação
-        </span>
-      </nav>
 
       <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
 
