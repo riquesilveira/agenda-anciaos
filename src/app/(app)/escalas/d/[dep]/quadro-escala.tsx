@@ -157,7 +157,7 @@ export function QuadroEscala({
               <input type="hidden" name="departamento_id" value={departamento.id} />
               <input className="campo" name="nome" placeholder="Nome" required />
               <input className="campo" name="whatsapp" placeholder="WhatsApp (opcional)" inputMode="tel" />
-              <button className="botao-secundario w-full"><Plus size={16} /> Adicionar à equipe</button>
+              <button className="botao w-full bg-emerald-600 py-2.5 hover:bg-emerald-700"><Plus size={18} /> Adicionar à equipe</button>
             </form>
           </aside>
         )}
