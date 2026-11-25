@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { AbasEscalas } from "@/components/abas-escalas";
 import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, TituloLateral } from "@/components/moldura";
-import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes, nomeDaIgreja } from "@/lib/consultas";
+import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarPerfis, listarProgramacoes, nomeDaIgreja } from "@/lib/consultas";
 import { hojeISO, horaCurta, maiuscula, nomeDoMes } from "@/lib/datas";
+import { fotosDosMembros } from "@/lib/escalas";
 import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
 import { ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
@@ -30,12 +31,18 @@ export default async function EscalaDepartamento({
   ]);
   const departamento = departamentos.find((d) => d.id === dep);
   if (!departamento) notFound();
-  const [membros, dias, programacoesMes, { data: mensagem }] = await Promise.all([
+  const [membrosBase, diasBase, programacoesMes, { data: mensagem }, perfis] = await Promise.all([
     listarMembros(supabase, dep),
     listarDiasEscala(supabase, dep, `${mes}-01`, ultimoDiaDoMes(mes)),
     listarProgramacoes(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
     supabase.from("escala_mensagens").select("texto").eq("departamento_id", dep).maybeSingle<{ texto: string }>(),
+    listarPerfis(supabase),
   ]);
+  // Quem tem conta no sistema aparece com a foto da conta (iniciais quando não tem).
+  const fotos = fotosDosMembros(membrosBase, perfis);
+  const comFoto = <T extends { id: string; foto_url: string | null }>(m: T): T => ({ ...m, foto_url: m.foto_url ?? fotos.get(m.id) ?? null });
+  const membros = membrosBase.map(comFoto);
+  const dias = diasBase.map((d) => ({ ...d, pessoas: (d.pessoas ?? []).map((p) => ({ ...p, membro: p.membro ? comFoto(p.membro) : p.membro })) }));
   // Só as programações da igreja local, para o líder saber quando vai precisar de gente.
   const programacoesLocais = programacoesMes.filter((p) => p.origem === "local");
 
@@ -94,7 +101,6 @@ export default async function EscalaDepartamento({
         cabecalho={
           <CabecalhoMes
             mes={mes}
-            hoje={hoje}
             link={link}
             direita={<span className="hidden truncate text-sm font-medium text-slate-500 sm:inline">Escala de {departamento.nome}</span>}
           />

@@ -101,7 +101,6 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
       >
         <CabecalhoMes
           mes={mes}
-          hoje={hoje}
           link={(m) => `/escalas?mes=${m}`}
           direita={<span className="hidden text-sm font-medium text-slate-500 sm:inline">Escala de pregação</span>}
         />

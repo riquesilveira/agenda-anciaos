@@ -241,17 +241,6 @@ export async function salvarFotoPerfil(url: string | null): Promise<{ erro?: str
   return {};
 }
 
-/** Grava a foto de um associado (RLS: líder do departamento ou ancião/pastor). */
-export async function salvarFotoMembro(membroId: string, url: string | null): Promise<{ erro?: string }> {
-  const { supabase } = await exigirPerfil();
-  const valida = urlDaFoto(url, `membros/${membroId}.jpg`);
-  if (valida === false) return { erro: "Foto inválida." };
-  const { data, error } = await supabase.from("departamento_membros").update({ foto_url: valida }).eq("id", membroId).select("id");
-  if (error || !data?.length) return { erro: "Só o líder do departamento (ou um ancião) pode mudar a foto." };
-  revalidatePath("/escalas", "layout");
-  return {};
-}
-
 export interface EstadoConvite {
   erro?: string;
   link?: string;
@@ -596,6 +585,27 @@ export async function removerPessoaDia(id: string): Promise<void> {
   const { supabase } = await exigirPerfil();
   await supabase.from("escala_dia_pessoas").delete().eq("id", id);
   revalidatePath("/escalas", "layout");
+}
+
+/** Troca quem está escalado num dia (ex: a pessoa avisou que não pode). Recomeça o aviso. */
+export async function trocarPessoaDia(id: string, membroId: string): Promise<{ erro?: string }> {
+  const { supabase } = await exigirPerfil();
+  const { data: atual } = await supabase.from("escala_dia_pessoas").select("escala_dia_id").eq("id", id).maybeSingle();
+  if (!atual) return { erro: "Não encontrado." };
+  const { count } = await supabase
+    .from("escala_dia_pessoas")
+    .select("id", { count: "exact", head: true })
+    .eq("escala_dia_id", atual.escala_dia_id)
+    .eq("membro_id", membroId);
+  if (count) return { erro: "Essa pessoa já está neste dia." };
+  const { data, error } = await supabase
+    .from("escala_dia_pessoas")
+    .update({ membro_id: membroId, avisado_em: null, resposta: null, respondido_em: null, lembrete_enviado_em: null })
+    .eq("id", id)
+    .select("id");
+  if (error || !data?.length) return { erro: "Não foi possível trocar. Só o líder deste departamento (ou um ancião) pode alterar." };
+  revalidatePath("/escalas", "layout");
+  return {};
 }
 
 export async function definirFuncaoPessoa(id: string, funcao: string): Promise<void> {

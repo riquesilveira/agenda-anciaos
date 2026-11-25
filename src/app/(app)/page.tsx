@@ -141,7 +141,6 @@ export default async function PaginaCalendario({
       >
         <CabecalhoMes
           mes={mes}
-          hoje={hoje}
           link={(m) => link({ mes: m, dia: undefined })}
           direita={
             <>

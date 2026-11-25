@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import {
   aplicarModelo,
+  fotosDosMembros,
   lembreteAssociado,
   MODELO_SUGERIDO,
   lembretesDeVespera,
@@ -106,4 +107,24 @@ it("mensagem padrão do líder", () => {
   expect(
     mensagemAvisoEscala({ ...base, dia: { data: "2026-12-05", horario: null, titulo: "Culto" }, modelo: "{nome}: {programacao} {quando}!" }),
   ).toBe("Pedro: Culto hoje!");
+});
+
+it("foto do associado vem da conta da pessoa", () => {
+  const perfis = [
+    { nome: "Henrique Silva", whatsapp: "(43) 99999-0000", foto_url: "h.jpg" },
+    { nome: "Ana", whatsapp: null, foto_url: "a.jpg" },
+    { nome: "Ana", whatsapp: null, foto_url: "a2.jpg" },
+    { nome: "José", whatsapp: null, foto_url: "j.jpg" },
+    { nome: "Sem Foto", whatsapp: "43 98888-0000", foto_url: null },
+  ];
+  const fotos = fotosDosMembros(
+    [
+      { id: "1", nome: "Henrique", whatsapp: "43999990000" }, // pelo WhatsApp
+      { id: "2", nome: "Ana", whatsapp: null }, // nome repetido: não arrisca
+      { id: "3", nome: "jose", whatsapp: null }, // nome sem acento/maiúscula
+      { id: "4", nome: "Sem Foto", whatsapp: "43988880000" },
+    ],
+    perfis,
+  );
+  expect(Object.fromEntries(fotos)).toEqual({ "1": "h.jpg", "3": "j.jpg" });
 });

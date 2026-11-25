@@ -1,4 +1,5 @@
 import { dataLonga, horaCurta, somarDias } from "./datas";
+import { normalizarWhatsapp } from "./resumo";
 import type { EscalaDia } from "./tipos";
 
 /** "hoje", "amanhã" ou "sábado, 5 de dezembro". */
@@ -150,4 +151,27 @@ export function aplicarModelo(
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\s+([,.!?])/g, "$1")
     .trim();
+}
+
+/**
+ * Foto de cada associado vinda da conta da pessoa no sistema (quando ela tem
+ * conta): casa pelo WhatsApp e, sem WhatsApp, pelo nome (só se for único).
+ */
+export function fotosDosMembros(
+  membros: { id: string; nome: string; whatsapp: string | null }[],
+  perfis: { nome: string; whatsapp: string | null; foto_url: string | null }[],
+): Map<string, string> {
+  const comFoto = perfis.filter((p) => p.foto_url);
+  const porZap = new Map(comFoto.filter((p) => normalizarWhatsapp(p.whatsapp)).map((p) => [normalizarWhatsapp(p.whatsapp)!, p.foto_url!]));
+  const chave = (n: string) => n.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const nomes = new Map<string, string[]>();
+  for (const p of comFoto) nomes.set(chave(p.nome), [...(nomes.get(chave(p.nome)) ?? []), p.foto_url!]);
+  const saida = new Map<string, string>();
+  for (const m of membros) {
+    const zap = normalizarWhatsapp(m.whatsapp);
+    const porNome = nomes.get(chave(m.nome));
+    const foto = (zap && porZap.get(zap)) || (porNome?.length === 1 ? porNome[0] : undefined);
+    if (foto) saida.set(m.id, foto);
+  }
+  return saida;
 }

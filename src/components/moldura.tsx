@@ -21,35 +21,24 @@ export function TituloLateral({ children }: { children: React.ReactNode }) {
   return <h2 className="text-sm font-semibold text-slate-900">{children}</h2>;
 }
 
-/** "Dezembro 2026  [Hoje]  ‹ ›" + o que vier à direita. */
+/** "Dezembro 2026  ‹ ›" + o que vier à direita. */
 export function CabecalhoMes({
   mes,
-  hoje,
   link,
   direita,
 }: {
   mes: string; // yyyy-MM
-  hoje: string;
   link: (mes: string) => string;
   direita?: React.ReactNode;
 }) {
   const inicio = parseISO(`${mes}-01`);
   const [nomeMes, ano] = maiuscula(nomeDoMes(mes)).split(" de ");
-  const mesDeHoje = hoje.slice(0, 7);
   return (
     <div className="flex items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-4">
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
           {nomeMes} <span className="font-normal text-slate-500">{ano}</span>
         </h1>
-        <Link
-          href={link(mesDeHoje)}
-          className={`rounded-lg border border-slate-200 px-3 py-1 text-sm font-medium shadow-sm hover:bg-slate-50 ${
-            mes === mesDeHoje ? "text-slate-400" : "text-slate-700"
-          }`}
-        >
-          Hoje
-        </Link>
         <div className="flex items-center">
           <Link href={link(format(addMonths(inicio, -1), "yyyy-MM"))} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Mês anterior">
             <ChevronLeft size={20} />

@@ -91,10 +91,14 @@ equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" 
 "Não vou poder") os próximos dias. Quem ativou recebe o lembrete às 18h da
 véspera, fica marcado como avisado e sai da lista "para avisar" do líder. Uma
 recusa notifica o líder na hora.
-**Fotos:** cada pessoa põe a própria foto em Minha conta; o líder põe a dos
-associados (lápis da equipe). Ficam no Storage, bucket público "fotos"
-(`perfis/<id>.jpg`, `membros/<id>.jpg`), reduzidas no aparelho para 320px.
-Sem foto, aparecem as iniciais. Permissão no RLS do Storage.
+**Fotos:** cada pessoa põe a própria foto em Minha conta; o associado que tem
+conta no sistema aparece na escala com a foto da conta (casado pelo WhatsApp ou,
+sem ele, pelo nome único). Não há envio de foto na escala. Storage, bucket
+público "fotos" (`perfis/<id>.jpg`), reduzida no aparelho para 320px. Sem foto,
+aparecem as iniciais.
+**Trocar pessoa no dia:** no painel do dia, "Trocar" substitui quem foi escalado
+(o aviso recomeça para a nova pessoa); fica em destaque quando a pessoa
+respondeu "Não vou poder".
 **Culto especial na pregação:** além dos cultos fixos (quarta, sábado de manhã,
 domingo à noite), qualquer dia pode ter um culto especial com nome próprio
 (semana de oração, Santa Ceia…): o "+" no dia da grade abre o cadastro.

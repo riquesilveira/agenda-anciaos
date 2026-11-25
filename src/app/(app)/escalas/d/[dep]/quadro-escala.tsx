@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
+import { ArrowLeftRight, Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { Avatar } from "@/components/avatar";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
-import { EnviarFoto } from "@/components/enviar-foto";
 import { CabecalhoSemana, Moldura, NumeroDia } from "@/components/moldura";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala, mensagemLinkLembretes } from "@/lib/escalas";
@@ -16,12 +15,12 @@ import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Programacao } from
 import {
   adicionarMembro,
   editarMembro,
-  salvarFotoMembro,
   avisoPessoa,
   escalarNaData,
   excluirDiaEscala,
   removerMembro,
   removerPessoaDia,
+  trocarPessoaDia,
 } from "../../../acoes";
 import { FormDia } from "./form-dia";
 import { MensagemAviso } from "./mensagem-aviso";
@@ -145,6 +144,22 @@ export function QuadroEscala({
     setDias((ds) => ds.map((d) => ({ ...d, pessoas: (d.pessoas ?? []).map((p) => (p.id === pessoaId ? { ...p, ...mudanca } : p)) })));
   }
 
+  const [trocando, setTrocando] = useState<string | null>(null);
+  function trocar(pessoa: EscalaDiaPessoa, membroId: string) {
+    const membro = membroPorId.get(membroId);
+    if (!membro) return;
+    setTrocando(null);
+    const antes = pessoa;
+    mudarPessoa(pessoa.id, { membro_id: membroId, membro, avisado_em: null, resposta: null, respondido_em: null, lembrete_enviado_em: null });
+    iniciar(async () => {
+      const r = await trocarPessoaDia(pessoa.id, membroId);
+      if (r.erro) {
+        setErro(r.erro);
+        mudarPessoa(pessoa.id, antes);
+      }
+    });
+  }
+
   function tirar(pessoaId: string) {
     setDias((ds) => ds.map((d) => ({ ...d, pessoas: (d.pessoas ?? []).filter((p) => p.id !== pessoaId) })));
     if (!pessoaId.startsWith("tmp-")) iniciar(() => removerPessoaDia(pessoaId));
@@ -195,18 +210,6 @@ export function QuadroEscala({
                     className="space-y-2 rounded-xl border border-indigo-200 bg-indigo-50/50 p-2"
                   >
                     <input type="hidden" name="id" value={m.id} />
-                    <EnviarFoto
-                      caminho={`membros/${m.id}.jpg`}
-                      nome={m.nome}
-                      fotoAtual={m.foto_url}
-                      tamanho={44}
-                      compacto
-                      salvar={async (url) => {
-                        const r = await salvarFotoMembro(m.id, url);
-                        if (!r.erro) router.refresh();
-                        return r;
-                      }}
-                    />
                     <label className="block text-xs font-medium text-slate-600">
                       Nome
                       <input className="campo mt-0.5" name="nome" defaultValue={m.nome} required autoFocus />
@@ -561,10 +564,43 @@ export function QuadroEscala({
                           >
                             <Check size={16} />
                           </button>
-                          <button type="button" title={`Tirar ${nome} deste dia`} onClick={() => tirar(p.id)} className="rounded-md p-1 text-slate-400 hover:text-red-600">
+                          {!provisorio && (
+                            <button
+                              type="button"
+                              title={`Trocar ${nome} por outra pessoa`}
+                              aria-label={`Trocar ${nome}`}
+                              onClick={() => setTrocando((t) => (t === p.id ? null : p.id))}
+                              className={`inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium ${
+                                p.resposta === "recusado" ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "text-slate-500 hover:bg-slate-100 hover:text-indigo-700"
+                              }`}
+                            >
+                              <ArrowLeftRight size={13} /> Trocar
+                            </button>
+                          )}
+                          <button type="button" title={`Tirar ${nome} deste dia`} aria-label={`Tirar ${nome} deste dia`} onClick={() => tirar(p.id)} className="rounded-md p-1 text-slate-400 hover:text-red-600">
                             <X size={14} />
                           </button>
                         </span>
+                      )}
+                      {trocando === p.id && (
+                        <select
+                          autoFocus
+                          defaultValue=""
+                          onChange={(e) => e.target.value && trocar(p, e.target.value)}
+                          className="campo mt-1 w-full basis-full py-1.5"
+                          aria-label={`Trocar ${nome} por`}
+                        >
+                          <option value="" disabled>
+                            Trocar {nome} por…
+                          </option>
+                          {membros
+                            .filter((m) => !pessoasDoDia(aberto).some((x) => x.membro_id === m.id))
+                            .map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.nome}
+                              </option>
+                            ))}
+                        </select>
                       )}
                     </li>
                   );
