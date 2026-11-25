@@ -44,3 +44,38 @@ export function textoEscalaMes(departamento: string, mesNome: string, dias: Esca
   });
   return [`🗓️ *Escala de ${departamento}: ${mesNome}*`, "", ...linhas].join("\n");
 }
+
+export interface PendentesDoDepartamento {
+  departamento: { id: string; nome: string; anciao_id: string | null };
+  /** Perfis dos líderes (com login) do departamento. */
+  lideres: string[];
+  /** Nomes de quem está escalado e ainda não foi avisado. */
+  pessoas: string[];
+}
+
+/**
+ * Lembrete de véspera: para cada pessoa (líder do departamento ou, sem líder
+ * com login, o ancião responsável), quantas pessoas ela precisa avisar amanhã.
+ */
+export function lembretesDeVespera(
+  pendentes: PendentesDoDepartamento[],
+  amanha: string,
+): Map<string, { titulo: string; corpo: string; url: string; tag: string }> {
+  const porPessoa = new Map<string, PendentesDoDepartamento[]>();
+  for (const p of pendentes) {
+    if (!p.pessoas.length) continue;
+    const quem = p.lideres.length ? p.lideres : p.departamento.anciao_id ? [p.departamento.anciao_id] : [];
+    for (const id of quem) porPessoa.set(id, [...(porPessoa.get(id) ?? []), p]);
+  }
+  const saida = new Map<string, { titulo: string; corpo: string; url: string; tag: string }>();
+  for (const [id, lista] of porPessoa) {
+    const total = lista.reduce((n, p) => n + p.pessoas.length, 0);
+    saida.set(id, {
+      titulo: `Escala de amanhã: ${total} ${total === 1 ? "pessoa" : "pessoas"} para avisar`,
+      corpo: lista.map((p) => `${p.departamento.nome}: ${p.pessoas.join(", ")}`).join("\n"),
+      url: `/escalas/d/${lista[0].departamento.id}?mes=${amanha.slice(0, 7)}&dia=${amanha}`,
+      tag: `vespera-${amanha}`,
+    });
+  }
+  return saida;
+}

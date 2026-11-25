@@ -16,10 +16,10 @@ export default async function EscalaDepartamento({
   searchParams,
 }: {
   params: Promise<{ dep: string }>;
-  searchParams: Promise<{ mes?: string }>;
+  searchParams: Promise<{ mes?: string; dia?: string }>;
 }) {
   const { dep } = await params;
-  const { mes: mesParam } = await searchParams;
+  const { mes: mesParam, dia: diaParam } = await searchParams;
   const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(mesParam ?? "") ? mesParam! : hoje.slice(0, 7);
@@ -79,6 +79,7 @@ export default async function EscalaDepartamento({
         hoje={hoje}
         mes={mes}
         programacoes={programacoesLocais}
+        diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
       />
     </div>
   );

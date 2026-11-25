@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { mensagemAvisoEscala, quandoE, textoEscalaMes } from "../escalas";
+import { lembretesDeVespera, mensagemAvisoEscala, quandoE, textoEscalaMes } from "../escalas";
 
 const ana = { nome: "Ana", papel: "lider" as const };
 
@@ -42,4 +42,23 @@ it("texto da escala do mês", () => {
   ]);
   expect(t).toContain("*Escala de Música: Dezembro de 2026*");
   expect(t).toContain("• sábado, 5 de dezembro, 9h · Culto Divino\n  Pedro (Teclado)");
+});
+
+it("lembretes de véspera: líderes recebem; sem líder, o ancião", () => {
+  const r = lembretesDeVespera(
+    [
+      { departamento: { id: "mus", nome: "Música", anciao_id: "h" }, lideres: ["ana"], pessoas: ["Roberto", "Pedro"] },
+      { departamento: { id: "son", nome: "Sonoplastia", anciao_id: "h" }, lideres: [], pessoas: ["Lucas"] },
+      { departamento: { id: "dia", nome: "Diaconato", anciao_id: "j" }, lideres: ["ana"], pessoas: [] },
+    ],
+    "2026-12-05",
+  );
+  expect(r.get("ana")).toEqual({
+    titulo: "Escala de amanhã: 2 pessoas para avisar",
+    corpo: "Música: Roberto, Pedro",
+    url: "/escalas/d/mus?mes=2026-12&dia=2026-12-05",
+    tag: "vespera-2026-12-05",
+  });
+  expect(r.get("h")?.titulo).toBe("Escala de amanhã: 1 pessoa para avisar");
+  expect(r.has("j")).toBe(false);
 });

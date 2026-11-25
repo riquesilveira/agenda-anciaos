@@ -38,6 +38,7 @@ export function QuadroEscala({
   hoje,
   mes,
   programacoes,
+  diaInicial,
 }: {
   departamento: { id: string; nome: string };
   membros: MembroDepartamento[];
@@ -48,16 +49,21 @@ export function QuadroEscala({
   mes: string; // yyyy-MM
   /** Programações locais da igreja no mês (só para consulta). */
   programacoes: Programacao[];
+  /** Dia para abrir já selecionado (ex: vindo do lembrete de véspera). */
+  diaInicial?: string | null;
 }) {
   const router = useRouter();
   const [dias, setDias] = useState(diasIniciais);
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [alvo, setAlvo] = useState<string | null>(null);
   const [aberto, setAberto] = useState<string | null>(() => {
+    if (diaInicial?.startsWith(mes)) return diaInicial;
     if (hoje.startsWith(mes)) return hoje;
     return diasIniciais[0]?.data ?? null;
   });
   const [erro, setErro] = useState("");
+  // "Avisar todos": fila de pessoas a avisar, uma de cada vez.
+  const [fila, setFila] = useState<string[] | null>(null);
   const [, iniciar] = useTransition();
   const membroPorId = useMemo(() => new Map(membros.map((m) => [m.id, m])), [membros]);
 
@@ -125,6 +131,18 @@ export function QuadroEscala({
   }
 
   const diasAbertos = aberto ? porData.get(aberto) ?? [] : [];
+  const pendentesDe = (data: string) => pessoasDoDia(data).filter((p) => !p.avisado_em && !p.id.startsWith("tmp-"));
+  const amanha = format(new Date(parseISO(hoje).getTime() + 86_400_000), "yyyy-MM-dd");
+  const atalhos = [
+    { data: hoje, rotulo: "Hoje" },
+    { data: amanha, rotulo: "Amanhã" },
+  ].filter((a) => a.data.startsWith(mes) && pendentesDe(a.data).length > 0);
+
+  function abrirDia(data: string) {
+    setAberto(data);
+    setFila(null);
+    setTimeout(() => document.getElementById("painel-dia")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
 
   return (
     <div className="space-y-4">
@@ -192,6 +210,22 @@ export function QuadroEscala({
         )}
 
         <div className="min-w-0 space-y-4">
+          {podeEditar && atalhos.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {atalhos.map((a) => (
+                <button
+                  key={a.data}
+                  type="button"
+                  onClick={() => abrirDia(a.data)}
+                  className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-100"
+                >
+                  <MessageCircle size={15} />
+                  {a.rotulo}: {pendentesDe(a.data).length} para avisar
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* ----- Calendário do mês ----- */}
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/80 text-center text-[11px] font-semibold tracking-wide text-slate-500 uppercase">
@@ -224,7 +258,10 @@ export function QuadroEscala({
                     onClick={() => {
                       if (!doMes) return;
                       if (selecionado && podeEditar) escalar(data, selecionado);
-                      else setAberto(data);
+                      else {
+                        setAberto(data);
+                        setFila(null);
+                      }
                     }}
                     className={`relative flex min-h-[4.25rem] flex-col items-stretch gap-0.5 border-r border-b border-slate-100 p-1 text-left transition sm:min-h-24 sm:p-1.5 [&:nth-child(7n)]:border-r-0 ${
                       !doMes ? "bg-slate-50/70" : "hover:bg-indigo-50/60"
@@ -270,7 +307,7 @@ export function QuadroEscala({
 
           {/* ----- Dia aberto ----- */}
           {aberto && (
-            <section className="cartao space-y-3">
+            <section id="painel-dia" className="cartao scroll-mt-20 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h2 className="font-semibold">{maiuscula(dataLonga(aberto))}</h2>
@@ -294,6 +331,51 @@ export function QuadroEscala({
                   </div>
                 )}
               </div>
+
+              {podeEditar && !fila && pendentesDe(aberto).length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setFila(pendentesDe(aberto).map((p) => p.id))}
+                  className="botao w-full bg-emerald-600 hover:bg-emerald-700 sm:w-auto"
+                >
+                  <MessageCircle size={16} /> Avisar todos ({pendentesDe(aberto).length} pendentes)
+                </button>
+              )}
+
+              {fila && fila.length > 0 && (() => {
+                const p = pessoasDoDia(aberto).find((x) => x.id === fila[0]);
+                if (!p) return null;
+                const nome = p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "—";
+                const zap = p.membro?.whatsapp ?? membroPorId.get(p.membro_id)?.whatsapp ?? null;
+                const dia = diasAbertos.find((d) => d.id === p.escala_dia_id) ?? diasAbertos[0];
+                const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, remetente, hoje });
+                const avancar = () => setFila((f) => (f && f.length > 1 ? f.slice(1) : null));
+                return (
+                  <div className="space-y-2 rounded-xl border border-emerald-300 bg-emerald-50 p-3">
+                    <p className="text-sm text-emerald-900">
+                      Avisando <b>{nome}</b> · {fila.length === 1 ? "último da lista" : `faltam ${fila.length}`}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={linkWhatsapp(zap, msg)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          mudarPessoa(p.id, { avisado_em: new Date().toISOString() });
+                          iniciar(() => avisoPessoa(p.id, true));
+                          setTimeout(avancar, 300);
+                        }}
+                        className="botao bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        <MessageCircle size={16} /> Abrir WhatsApp de {nome}
+                      </a>
+                      <button type="button" onClick={avancar} className="botao-secundario">Pular</button>
+                      <button type="button" onClick={() => setFila(null)} className="botao-secundario">Parar</button>
+                    </div>
+                    <p className="text-xs text-emerald-800">Envie no WhatsApp e volte aqui: a próxima pessoa já aparece.</p>
+                  </div>
+                );
+              })()}
 
               {eventosDoDia(aberto).length > 0 && (
                 <div className="space-y-1 rounded-lg border border-sky-100 bg-sky-50/60 p-2">

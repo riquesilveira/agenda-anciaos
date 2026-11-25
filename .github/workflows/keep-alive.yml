@@ -16,7 +16,9 @@ jobs:
     steps:
       - name: Acordar o site
         run: |
-          URL="https://iasdagenda-pvbl.onrender.com/login"
+          # /api/cron/tick mantém o site acordado e, a partir das 18h, dispara
+          # (uma vez por dia) o lembrete de véspera da escala para os líderes.
+          URL="https://iasdagenda-pvbl.onrender.com/api/cron/tick"
           for tentativa in 1 2; do
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo 000)
             echo "Tentativa $tentativa: HTTP $code"

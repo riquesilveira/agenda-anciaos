@@ -80,6 +80,11 @@ login, com WhatsApp) e monta os **dias da escala em qualquer data**, com
 várias pessoas e a função de cada uma. Quadro interativo: arrastar o nome
 até o dia (computador) ou tocar no nome e no dia (celular). Botão **Avisar**
 abre o WhatsApp do próprio líder com a mensagem pronta e marca como avisado.
+**Avisar todos** passa pelos pendentes do dia um por um, e o atalho
+"Amanhã: N para avisar" abre direto o dia. Às 18h da véspera o líder (ou,
+sem líder com login, o ancião responsável) recebe uma notificação no celular
+com quem falta avisar (`/api/cron/tick`, chamado pelo keep-alive; roda uma vez
+por dia graças à tabela `execucoes_agendadas`).
 Todos veem; editam o líder do departamento e anciãos/pastor (RLS).
 
 ## Fora da v1
