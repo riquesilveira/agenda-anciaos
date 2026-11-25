@@ -44,8 +44,10 @@ function FormLogin() {
       }}
       className="cartao w-full max-w-sm space-y-4 p-6"
     >
-      <div>
-        <h1 className="text-xl font-semibold">Agenda dos Anciãos</h1>
+      <div className="flex flex-col items-center gap-2 pb-2 text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icones/icone-192.png" alt="" width={64} height={64} className="h-16 w-16 rounded-2xl shadow-sm" />
+        <h1 className="text-xl font-bold">Agenda dos Anciãos</h1>
         <p className="text-sm text-slate-500">Entre com seu e-mail e senha.</p>
       </div>
       <div>

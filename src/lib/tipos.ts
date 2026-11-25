@@ -4,10 +4,34 @@
 export type Papel = "anciao" | "pastor" | "lider";
 export type Origem = "associacao" | "distrito" | "local";
 
-export const ORIGENS: Record<Origem, { nome: string; classe: string }> = {
-  associacao: { nome: "Associação", classe: "bg-violet-100 text-violet-800 border-violet-300" },
-  distrito: { nome: "Distrito", classe: "bg-amber-100 text-amber-900 border-amber-300" },
-  local: { nome: "Local", classe: "bg-sky-100 text-sky-800 border-sky-300" },
+export const ORIGENS: Record<
+  Origem,
+  { nome: string; classe: string; barra: string; ponto: string; fundoData: string; textoData: string }
+> = {
+  associacao: {
+    nome: "Associação",
+    classe: "bg-violet-100 text-violet-800 border-violet-300",
+    barra: "border-l-violet-500",
+    ponto: "bg-violet-500",
+    fundoData: "bg-violet-50",
+    textoData: "text-violet-700",
+  },
+  distrito: {
+    nome: "Distrito",
+    classe: "bg-amber-100 text-amber-900 border-amber-300",
+    barra: "border-l-amber-500",
+    ponto: "bg-amber-500",
+    fundoData: "bg-amber-50",
+    textoData: "text-amber-700",
+  },
+  local: {
+    nome: "Local",
+    classe: "bg-sky-100 text-sky-800 border-sky-300",
+    barra: "border-l-sky-500",
+    ponto: "bg-sky-500",
+    fundoData: "bg-sky-50",
+    textoData: "text-sky-700",
+  },
 };
 
 export interface Perfil {
