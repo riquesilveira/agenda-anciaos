@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Departamento, Perfil, Programacao } from "./tipos";
+import type { Departamento, Perfil, Pregacao, Programacao } from "./tipos";
 
 export async function listarDepartamentos(supabase: SupabaseClient) {
   const { data } = await supabase
@@ -31,5 +31,22 @@ export async function listarProgramacoes(supabase: SupabaseClient, de: string, a
     .order("data")
     .order("hora_inicio", { nullsFirst: true })
     .returns<Programacao[]>();
+  return data ?? [];
+}
+
+export async function nomeDaIgreja(supabase: SupabaseClient): Promise<string> {
+  const { data } = await supabase.from("igrejas").select("nome").limit(1).maybeSingle();
+  return data?.nome ?? "igreja";
+}
+
+/** Escala de pregação entre duas datas, com o ancião responsável. */
+export async function listarEscala(supabase: SupabaseClient, de: string, ate: string) {
+  const { data } = await supabase
+    .from("escala_pregacao")
+    .select("*, anciao:perfis(id, nome, papel, tratamento)")
+    .gte("data", de)
+    .lte("data", ate)
+    .order("data")
+    .returns<Pregacao[]>();
   return data ?? [];
 }

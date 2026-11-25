@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, CalendarDays, Sparkles, Users } from "lucide-react";
+import { Bell, CalendarDays, Mic, Sparkles, Users } from "lucide-react";
 
 const LINKS = [
-  { href: "/", rotulo: "Calendário", icone: CalendarDays },
-  { href: "/minhas", rotulo: "Minhas", icone: Bell },
-  { href: "/novidades", rotulo: "Novidades", icone: Sparkles },
-  { href: "/departamentos", rotulo: "Departamentos", icone: Users },
+  { href: "/", rotulo: "Calendário", curto: "Calendário", icone: CalendarDays },
+  { href: "/minhas", rotulo: "Minhas", curto: "Minhas", icone: Bell },
+  { href: "/pregacao", rotulo: "Pregação", curto: "Pregação", icone: Mic },
+  { href: "/novidades", rotulo: "Novidades", curto: "Novidades", icone: Sparkles },
+  { href: "/departamentos", rotulo: "Departamentos", curto: "Deptos", icone: Users },
 ];
 
 /** A página do evento e a de nova programação contam como "Calendário". */
@@ -60,17 +61,17 @@ export function NavInferior({ novidades }: { novidades: number }) {
   const caminho = usePathname();
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-slate-200 bg-white/95 shadow-[0_-2px_10px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-slate-200 bg-white/95 shadow-[0_-2px_10px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      {LINKS.map(({ href, rotulo, icone: Icone }) => {
+      {LINKS.map(({ href, curto, icone: Icone }) => {
         const ativo = estaAtivo(caminho, href);
         return (
           <Link
             key={href}
             href={href}
             aria-current={ativo ? "page" : undefined}
-            className={`relative flex flex-col items-center gap-1 pt-2 pb-2.5 text-[11px] transition-colors ${
+            className={`relative flex flex-col items-center gap-1 pt-2 pb-2.5 text-[10.5px] transition-colors ${
               ativo ? "font-semibold text-indigo-700" : "text-slate-500 active:text-slate-800"
             }`}
           >
@@ -79,14 +80,14 @@ export function NavInferior({ novidades }: { novidades: number }) {
               className={`absolute top-0 h-0.5 w-10 rounded-full transition-colors ${ativo ? "bg-indigo-600" : "bg-transparent"}`}
             />
             <span
-              className={`relative flex h-8 w-14 items-center justify-center rounded-full transition-colors ${
+              className={`relative flex h-8 w-12 items-center justify-center rounded-full transition-colors ${
                 ativo ? "bg-indigo-100" : ""
               }`}
             >
               <Icone size={22} strokeWidth={ativo ? 2.4 : 2} />
               {href === "/novidades" && <Contador n={novidades} flutuante />}
             </span>
-            {rotulo}
+            {curto}
           </Link>
         );
       })}

@@ -89,3 +89,21 @@ export interface Programacao {
   created_at: string;
   departamento?: Departamento | null;
 }
+
+export type CultoPregacao = "sabado_manha" | "quarta" | "domingo_noite";
+export type StatusPregacao = "a_convidar" | "convidado" | "confirmado" | "recusou";
+
+export interface Pregacao {
+  id: string;
+  igreja_id: string;
+  data: string; // yyyy-MM-dd
+  culto: CultoPregacao;
+  anciao_id: string;
+  pregador_nome: string | null;
+  pregador_whatsapp: string | null;
+  pregador_igreja: string | null;
+  tema: string | null;
+  status: StatusPregacao;
+  observacoes: string | null;
+  anciao?: Pick<Perfil, "id" | "nome" | "papel" | "tratamento"> | null;
+}

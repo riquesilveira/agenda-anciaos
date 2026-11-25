@@ -65,6 +65,15 @@ a pessoa escolhe o grupo dos líderes). Todos da igreja veem em **Novidades**
 (com contador no menu) e recebem e-mail automático quando `RESEND_API_KEY`
 estiver configurada.
 
+### Escala de pregação
+Cultos: sábado de manhã, quarta e domingo à noite (todos os do mês aparecem
+automaticamente). Um ancião (ou o pastor) **assume** o culto e vira o
+responsável; **só ele** edita pregador, WhatsApp, igreja de origem, tema,
+situação do convite (a convidar → convidado → confirmado / recusou) e
+observações, pode passar para outro ancião ou liberar. Botões de WhatsApp com
+mensagem pronta de **convite** e de **lembrete**, e "Compartilhar escala" do mês.
+Todos da igreja veem a escala. Regras garantidas no RLS (`escala_pregacao`).
+
 ## Fora da v1
 - Importar do Google Agenda (ainda não se sabe se o calendário da Associação chega por lá)
 - Outras igrejas do distrito

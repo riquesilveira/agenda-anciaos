@@ -174,6 +174,92 @@ begin
   assert n = 1, 'ancião deveria editar departamento';
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- Escala de pregação: só o ancião responsável edita.
+-- ---------------------------------------------------------------------------
+reset role;
+insert into auth.users values ('40000000-0000-0000-0000-000000000004', 'j@x');
+insert into perfis (id, igreja_id, nome, papel, email) values
+  ('40000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-00000000000a', 'Jurandir', 'anciao', 'j@x');
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  -- Henrique assume o sábado 05/12/2026 (é sábado)
+  insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+    values ('00000000-0000-0000-0000-00000000000a', '2026-12-05', 'sabado_manha', '10000000-0000-0000-0000-000000000001');
+  update escala_pregacao set pregador_nome = 'Pr. Visitante', status = 'convidado' where data = '2026-12-05';
+  get diagnostics n = row_count;
+  assert n = 1, 'responsável deveria editar';
+
+  begin
+    insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+      values ('00000000-0000-0000-0000-00000000000a', '2026-12-06', 'sabado_manha', '10000000-0000-0000-0000-000000000001');
+    raise exception 'FALHOU: aceitou sábado em dia que não é sábado';
+  exception when check_violation then null;
+  end;
+
+  begin
+    insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+      values ('00000000-0000-0000-0000-00000000000a', '2026-12-09', 'quarta', '40000000-0000-0000-0000-000000000004');
+    raise exception 'FALHOU: assumiu culto em nome de outro ancião';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+      values ('00000000-0000-0000-0000-00000000000a', '2026-12-05', 'sabado_manha', '10000000-0000-0000-0000-000000000001');
+    raise exception 'FALHOU: duplicou o mesmo culto';
+  exception when unique_violation then null;
+  end;
+end $$;
+
+-- Outro ancião vê, mas não edita nem apaga.
+select set_config('request.jwt.claim.sub', '40000000-0000-0000-0000-000000000004', false);
+do $$
+declare n int;
+begin
+  select count(*) into n from escala_pregacao;
+  assert n = 1, 'outro ancião deveria ver a escala';
+  update escala_pregacao set tema = 'hack' where data = '2026-12-05';
+  get diagnostics n = row_count;
+  assert n = 0, 'outro ancião não pode editar';
+  delete from escala_pregacao where data = '2026-12-05';
+  get diagnostics n = row_count;
+  assert n = 0, 'outro ancião não pode liberar';
+end $$;
+
+-- Líder vê, mas não assume.
+select set_config('request.jwt.claim.sub', '30000000-0000-0000-0000-000000000003', false);
+do $$
+begin
+  assert (select count(*) from escala_pregacao) = 1, 'líder deveria ver a escala';
+  begin
+    insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+      values ('00000000-0000-0000-0000-00000000000a', '2026-12-09', 'quarta', '30000000-0000-0000-0000-000000000003');
+    raise exception 'FALHOU: líder assumiu culto';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
+-- Responsável passa para outro ancião; depois disso, perde a edição.
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  begin
+    update escala_pregacao set anciao_id = '30000000-0000-0000-0000-000000000003' where data = '2026-12-05';
+    raise exception 'FALHOU: passou o culto para um líder';
+  exception when insufficient_privilege then null;
+  end;
+  update escala_pregacao set anciao_id = '40000000-0000-0000-0000-000000000004' where data = '2026-12-05';
+  update escala_pregacao set tema = 'depois' where data = '2026-12-05';
+  get diagnostics n = row_count;
+  assert n = 0, 'quem passou o culto não edita mais';
+end $$;
+
 -- Notificações: cada um só mexe nas próprias inscrições.
 reset role;
 insert into push_inscricoes (perfil_id, endpoint, p256dh, auth) values

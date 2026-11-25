@@ -10,6 +10,7 @@ import { notificarNovaProgramacao } from "@/lib/notificacoes";
 import { enviarPush } from "@/lib/push";
 import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
 import { limparSigla, sugerirSigla } from "@/lib/siglas";
+import { cultoValido } from "@/lib/pregacao";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
 
@@ -356,4 +357,64 @@ export async function testarPush(): Promise<{ enviados: number }> {
     tag: "teste",
   });
   return { enviados };
+}
+
+// ---------------------------------------------------------------------------
+// Escala de pregação (só o ancião responsável edita; garantido no RLS)
+// ---------------------------------------------------------------------------
+
+export async function assumirCulto(form: FormData) {
+  const { supabase, perfil } = await exigirPerfil();
+  const data = String(form.get("data") ?? "");
+  const culto = String(form.get("culto") ?? "");
+  if (!ehLideranca(perfil) || !cultoValido(data, culto)) return;
+  await supabase
+    .from("escala_pregacao")
+    .insert({ igreja_id: perfil.igreja_id, data, culto, anciao_id: perfil.id });
+  revalidatePath("/pregacao");
+  redirect(`/pregacao/${data}/${culto}`);
+}
+
+export interface EstadoPregacao {
+  ok?: boolean;
+  erro?: string;
+}
+
+const STATUS_VALIDOS = ["a_convidar", "convidado", "confirmado", "recusou"];
+
+export async function salvarPregacao(_anterior: EstadoPregacao, form: FormData): Promise<EstadoPregacao> {
+  const { supabase, perfil } = await exigirPerfil();
+  const id = texto(form, "id");
+  const status = texto(form, "status") ?? "a_convidar";
+  const anciaoId = texto(form, "anciao_id") ?? perfil.id;
+  if (!id || !STATUS_VALIDOS.includes(status)) return { erro: "Dados inválidos." };
+
+  const { data, error } = await supabase
+    .from("escala_pregacao")
+    .update({
+      pregador_nome: texto(form, "pregador_nome"),
+      pregador_whatsapp: texto(form, "pregador_whatsapp"),
+      pregador_igreja: texto(form, "pregador_igreja"),
+      tema: texto(form, "tema"),
+      status,
+      observacoes: texto(form, "observacoes"),
+      anciao_id: anciaoId,
+    })
+    .eq("id", id)
+    .select("data, culto");
+  if (error || !data?.length) {
+    if (error) console.error("Falha ao salvar pregação", id, error);
+    return { erro: "Só o ancião responsável por este culto pode alterar." };
+  }
+  revalidatePath("/pregacao", "layout");
+  if (anciaoId !== perfil.id) redirect(`/pregacao/${data[0].data}/${data[0].culto}`);
+  return { ok: true };
+}
+
+export async function liberarCulto(form: FormData) {
+  const { supabase } = await exigirPerfil();
+  const id = String(form.get("id"));
+  const { data } = await supabase.from("escala_pregacao").delete().eq("id", id).select("data").maybeSingle();
+  revalidatePath("/pregacao", "layout");
+  redirect(data ? `/pregacao?mes=${String(data.data).slice(0, 7)}` : "/pregacao");
 }
