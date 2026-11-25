@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserRound } from "lucide-react";
+import { Avatar } from "@/components/avatar";
 import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { BotaoNova } from "@/components/botao-nova";
 import { NavInferior, NavTopo } from "@/components/navegacao";
@@ -33,9 +33,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
               className="flex items-center gap-2 rounded-full py-1 pr-1 pl-1 text-sm text-slate-600 hover:bg-slate-100 md:pr-3"
               title="Minha conta"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
-                {perfil.nome.trim().charAt(0).toUpperCase() || <UserRound size={16} />}
-              </span>
+              <Avatar nome={perfil.nome} foto={perfil.foto_url} tamanho={32} />
               <span className="hidden md:inline">{perfil.nome}</span>
             </Link>
           </div>

@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { sair } from "../acoes";
 import { FormPerfil } from "./form-perfil";
 import { FormSenha } from "./form-senha";
+import { FotoPerfil } from "./foto-perfil";
 
 export default async function MinhaConta() {
   const { perfil } = await exigirPerfil();
@@ -15,6 +16,12 @@ export default async function MinhaConta() {
         <h1 className="text-lg font-semibold">Minha conta</h1>
         <p className="text-sm text-slate-500">{perfil.email}</p>
       </div>
+
+      <section className="cartao space-y-2">
+        <h2 className="font-semibold">Sua foto</h2>
+        <FotoPerfil id={perfil.id} nome={perfil.nome} foto={perfil.foto_url} />
+        <p className="text-xs text-slate-500">Aparece no topo do site e para a equipe. A foto é reduzida no seu celular antes de enviar.</p>
+      </section>
 
       <FormPerfil perfil={perfil} comoAparece={tratamento(perfil)} />
 

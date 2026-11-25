@@ -59,6 +59,8 @@ export interface Perfil {
   novidades_vistas_em: string;
   /** Quando entrou sozinho pelo link de entrada da igreja (null = convidado). */
   entrou_pelo_link_em: string | null;
+  /** Foto (Storage "fotos"/perfis/<id>.jpg). */
+  foto_url: string | null;
   /** Cor na grade da escala (laranja, verde_escuro, rosa…). */
   cor: string | null;
 }
@@ -145,6 +147,8 @@ export interface MembroDepartamento {
   token: string;
   /** Quando ativou os lembretes no celular (null = não ativou). */
   lembretes_ativos_em: string | null;
+  /** Foto enviada pelo líder (Storage "fotos"/membros/<id>.jpg). */
+  foto_url: string | null;
 }
 
 /** Pessoa escalada num dia, com a função dela. */

@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import { Avatar } from "@/components/avatar";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
+import { EnviarFoto } from "@/components/enviar-foto";
 import { CabecalhoSemana, Moldura, NumeroDia } from "@/components/moldura";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala, mensagemLinkLembretes } from "@/lib/escalas";
@@ -14,6 +16,7 @@ import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Programacao } from
 import {
   adicionarMembro,
   editarMembro,
+  salvarFotoMembro,
   avisoPessoa,
   escalarNaData,
   excluirDiaEscala,
@@ -192,6 +195,18 @@ export function QuadroEscala({
                     className="space-y-2 rounded-xl border border-indigo-200 bg-indigo-50/50 p-2"
                   >
                     <input type="hidden" name="id" value={m.id} />
+                    <EnviarFoto
+                      caminho={`membros/${m.id}.jpg`}
+                      nome={m.nome}
+                      fotoAtual={m.foto_url}
+                      tamanho={44}
+                      compacto
+                      salvar={async (url) => {
+                        const r = await salvarFotoMembro(m.id, url);
+                        if (!r.erro) router.refresh();
+                        return r;
+                      }}
+                    />
                     <label className="block text-xs font-medium text-slate-600">
                       Nome
                       <input className="campo mt-0.5" name="nome" defaultValue={m.nome} required autoFocus />
@@ -219,14 +234,15 @@ export function QuadroEscala({
                       e.dataTransfer.effectAllowed = "copy";
                     }}
                     onClick={() => setSelecionado((s) => (s === m.id ? null : m.id))}
-                    className={`flex flex-1 cursor-grab items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition active:cursor-grabbing ${
+                    className={`flex flex-1 cursor-grab items-center gap-1.5 rounded-full border py-1 pr-3 pl-1 text-sm transition active:cursor-grabbing ${
                       selecionado === m.id
                         ? "border-indigo-600 bg-indigo-600 text-white shadow"
                         : "border-slate-300 bg-white text-slate-700 hover:border-indigo-400"
                     }`}
                   >
-                    <GripVertical size={14} className="hidden opacity-50 lg:block" />
+                    <Avatar nome={m.nome} foto={m.foto_url} tamanho={22} />
                     {m.nome}
+                    <GripVertical size={14} className="ml-auto hidden opacity-30 lg:block" />
                   </button>
                   <a
                     href={linkWhatsapp(m.whatsapp, mensagemLinkLembretes(m.nome, departamento.nome, `${urlBase}/m/${m.token}`))}
@@ -500,6 +516,7 @@ export function QuadroEscala({
                   const provisorio = p.id.startsWith("tmp-");
                   return (
                     <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-sm">
+                      <Avatar nome={nome} foto={p.membro?.foto_url ?? membroPorId.get(p.membro_id)?.foto_url} tamanho={28} />
                       <span className="font-medium">{nome}</span>
                       {p.resposta === "confirmado" && (
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">✓ Confirmou</span>

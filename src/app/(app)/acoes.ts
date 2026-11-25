@@ -223,6 +223,35 @@ export async function salvarMeuPerfil(
   return { ok: true };
 }
 
+/** URL pública esperada para um arquivo do bucket "fotos" (só aceita a do próprio caminho). */
+function urlDaFoto(url: string | null, caminho: string): string | null | false {
+  if (url === null) return null;
+  const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fotos/${caminho}`;
+  return url.startsWith(`${base}?v=`) && url.length < base.length + 30 ? url : false;
+}
+
+/** Grava a foto do próprio perfil (o arquivo já foi enviado ao Storage pelo navegador). */
+export async function salvarFotoPerfil(url: string | null): Promise<{ erro?: string }> {
+  const { supabase, perfil } = await exigirPerfil();
+  const valida = urlDaFoto(url, `perfis/${perfil.id}.jpg`);
+  if (valida === false) return { erro: "Foto inválida." };
+  const { error } = await supabase.from("perfis").update({ foto_url: valida }).eq("id", perfil.id);
+  if (error) return { erro: "Não foi possível salvar a foto." };
+  revalidatePath("/", "layout");
+  return {};
+}
+
+/** Grava a foto de um associado (RLS: líder do departamento ou ancião/pastor). */
+export async function salvarFotoMembro(membroId: string, url: string | null): Promise<{ erro?: string }> {
+  const { supabase } = await exigirPerfil();
+  const valida = urlDaFoto(url, `membros/${membroId}.jpg`);
+  if (valida === false) return { erro: "Foto inválida." };
+  const { data, error } = await supabase.from("departamento_membros").update({ foto_url: valida }).eq("id", membroId).select("id");
+  if (error || !data?.length) return { erro: "Só o líder do departamento (ou um ancião) pode mudar a foto." };
+  revalidatePath("/escalas", "layout");
+  return {};
+}
+
 export interface EstadoConvite {
   erro?: string;
   link?: string;
