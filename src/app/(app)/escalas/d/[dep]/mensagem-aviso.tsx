@@ -67,7 +67,6 @@ export function MensagemAviso({
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-800">
         <MessageSquareText size={16} /> Mensagem do aviso
-        {modelo && <span className="rounded-full bg-indigo-50 px-1.5 text-[10px] font-medium text-indigo-700">personalizada</span>}
       </summary>
       <div className="space-y-2 pt-2">
         <p className="text-xs text-slate-500">
