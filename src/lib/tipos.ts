@@ -113,7 +113,8 @@ export interface Programacao {
   departamento?: Departamento | null;
 }
 
-export type CultoPregacao = "sabado_manha" | "quarta" | "domingo_noite";
+/** "especial" vale em qualquer dia e tem nome próprio em `titulo`. */
+export type CultoPregacao = "sabado_manha" | "quarta" | "domingo_noite" | "especial";
 export type StatusPregacao = "a_convidar" | "convidado" | "confirmado" | "recusou";
 
 export interface Pregacao {
@@ -121,6 +122,8 @@ export interface Pregacao {
   igreja_id: string;
   data: string; // yyyy-MM-dd
   culto: CultoPregacao;
+  /** Nome do culto especial (ex: Semana de Oração). */
+  titulo: string | null;
   anciao_id: string;
   pregador_nome: string | null;
   pregador_whatsapp: string | null;

@@ -7,7 +7,21 @@ export const CULTOS: Record<CultoPregacao, { nome: string; curto: string; diaDaS
   quarta: { nome: "Culto de quarta-feira", curto: "Quarta", diaDaSemana: 3, ordem: 1 },
   sabado_manha: { nome: "Culto Divino (sábado de manhã)", curto: "Sábado manhã", diaDaSemana: 6, ordem: 2 },
   domingo_noite: { nome: "Culto de domingo à noite", curto: "Domingo noite", diaDaSemana: 0, ordem: 0 },
+  // Qualquer dia; o nome vem do `titulo` (nomeDoCulto).
+  especial: { nome: "Culto especial", curto: "Culto especial", diaDaSemana: -1, ordem: 3 },
 };
+
+/** Nome do culto para mostrar: o título do culto especial ou o nome fixo. */
+export function nomeDoCulto(p: { culto: CultoPregacao; titulo?: string | null }, curto = false): string {
+  if (p.culto === "especial" && p.titulo?.trim()) return p.titulo.trim();
+  return curto ? CULTOS[p.culto].curto : CULTOS[p.culto].nome;
+}
+
+/** Cultos fixos do mês + os especiais já cadastrados, em ordem de data. */
+export function cultosComEspeciais(mes: string, escala: { data: string; culto: CultoPregacao }[]): CultoDoMes[] {
+  const especiais = escala.filter((e) => e.culto === "especial" && e.data.startsWith(mes)).map((e) => ({ data: e.data, culto: e.culto }));
+  return [...cultosDoMes(mes), ...especiais].sort((a, b) => a.data.localeCompare(b.data) || CULTOS[a.culto].ordem - CULTOS[b.culto].ordem);
+}
 
 export const STATUS: Record<StatusPregacao, { nome: string; classe: string }> = {
   a_convidar: { nome: "A convidar", classe: "bg-slate-100 text-slate-700" },
@@ -36,30 +50,31 @@ export function cultosDoMes(mes: string): CultoDoMes[] {
 
 export function cultoValido(data: string, culto: string): culto is CultoPregacao {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !(culto in CULTOS)) return false;
+  if (culto === "especial") return true;
   return parseISO(data).getDay() === CULTOS[culto as CultoPregacao].diaDaSemana;
 }
 
 type Remetente = Pick<Perfil, "nome" | "papel"> & { tratamento?: string | null };
 
 /** Mensagem de convite para o pregador (WhatsApp). */
-export function mensagemConvite(p: Pick<Pregacao, "data" | "culto" | "pregador_nome">, igreja: string, remetente: Remetente) {
+export function mensagemConvite(p: Pick<Pregacao, "data" | "culto" | "pregador_nome"> & { titulo?: string | null }, igreja: string, remetente: Remetente) {
   const ola = p.pregador_nome ? `Olá, ${p.pregador_nome}!` : "Olá!";
   return (
-    `${ola} Gostaríamos de convidar você para pregar no *${CULTOS[p.culto].nome}* da ${igreja}, ` +
+    `${ola} Gostaríamos de convidar você para pregar no *${nomeDoCulto(p)}* da ${igreja}, ` +
     `${dataLonga(p.data)}. Você pode? Fico no aguardo da sua confirmação. ${tratamento(remetente)}`
   );
 }
 
 /** Mensagem de lembrete para o pregador (WhatsApp). */
 export function mensagemLembrete(
-  p: Pick<Pregacao, "data" | "culto" | "pregador_nome" | "tema">,
+  p: Pick<Pregacao, "data" | "culto" | "pregador_nome" | "tema"> & { titulo?: string | null },
   igreja: string,
   remetente: Remetente,
 ) {
   const ola = p.pregador_nome ? `Olá, ${p.pregador_nome}!` : "Olá!";
   const tema = p.tema ? ` Tema: "${p.tema}".` : "";
   return (
-    `${ola} Passando para lembrar da sua pregação no *${CULTOS[p.culto].nome}* da ${igreja}, ` +
+    `${ola} Passando para lembrar da sua pregação no *${nomeDoCulto(p)}* da ${igreja}, ` +
     `${dataLonga(p.data)}.${tema} Que Deus abençoe! ${tratamento(remetente)}`
   );
 }

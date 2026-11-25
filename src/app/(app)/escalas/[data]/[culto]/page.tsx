@@ -5,7 +5,7 @@ import { Voltar } from "@/components/voltar";
 import { listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataLonga, hojeISO, maiuscula } from "@/lib/datas";
 import { ehLideranca } from "@/lib/permissoes";
-import { CULTOS, cultoValido, mensagemConvite, mensagemLembrete } from "@/lib/pregacao";
+import { cultoValido, mensagemConvite, mensagemLembrete, nomeDoCulto } from "@/lib/pregacao";
 import {
   linkWhatsapp,
 } from "@/lib/resumo";
@@ -28,13 +28,13 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
     <div className="mx-auto max-w-2xl space-y-4">
       <Voltar href={`/escalas?mes=${data.slice(0, 7)}`} rotulo="Voltar às escalas" />
       <div>
-        <p className="text-sm font-medium text-indigo-700">{CULTOS[culto].nome}</p>
+        <p className="text-sm font-medium text-indigo-700">{nomeDoCulto({ culto, titulo: p?.titulo })}</p>
         <h1 className="text-xl font-bold">{maiuscula(dataLonga(data))}</h1>
       </div>
 
       {!p && (
         ehLideranca(perfil) && data >= hoje ? (
-          <FormNovaPregacao data={data} culto={culto} dataTexto={`${maiuscula(dataLonga(data))} · ${CULTOS[culto].curto}`} />
+          <FormNovaPregacao data={data} culto={culto} dataTexto={maiuscula(dataLonga(data))} />
         ) : (
           <section className="cartao text-sm text-slate-600">Nenhum pregador cadastrado para este culto.</section>
         )
@@ -81,7 +81,7 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
           )}
           </>
           )}
-          <FormPregacao p={p} dataTexto={`${maiuscula(dataLonga(data))} · ${CULTOS[culto].curto}`} ancionato={ancionato} euId={perfil.id} />
+          <FormPregacao p={p} dataTexto={`${maiuscula(dataLonga(data))} · ${nomeDoCulto(p, true)}`} ancionato={ancionato} euId={perfil.id} />
           <form action={liberarCulto} className="text-right">
             <input type="hidden" name="id" value={p.id} />
             <BotaoConfirmar

@@ -26,6 +26,12 @@ export function FormPregacao({
       className="cartao space-y-4"
     >
       <input type="hidden" name="id" value={p.id} />
+      {p.culto === "especial" && (
+        <div>
+          <label className="rotulo" htmlFor="titulo">Nome do culto</label>
+          <input className="campo" id="titulo" name="titulo" required maxLength={80} defaultValue={p.titulo ?? ""} placeholder="Ex: Semana de Oração" />
+        </div>
+      )}
       <div>
         <label className="rotulo" htmlFor="pregador_nome">Nome do pregador</label>
         <input className="campo" id="pregador_nome" name="pregador_nome" defaultValue={p.pregador_nome ?? ""} placeholder="Ex: Pr. João Silva" />

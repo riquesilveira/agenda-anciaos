@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
-import { MessageCircle } from "lucide-react";
 import { AbasEscalas } from "@/components/abas-escalas";
+import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, TituloLateral } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes } from "@/lib/consultas";
 import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
-import { textoEscalaMes } from "@/lib/escalas";
 import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
-import { linkWhatsapp, ultimoDiaDoMes } from "@/lib/resumo";
+import { ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { QuadroEscala } from "./quadro-escala";
 import { URL_SITE } from "@/lib/url";
@@ -52,14 +51,12 @@ export default async function EscalaDepartamento({
   );
   const compartilhar =
     dias.length > 0 ? (
-      <a
-        href={linkWhatsapp(null, textoEscalaMes(departamento.nome, maiuscula(nomeDoMes(mes)), dias))}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
-      >
-        <MessageCircle size={16} /> Compartilhar a escala do mês
-      </a>
+      <CompartilharImagem
+        url={`/escalas/d/${dep}/imagem?mes=${mes}`}
+        arquivo={`escala-${departamento.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-")}-${mes}.png`}
+        titulo={`Escala de ${departamento.nome}: ${maiuscula(nomeDoMes(mes))}`}
+        rotulo="Compartilhar a escala do mês"
+      />
     ) : null;
 
   return (

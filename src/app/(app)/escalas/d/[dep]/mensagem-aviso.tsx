@@ -79,19 +79,21 @@ export function MensagemAviso({
           className="campo resize-y text-sm"
           aria-label="Mensagem do aviso"
         />
-        <div className="flex flex-wrap gap-1">
+        <ul className="space-y-1">
           {MARCADORES.map((m) => (
-            <button
-              key={m.chave}
-              type="button"
-              title={m.descricao}
-              onClick={() => inserir(m.chave)}
-              className="rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[11px] text-slate-600 hover:border-indigo-300 hover:text-indigo-700"
-            >
-              {m.chave}
-            </button>
+            <li key={m.chave} className="flex items-start gap-2 text-[11px] leading-snug text-slate-500">
+              <button
+                type="button"
+                onClick={() => inserir(m.chave)}
+                title="Incluir na mensagem"
+                className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[11px] text-slate-700 hover:border-indigo-300 hover:text-indigo-700"
+              >
+                {m.chave}
+              </button>
+              <span className="pt-0.5">{m.descricao}</span>
+            </li>
           ))}
-        </div>
+        </ul>
         <div className="rounded-lg bg-emerald-50 px-2.5 py-2 text-xs text-emerald-900">
           <p className="mb-0.5 font-semibold">Exemplo:</p>
           <p className="whitespace-pre-wrap">{exemplo}</p>

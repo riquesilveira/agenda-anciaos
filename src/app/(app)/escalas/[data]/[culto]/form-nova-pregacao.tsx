@@ -17,9 +17,15 @@ export function FormNovaPregacao({ data, culto, dataTexto }: { data: string; cul
     >
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="culto" value={culto} />
+      {culto === "especial" && (
+        <div>
+          <label className="rotulo" htmlFor="titulo">Nome do culto</label>
+          <input className="campo" id="titulo" name="titulo" required maxLength={80} autoFocus placeholder="Ex: Semana de Oração" />
+        </div>
+      )}
       <div>
         <label className="rotulo" htmlFor="pregador_nome">Nome do pregador</label>
-        <input className="campo" id="pregador_nome" name="pregador_nome" autoFocus placeholder="Ex: Pr. João Silva" />
+        <input className="campo" id="pregador_nome" name="pregador_nome" autoFocus={culto !== "especial"} placeholder="Ex: Pr. João Silva" />
       </div>
       <div>
         <span className="rotulo">Data</span>

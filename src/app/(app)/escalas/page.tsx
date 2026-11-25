@@ -1,18 +1,15 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GradeEscala } from "@/components/grade-escala";
 import { AbasEscalas } from "@/components/abas-escalas";
+import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
-import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
-import { dataCurta, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis } from "@/lib/consultas";
+import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { departamentosQueLidera, ehLideranca } from "@/lib/permissoes";
-import { CULTOS, cultosDoMes, siglasAnciaos } from "@/lib/pregacao";
-import {
-  linkWhatsapp,
-  ultimoDiaDoMes,
-} from "@/lib/resumo";
+import { cultosComEspeciais, nomeDoCulto, siglasAnciaos } from "@/lib/pregacao";
+import { ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { assumirCulto } from "../acoes";
 
@@ -23,9 +20,8 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
-  const [escala, igreja, perfis, departamentos, comEquipe] = await Promise.all([
+  const [escala, perfis, departamentos, comEquipe] = await Promise.all([
     listarEscala(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
-    nomeDaIgreja(supabase),
     listarPerfis(supabase),
     listarDepartamentos(supabase),
     departamentosComEquipe(supabase),
@@ -33,20 +29,10 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const ancionato = perfis.filter((x) => ehLideranca(x));
   const siglas = siglasAnciaos(ancionato);
   const porChave = new Map(escala.map((e) => [`${e.data}|${e.culto}`, e]));
-  const cultos = cultosDoMes(mes);
+  const cultos = cultosComEspeciais(mes, escala);
   const lideranca = ehLideranca(perfil);
 
   const definidos = cultos.filter((c) => porChave.get(`${c.data}|${c.culto}`)?.pregador_nome).length;
-  const textoEscala = [
-    `📖 *Escala de pregação: ${maiuscula(nomeDoMes(mes))}*`,
-    `${igreja}`,
-    "",
-    ...cultos.map((c) => {
-      const e = porChave.get(`${c.data}|${c.culto}`);
-      const quem = e?.pregador_nome ?? "a definir";
-      return `${dataCurta(c.data)} · ${CULTOS[c.culto].curto}: ${quem}`;
-    }),
-  ].join("\n");
 
   const abas = (vertical: boolean) => (
     <AbasEscalas
@@ -81,9 +67,12 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
       <p>
         <b>{definidos}</b> de <b>{cultos.length}</b> cultos com pregador definido
       </p>
-      <a href={linkWhatsapp(null, textoEscala)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-medium text-emerald-700 hover:underline">
-        <MessageCircle size={16} /> Compartilhar escala
-      </a>
+      <CompartilharImagem
+        url={`/escalas/imagem?mes=${mes}`}
+        arquivo={`escala-pregacao-${mes}.png`}
+        titulo={`Escala de pregação: ${maiuscula(nomeDoMes(mes))}`}
+        rotulo="Compartilhar escala"
+      />
     </div>
   );
 
@@ -115,7 +104,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           {legenda}
           {resumo}
         </div>
-        <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
+        <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} podeAdicionar={lideranca} />
       </Moldura>
 
       <ul className="space-y-2">
@@ -136,7 +125,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
                     <span className="text-[11px] text-slate-500">{DIAS[d.getDay()]}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-slate-500">{CULTOS[c.culto].curto}</p>
+                    <p className="text-xs font-medium text-slate-500">{nomeDoCulto({ culto: c.culto, titulo: e?.titulo }, true)}</p>
                     <p className={`truncate font-semibold ${e?.pregador_nome ? "text-slate-900" : "text-slate-400"}`}>
                       {e?.pregador_nome ?? "Pregador a definir"}
                     </p>

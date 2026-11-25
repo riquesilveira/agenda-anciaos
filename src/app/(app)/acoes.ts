@@ -419,6 +419,8 @@ export async function salvarPregacao(_anterior: EstadoPregacao, form: FormData):
       // Formulário simples: com pregador = definido; sem = a definir.
       status: pregador ? "confirmado" : "a_convidar",
       anciao_id: anciaoId,
+      // Só o culto especial tem nome próprio (o campo nem aparece nos outros).
+      ...(form.has("titulo") ? { titulo: texto(form, "titulo")?.slice(0, 80) ?? null } : {}),
     })
     .eq("id", id)
     .select("data, culto");
@@ -642,6 +644,7 @@ export async function assumirComPregador(_anterior: EstadoPregacao, form: FormDa
     pregador_nome: pregador,
     observacoes: texto(form, "observacoes"),
     status: pregador ? "confirmado" : "a_convidar",
+    titulo: culto === "especial" ? (texto(form, "titulo")?.slice(0, 80) ?? "Culto especial") : null,
   });
   if (error) {
     console.error("Falha ao assumir culto", error);

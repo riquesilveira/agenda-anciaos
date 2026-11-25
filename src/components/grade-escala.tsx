@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { CabecalhoSemana, NumeroDia } from "@/components/moldura";
-import { CULTOS, type CultoDoMes } from "@/lib/pregacao";
+import { Plus } from "lucide-react";
+import { nomeDoCulto, type CultoDoMes } from "@/lib/pregacao";
 import type { Pregacao } from "@/lib/tipos";
-
 
 
 /**
@@ -16,12 +16,15 @@ export function GradeEscala({
   cultos,
   porChave,
   siglas,
+  podeAdicionar = false,
 }: {
   mes: string; // yyyy-MM
   hoje: string;
   cultos: CultoDoMes[];
   porChave: Map<string, Pregacao>;
   siglas: Map<string, { sigla: string; cor: string }>;
+  /** Anciãos/pastor: dia sem culto ganha "+" para cadastrar um culto especial. */
+  podeAdicionar?: boolean;
 }) {
   const inicio = parseISO(`${mes}-01`);
   const dias = eachDayOfInterval({ start: startOfWeek(startOfMonth(inicio)), end: endOfWeek(endOfMonth(inicio)) }).map((d) =>
@@ -65,7 +68,10 @@ export function GradeEscala({
                       ?
                     </span>
                   )}
-                  <span className="line-clamp-2 min-w-0">{e?.pregador_nome ?? "a definir"}</span>
+                  <span className="line-clamp-2 min-w-0">
+                    {c.culto === "especial" && <span className="block text-[9px] font-medium opacity-70 sm:text-[10px]">{nomeDoCulto({ culto: c.culto, titulo: e?.titulo })}</span>}
+                    {e?.pregador_nome ?? "a definir"}
+                  </span>
                 </span>
               )}
             </>
@@ -78,9 +84,23 @@ export function GradeEscala({
               key={d}
               href={`/escalas/${c.data}/${c.culto}`}
               className={`${classe} transition hover:bg-slate-50`}
-              title={`${CULTOS[c.culto].nome}${e?.pregador_nome ? ` · ${e.pregador_nome}` : ""}`}
+              title={`${nomeDoCulto({ culto: c.culto, titulo: e?.titulo })}${e?.pregador_nome ? ` · ${e.pregador_nome}` : ""}`}
             >
               {conteudo}
+            </Link>
+          ) : podeAdicionar && !foraDoMes && !passou ? (
+            // Dia sem culto fixo: dá para cadastrar um culto especial (semana de oração etc.).
+            <Link
+              key={d}
+              href={`/escalas/${d}/especial`}
+              className={`${classe} group transition hover:bg-slate-50`}
+              title="Adicionar culto especial neste dia"
+              aria-label={`Adicionar culto especial em ${d}`}
+            >
+              {conteudo}
+              <span className="flex items-center gap-1 self-center rounded-md px-1.5 py-0.5 text-[10px] text-slate-300 transition group-hover:opacity-100 sm:self-start sm:text-xs sm:text-indigo-600 sm:opacity-0">
+                <Plus size={13} /> <span className="hidden sm:inline">Culto</span>
+              </span>
             </Link>
           ) : (
             <div key={d} className={classe}>

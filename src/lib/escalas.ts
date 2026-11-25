@@ -117,13 +117,13 @@ function maiusculaInicial(t: string) {
 
 /** Marcadores que o líder pode usar na mensagem padrão. */
 export const MARCADORES = [
-  { chave: "{nome}", descricao: "nome da pessoa" },
-  { chave: "{quando}", descricao: "hoje / amanhã / a data" },
-  { chave: "{data}", descricao: "data completa" },
-  { chave: "{horario}", descricao: "horário" },
-  { chave: "{programacao}", descricao: "título do dia" },
-  { chave: "{funcao}", descricao: "função" },
-  { chave: "{departamento}", descricao: "departamento" },
+  { chave: "{nome}", descricao: "nome da pessoa (ex: Pedro)" },
+  { chave: "{quando}", descricao: "“hoje”, “amanhã” ou a data, conforme o dia em que você avisa" },
+  { chave: "{data}", descricao: "sempre a data completa (ex: sábado, 12 de dezembro)" },
+  { chave: "{horario}", descricao: "horário do dia, se tiver (ex: 9h)" },
+  { chave: "{programacao}", descricao: "título do dia, se tiver (ex: Culto Divino)" },
+  { chave: "{funcao}", descricao: "função da pessoa, se tiver (ex: Teclado)" },
+  { chave: "{departamento}", descricao: "nome do departamento" },
 ] as const;
 
 export const MODELO_SUGERIDO =

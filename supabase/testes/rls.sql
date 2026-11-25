@@ -352,6 +352,20 @@ begin
   assert n = 0, 'apagou inscrição de outra pessoa';
 end $$;
 
+-- Culto especial vale em qualquer dia; os fixos continuam presos ao dia da semana.
+reset role;
+set role service_role;
+do $$ begin
+  insert into escala_pregacao (igreja_id, data, culto, anciao_id, titulo)
+    values ('00000000-0000-0000-0000-00000000000a', '2026-12-15', 'especial', '10000000-0000-0000-0000-000000000001', 'Semana de Oração');
+  begin
+    insert into escala_pregacao (igreja_id, data, culto, anciao_id)
+      values ('00000000-0000-0000-0000-00000000000a', '2026-12-15', 'quarta', '10000000-0000-0000-0000-000000000001');
+    raise exception 'FALHOU: aceitou culto de quarta numa terça';
+  exception when check_violation then null;
+  end;
+end $$;
+
 -- Chave de administrador (cron/scripts) lê e grava tudo.
 reset role;
 set role service_role;
