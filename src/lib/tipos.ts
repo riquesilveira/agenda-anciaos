@@ -33,6 +33,8 @@ export interface Departamento {
   id: string;
   igreja_id: string;
   nome: string;
+  /** ASA, MM, DBV… (até 6 letras/números). */
+  sigla: string | null;
   cor: string;
   anciao_id: string | null;
   lider_nome: string | null;

@@ -3,7 +3,7 @@ import { departamentosParaCriar, podeEditarProgramacao } from "../permissoes";
 import type { Departamento } from "../tipos";
 
 const dep = (id: string, lideres: string[] = []): Departamento => ({
-  id, igreja_id: "i", nome: id, cor: "#000", anciao_id: null, lider_nome: null, lider_whatsapp: null,
+  id, igreja_id: "i", nome: id, sigla: null, cor: "#000", anciao_id: null, lider_nome: null, lider_whatsapp: null,
   lideres: lideres.map((perfil_id) => ({ perfil_id })),
 });
 const deps = [dep("jovens", ["ana"]), dep("musica")];

@@ -9,6 +9,7 @@ import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { notificarNovaProgramacao } from "@/lib/notificacoes";
 import { enviarPush } from "@/lib/push";
 import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
+import { limparSigla, sugerirSigla } from "@/lib/siglas";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
 
@@ -118,22 +119,66 @@ export async function marcarAvisado(form: FormData) {
   revalidatePath("/", "layout");
 }
 
-export async function salvarDepartamento(form: FormData) {
-  const { supabase, perfil } = await exigirPerfil();
-  if (!ehLideranca(perfil)) return;
-  const id = texto(form, "id");
-  const dados = {
-    nome: texto(form, "nome"),
-    cor: texto(form, "cor") ?? "#64748b",
-    anciao_id: texto(form, "anciao_id"),
-    lider_nome: texto(form, "lider_nome"),
-    lider_whatsapp: texto(form, "lider_whatsapp"),
-  };
-  if (!dados.nome) return;
+export interface EstadoDepartamento extends EstadoConvite {
+  ok?: boolean;
+}
 
-  if (id) await supabase.from("departamentos").update(dados).eq("id", id);
-  else await supabase.from("departamentos").insert({ ...dados, igreja_id: perfil.igreja_id });
+function dadosDepartamento(form: FormData) {
+  const nome = texto(form, "nome");
+  return {
+    nome,
+    sigla: limparSigla(texto(form, "sigla") ?? "") || (nome ? sugerirSigla(nome) : "") || null,
+    anciao_id: texto(form, "anciao_id"),
+  };
+}
+
+function erroDepartamento(error: { code?: string; message?: string }): string {
+  if (error.code === "23505") {
+    return /sigla/.test(error.message ?? "")
+      ? "Já existe um departamento com essa sigla."
+      : "Já existe um departamento com esse nome.";
+  }
+  return "Não foi possível salvar o departamento.";
+}
+
+/** Cria o departamento e, se vier o e-mail do líder, já gera o convite. */
+export async function criarDepartamento(_anterior: EstadoDepartamento, form: FormData): Promise<EstadoDepartamento> {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem criar departamentos." };
+  const dados = dadosDepartamento(form);
+  if (!dados.nome) return { erro: "Informe o nome do departamento." };
+
+  const liderNome = texto(form, "lider_nome");
+  const liderEmail = texto(form, "lider_email");
+  const liderWhatsapp = texto(form, "lider_whatsapp");
+
+  const { data: dep, error } = await supabase
+    .from("departamentos")
+    .insert({ ...dados, igreja_id: perfil.igreja_id, lider_nome: liderNome, lider_whatsapp: liderWhatsapp })
+    .select("id")
+    .single();
+  if (error || !dep) return { erro: error ? erroDepartamento(error) : "Não foi possível salvar o departamento." };
+
   revalidatePath("/", "layout");
+  if (!liderEmail) return { ok: true };
+  if (!liderNome) return { ok: true, erro: "Departamento criado. Para convidar o líder, informe também o nome." };
+  const convite = await gerarConviteLider(perfil, supabase, dep.id, liderNome, liderEmail, liderWhatsapp);
+  return { ok: true, ...convite };
+}
+
+export async function editarDepartamento(_anterior: EstadoDepartamento, form: FormData): Promise<EstadoDepartamento> {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem editar departamentos." };
+  const id = texto(form, "id");
+  const dados = dadosDepartamento(form);
+  if (!id || !dados.nome) return { erro: "Informe o nome do departamento." };
+  const { error } = await supabase
+    .from("departamentos")
+    .update({ ...dados, lider_nome: texto(form, "lider_nome"), lider_whatsapp: texto(form, "lider_whatsapp") })
+    .eq("id", id);
+  if (error) return { erro: erroDepartamento(error) };
+  revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 export async function excluirDepartamento(form: FormData) {
@@ -177,13 +222,28 @@ export interface EstadoConvite {
 export async function convidarLider(_anterior: EstadoConvite, form: FormData): Promise<EstadoConvite> {
   const { supabase, perfil } = await exigirPerfil();
   if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem convidar líderes." };
-
   const departamentoId = texto(form, "departamento_id");
   const nome = texto(form, "nome");
-  const email = texto(form, "email")?.toLowerCase() ?? null;
-  const whatsapp = texto(form, "whatsapp");
+  const email = texto(form, "email");
   if (!departamentoId || !nome || !email) return { erro: "Preencha nome e e-mail." };
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { erro: "E-mail inválido." };
+  return gerarConviteLider(perfil, supabase, departamentoId, nome, email, texto(form, "whatsapp"));
+}
+
+/**
+ * Cadastra (ou reaproveita) o usuário do líder, vincula ao departamento e
+ * devolve um link de uso único (24h) para ele criar a senha. Quem chama já
+ * conferiu que é ancião/pastor.
+ */
+async function gerarConviteLider(
+  perfil: { igreja_id: string },
+  supabase: Awaited<ReturnType<typeof exigirPerfil>>["supabase"],
+  departamentoId: string,
+  nome: string,
+  emailInformado: string,
+  whatsapp: string | null,
+): Promise<EstadoConvite> {
+  const email = emailInformado.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { erro: "E-mail do líder inválido." };
 
   // O departamento precisa ser desta igreja (o cliente com sessão só enxerga os dela).
   const { data: dep } = await supabase.from("departamentos").select("id, nome").eq("id", departamentoId).single();

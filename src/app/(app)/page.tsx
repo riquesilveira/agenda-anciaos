@@ -155,6 +155,7 @@ export default async function PaginaCalendario({
                       title={`${p.fonte ? `${p.titulo} (${p.fonte})` : p.titulo}. Clique para ver ou editar`}
                     >
                       {p.hora_inicio && <span className="font-semibold">{horaCurta(p.hora_inicio)} </span>}
+                      {p.departamento?.sigla && <span className="font-bold">{p.departamento.sigla} </span>}
                       {p.titulo}
                     </Link>
                   ))}

@@ -1,48 +1,29 @@
 "use client";
 
 import { startTransition, useActionState, useState } from "react";
-import { Copy, MessageCircle, UserPlus } from "lucide-react";
-import { linkWhatsapp } from "@/lib/resumo";
+import { UserPlus } from "lucide-react";
 import { convidarLider, type EstadoConvite } from "../acoes";
+import { CaixaConvite } from "./caixa-convite";
 
-export function ConvidarLider({ departamentoId, departamento }: { departamentoId: string; departamento: string }) {
+export function ConvidarLider({
+  departamentoId,
+  departamento,
+  sugestao,
+}: {
+  departamentoId: string;
+  departamento: string;
+  /** Nome/WhatsApp do líder já anotados no departamento, para pré-preencher. */
+  sugestao?: { nome: string | null; whatsapp: string | null };
+}) {
   const [aberto, setAberto] = useState(false);
-  const [copiado, setCopiado] = useState(false);
   const [estado, acao, enviando] = useActionState<EstadoConvite, FormData>(convidarLider, {});
 
-  if (estado.link) {
-    const mensagem =
-      `Olá, ${estado.nome}! Você foi cadastrado(a) como líder de ${estado.departamento} na Agenda da igreja. ` +
-      `Abra este link para criar sua senha (vale por 24 horas):\n${estado.link}`;
-    return (
-      <div className="space-y-2 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
-        <p className="font-medium">✅ Convite pronto para {estado.nome}. Envie o link para a pessoa:</p>
-        <div className="flex flex-wrap gap-2">
-          <a
-            href={linkWhatsapp(estado.whatsapp ?? null, mensagem)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="botao bg-emerald-600 hover:bg-emerald-700"
-          >
-            <MessageCircle size={16} /> Enviar pelo WhatsApp
-          </a>
-          <button
-            type="button"
-            className="botao-secundario"
-            onClick={() => navigator.clipboard.writeText(mensagem).then(() => setCopiado(true))}
-          >
-            <Copy size={16} /> {copiado ? "Copiado!" : "Copiar mensagem"}
-          </button>
-        </div>
-        <p className="text-xs">O link funciona uma vez e vale por 24 horas. Se expirar, gere outro aqui.</p>
-      </div>
-    );
-  }
+  if (estado.link) return <CaixaConvite convite={estado} />;
 
   if (!aberto) {
     return (
       <button type="button" className="botao bg-emerald-600 hover:bg-emerald-700" onClick={() => setAberto(true)}>
-        <UserPlus size={16} /> Convidar líder de {departamento}
+        <UserPlus size={16} /> Convidar líder
       </button>
     );
   }
@@ -54,23 +35,31 @@ export function ConvidarLider({ departamentoId, departamento }: { departamentoId
         const dados = new FormData(e.currentTarget);
         startTransition(() => acao(dados));
       }}
-      className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end"
+      className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
     >
+      <p className="text-sm font-medium">Convidar líder de {departamento}</p>
       <input type="hidden" name="departamento_id" value={departamentoId} />
-      <div>
-        <label className="rotulo">Nome do líder</label>
-        <input className="campo" name="nome" required />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label className="rotulo">Nome</label>
+          <input className="campo" name="nome" required defaultValue={sugestao?.nome ?? ""} />
+        </div>
+        <div>
+          <label className="rotulo">E-mail</label>
+          <input className="campo" name="email" type="email" required />
+        </div>
+        <div>
+          <label className="rotulo">WhatsApp</label>
+          <input className="campo" name="whatsapp" inputMode="tel" placeholder="(44) 99999-9999" defaultValue={sugestao?.whatsapp ?? ""} />
+        </div>
       </div>
-      <div>
-        <label className="rotulo">E-mail</label>
-        <input className="campo" name="email" type="email" required />
+      {estado.erro && <p className="text-sm text-red-600">{estado.erro}</p>}
+      <div className="flex gap-2">
+        <button className="botao bg-emerald-600 hover:bg-emerald-700" disabled={enviando}>
+          {enviando ? "Gerando…" : "Gerar convite"}
+        </button>
+        <button type="button" className="botao-secundario" onClick={() => setAberto(false)}>Cancelar</button>
       </div>
-      <div>
-        <label className="rotulo">WhatsApp</label>
-        <input className="campo" name="whatsapp" inputMode="tel" placeholder="(44) 99999-9999" />
-      </div>
-      <button className="botao" disabled={enviando}>{enviando ? "Gerando…" : "Gerar convite"}</button>
-      {estado.erro && <p className="text-sm text-red-600 sm:col-span-4">{estado.erro}</p>}
     </form>
   );
 }

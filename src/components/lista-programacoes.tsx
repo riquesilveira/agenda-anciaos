@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
+import { Sigla } from "@/components/sigla";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { ORIGENS, type Programacao } from "@/lib/tipos";
 
@@ -44,7 +45,7 @@ export function ListaProgramacoes({ programacoes, hoje }: { programacoes: Progra
             <div className="flex flex-wrap items-center gap-2">
               {p.departamento && (
                 <span className="flex items-center gap-1 text-xs text-slate-600">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: p.departamento.cor }} />
+                  <Sigla d={p.departamento} />
                   {p.departamento.nome}
                 </span>
               )}
