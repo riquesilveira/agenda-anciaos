@@ -169,3 +169,11 @@ export interface EscalaDia {
   observacao: string | null;
   pessoas?: EscalaDiaPessoa[];
 }
+
+/** Mensagem padrão do aviso da escala de um departamento (escrita pelo líder). */
+export interface EscalaMensagem {
+  departamento_id: string;
+  /** Texto com marcadores: {nome}, {quando}, {data}, {horario}, {programacao}, {funcao}, {departamento}. */
+  texto: string;
+  updated_at: string;
+}

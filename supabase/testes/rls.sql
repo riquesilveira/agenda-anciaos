@@ -360,6 +360,27 @@ do $$ begin
   insert into departamentos (igreja_id, nome) values ('00000000-0000-0000-0000-00000000000b', 'Via service_role');
 end $$;
 
+-- Mensagem da escala: outra igreja não vê nem grava.
+reset role;
+set role service_role;
+insert into departamentos (id, igreja_id, nome) values
+  ('d0000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000b', 'Música da outra');
+insert into escala_mensagens (departamento_id, texto) values ('d0000000-0000-0000-0000-00000000000b', 'segredo');
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  select count(*) into n from escala_mensagens;
+  assert n = 0, 'viu mensagem de outra igreja';
+  begin
+    insert into escala_mensagens (departamento_id, texto) values ('d0000000-0000-0000-0000-00000000000b', 'invasão');
+    raise exception 'FALHOU: gravou mensagem em outra igreja';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 -- Aparelhos dos associados: só o servidor.
 reset role;
 set role authenticated;

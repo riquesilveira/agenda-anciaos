@@ -26,10 +26,11 @@ export default async function EscalaDepartamento({
   const [departamentos, comEquipe] = await Promise.all([listarDepartamentos(supabase), departamentosComEquipe(supabase)]);
   const departamento = departamentos.find((d) => d.id === dep);
   if (!departamento) notFound();
-  const [membros, dias, programacoesMes] = await Promise.all([
+  const [membros, dias, programacoesMes, { data: mensagem }] = await Promise.all([
     listarMembros(supabase, dep),
     listarDiasEscala(supabase, dep, `${mes}-01`, ultimoDiaDoMes(mes)),
     listarProgramacoes(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
+    supabase.from("escala_mensagens").select("texto").eq("departamento_id", dep).maybeSingle<{ texto: string }>(),
   ]);
   // Só as programações da igreja local, para o líder saber quando vai precisar de gente.
   const programacoesLocais = programacoesMes.filter((p) => p.origem === "local");
@@ -71,6 +72,7 @@ export default async function EscalaDepartamento({
         mes={mes}
         programacoes={programacoesLocais}
         urlBase={process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com"}
+        modeloMensagem={mensagem?.texto ?? null}
         diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
         lateral={
           <>

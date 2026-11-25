@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { detectarConflitos } from "../conflitos";
 import { pushNovaProgramacao } from "../avisos";
 import { hojeISO } from "../datas";
-import { gerarResumo, linkWhatsapp, mensagemParaLider, normalizarWhatsapp } from "../resumo";
+import { dddDe, gerarResumo, linkWhatsapp, mensagemParaLider, normalizarWhatsapp, prepararWhatsapp } from "../resumo";
 import type { Departamento, Perfil, Programacao } from "../tipos";
 
 const henrique: Perfil = { id: "a1", igreja_id: "i", nome: "Henrique", papel: "anciao", email: "h@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null };
@@ -160,5 +160,30 @@ it("notificação de nova programação", () => {
     corpo: "12/12 (sáb) às 19h30 · Templo\nCadastrada por Ana (Jovens)",
     url: "/programacoes/abc",
     tag: "programacao-abc",
+  });
+});
+
+describe("WhatsApp em qualquer formato", () => {
+  it("normaliza para o link", () => {
+    const esperado = "5543999999999";
+    for (const n of [
+      "(43) 99999-9999", "43999999999", "43 99999-9999", "43 9 9999-9999", "43-99999-9999", "(43)99999.9999",
+      " 43 99999 9999 ", "+55 43 99999-9999", "+55 (43) 99999-9999", "5543999999999", "055 43 99999 9999", "043 99999-9999",
+    ]) expect(normalizarWhatsapp(n), n).toBe(esperado);
+    expect(normalizarWhatsapp("(43) 3333-4444")).toBe("554333334444");
+    expect(normalizarWhatsapp("+1 555 123 4567")).toBe("15551234567");
+    expect(normalizarWhatsapp("   ")).toBeNull();
+  });
+  it("prepara para salvar (completa o DDD)", () => {
+    expect(prepararWhatsapp("43999999999", null)).toEqual({ valor: "(43) 99999-9999" });
+    expect(prepararWhatsapp("+55 43 9 9999-9999", null)).toEqual({ valor: "(43) 99999-9999" });
+    expect(prepararWhatsapp("043 3333-4444", null)).toEqual({ valor: "(43) 3333-4444" });
+    expect(prepararWhatsapp("99999-9999", "43")).toEqual({ valor: "(43) 99999-9999" });
+    expect(prepararWhatsapp("99999-9999", null).erro).toMatch(/DDD/);
+    expect(prepararWhatsapp("123", "43").erro).toBeTruthy();
+    expect(prepararWhatsapp("+1 555 123 4567", null)).toEqual({ valor: "+15551234567" });
+    expect(prepararWhatsapp("", "43")).toEqual({ valor: null });
+    expect(dddDe("(43) 99999-9999")).toBe("43");
+    expect(dddDe(null)).toBeNull();
   });
 });

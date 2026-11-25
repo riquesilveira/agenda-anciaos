@@ -155,11 +155,47 @@ export function gerarResumo(opcoes: {
 }
 
 /** Só dígitos; números brasileiros sem DDI ganham 55. */
+/**
+ * Número para o link do WhatsApp (só dígitos, com 55). Aceita qualquer jeito
+ * de digitar: espaços, hífen, parênteses, ponto, +55, zero da operadora.
+ * Começando com "+" é tratado como internacional (fica como está).
+ */
 export function normalizarWhatsapp(numero: string | null): string | null {
-  const digitos = (numero ?? "").replace(/\D/g, "");
+  const bruto = (numero ?? "").trim();
+  let digitos = bruto.replace(/\D/g, "");
   if (!digitos) return null;
+  if (bruto.startsWith("+")) return digitos;
+  digitos = digitos.replace(/^0+/, ""); // 043…, 055…, 0xx…
+  if ((digitos.length === 12 || digitos.length === 13) && digitos.startsWith("55")) return digitos;
   if (digitos.length === 10 || digitos.length === 11) return `55${digitos}`;
   return digitos;
+}
+
+/** DDD de um número brasileiro (ou null). */
+export function dddDe(numero: string | null): string | null {
+  const n = normalizarWhatsapp(numero);
+  return n && n.startsWith("55") && (n.length === 12 || n.length === 13) ? n.slice(2, 4) : null;
+}
+
+/**
+ * Prepara o WhatsApp digitado para salvar: completa o DDD quando faltar (com o
+ * DDD padrão) e devolve no formato "(43) 99999-9999". Vazio = null.
+ */
+export function prepararWhatsapp(numero: string | null, dddPadrao: string | null): { valor: string | null; erro?: string } {
+  const bruto = (numero ?? "").trim();
+  if (!bruto) return { valor: null };
+  let digitos = bruto.replace(/\D/g, "").replace(/^0+/, "");
+  if (bruto.startsWith("+") && !bruto.startsWith("+55")) {
+    return digitos.length >= 8 ? { valor: `+${digitos}` } : { erro: "Número incompleto." , valor: null };
+  }
+  if (digitos.startsWith("55") && (digitos.length === 12 || digitos.length === 13)) digitos = digitos.slice(2);
+  if (digitos.length === 8 || digitos.length === 9) {
+    if (!dddPadrao) return { valor: null, erro: "Coloque o DDD junto com o número (ex: 43 99999-9999)." };
+    digitos = dddPadrao + digitos;
+  }
+  if (digitos.length === 11) return { valor: `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}` };
+  if (digitos.length === 10) return { valor: `(${digitos.slice(0, 2)}) ${digitos.slice(2, 6)}-${digitos.slice(6)}` };
+  return { valor: null, erro: "Número de WhatsApp inválido. Use DDD + número, ex: (43) 99999-9999." };
 }
 
 /** Mensagem que o ancião envia ao líder do departamento. */

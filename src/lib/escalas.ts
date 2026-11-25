@@ -19,8 +19,11 @@ export function mensagemAvisoEscala(opcoes: {
   dia: Pick<EscalaDia, "data" | "horario" | "titulo">;
   departamento: string;
   hoje: string;
+  /** Mensagem padrão escrita pelo líder (com marcadores). Vazio = texto do sistema. */
+  modelo?: string | null;
 }): string {
-  const { nome, funcao, dia, departamento, hoje } = opcoes;
+  const { nome, funcao, dia, departamento, hoje, modelo } = opcoes;
+  if (modelo?.trim()) return aplicarModelo(modelo, { nome, funcao, dia, departamento, hoje });
   const detalhes = [dia.titulo, dia.horario ? `às ${horaCurta(dia.horario)}` : null].filter(Boolean).join(", ");
   return (
     `Olá, ${nome}! Passando para lembrar que ${quandoE(dia.data, hoje)} é o seu dia na escala de ${departamento}` +
@@ -110,4 +113,41 @@ export function mensagemLinkLembretes(nome: string, departamento: string, link: 
 
 function maiusculaInicial(t: string) {
   return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/** Marcadores que o líder pode usar na mensagem padrão. */
+export const MARCADORES = [
+  { chave: "{nome}", descricao: "nome da pessoa" },
+  { chave: "{quando}", descricao: "hoje / amanhã / a data" },
+  { chave: "{data}", descricao: "data completa" },
+  { chave: "{horario}", descricao: "horário" },
+  { chave: "{programacao}", descricao: "título do dia" },
+  { chave: "{funcao}", descricao: "função" },
+  { chave: "{departamento}", descricao: "departamento" },
+] as const;
+
+export const MODELO_SUGERIDO =
+  "Olá, {nome}! Passando para lembrar que {quando} é o seu dia na escala de {departamento}, às {horario}. Conto com você! 🙏";
+
+/** Troca os marcadores pelos dados do dia; marcador sem valor some sem deixar sobra. */
+export function aplicarModelo(
+  modelo: string,
+  v: { nome: string; funcao: string | null; dia: Pick<EscalaDia, "data" | "horario" | "titulo">; departamento: string; hoje: string },
+): string {
+  const valores: Record<string, string> = {
+    nome: v.nome,
+    quando: quandoE(v.dia.data, v.hoje),
+    data: dataLonga(v.dia.data),
+    horario: v.dia.horario ? horaCurta(v.dia.horario) : "",
+    programacao: v.dia.titulo ?? "",
+    funcao: v.funcao ?? "",
+    departamento: v.departamento,
+  };
+  return modelo
+    .replace(/\{(\w+)\}/g, (todo, chave: string) => (chave.toLowerCase() in valores ? valores[chave.toLowerCase()] : todo))
+    .replace(/,?\s*às\s*(?=[,.!?)]|$)/g, "") // "às {horario}" sem horário
+    .replace(/\(\s*\)/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\s+([,.!?])/g, "$1")
+    .trim();
 }

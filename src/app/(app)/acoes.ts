@@ -11,6 +11,7 @@ import { enviarPush } from "@/lib/push";
 import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
 import { limparSigla, sugerirSigla } from "@/lib/siglas";
 import { CORES_PESSOA, cultoValido } from "@/lib/pregacao";
+import { dddDe, prepararWhatsapp } from "@/lib/resumo";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
 
@@ -442,24 +443,67 @@ export async function liberarCulto(form: FormData) {
 // líder do departamento ou ancião/pastor.
 // ---------------------------------------------------------------------------
 
-export async function adicionarMembro(form: FormData) {
-  const { supabase } = await exigirPerfil();
-  const departamentoId = texto(form, "departamento_id");
-  const nome = texto(form, "nome");
-  if (!departamentoId || !nome) return;
-  await supabase.from("departamento_membros").insert({ departamento_id: departamentoId, nome, whatsapp: texto(form, "whatsapp") });
-  revalidatePath("/escalas", "layout");
+/**
+ * WhatsApp do associado em qualquer formato. Sem DDD, usa o do líder (ou o
+ * mais comum na equipe). Devolve o número formatado ou uma mensagem de erro.
+ */
+async function whatsappDoAssociado(
+  supabase: Awaited<ReturnType<typeof exigirPerfil>>["supabase"],
+  perfil: { whatsapp: string | null },
+  departamentoId: string,
+  digitado: string | null,
+) {
+  let ddd = dddDe(perfil.whatsapp);
+  if (!ddd && digitado) {
+    const { data } = await supabase.from("departamento_membros").select("whatsapp").eq("departamento_id", departamentoId);
+    const contagem = new Map<string, number>();
+    for (const m of data ?? []) {
+      const d = dddDe(m.whatsapp);
+      if (d) contagem.set(d, (contagem.get(d) ?? 0) + 1);
+    }
+    ddd = [...contagem.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  }
+  return prepararWhatsapp(digitado, ddd);
 }
 
-export async function editarMembro(form: FormData) {
-  const { supabase } = await exigirPerfil();
+export async function adicionarMembro(form: FormData): Promise<{ erro?: string }> {
+  const { supabase, perfil } = await exigirPerfil();
+  const departamentoId = texto(form, "departamento_id");
   const nome = texto(form, "nome");
-  if (!nome) return;
-  await supabase
-    .from("departamento_membros")
-    .update({ nome, whatsapp: texto(form, "whatsapp") })
-    .eq("id", String(form.get("id")));
+  if (!departamentoId || !nome) return { erro: "Informe o nome." };
+  const zap = await whatsappDoAssociado(supabase, perfil, departamentoId, texto(form, "whatsapp"));
+  if (zap.erro) return { erro: zap.erro };
+  const { error } = await supabase.from("departamento_membros").insert({ departamento_id: departamentoId, nome, whatsapp: zap.valor });
+  if (error) return { erro: "Não foi possível adicionar. Só o líder do departamento (ou um ancião) pode mexer na equipe." };
   revalidatePath("/escalas", "layout");
+  return {};
+}
+
+export async function editarMembro(form: FormData): Promise<{ erro?: string }> {
+  const { supabase, perfil } = await exigirPerfil();
+  const id = String(form.get("id"));
+  const nome = texto(form, "nome");
+  if (!nome) return { erro: "Informe o nome." };
+  const { data: membro } = await supabase.from("departamento_membros").select("departamento_id").eq("id", id).maybeSingle();
+  if (!membro) return { erro: "Associado não encontrado." };
+  const zap = await whatsappDoAssociado(supabase, perfil, membro.departamento_id, texto(form, "whatsapp"));
+  if (zap.erro) return { erro: zap.erro };
+  const { error } = await supabase.from("departamento_membros").update({ nome, whatsapp: zap.valor }).eq("id", id);
+  if (error) return { erro: "Não foi possível salvar." };
+  revalidatePath("/escalas", "layout");
+  return {};
+}
+
+/** Mensagem padrão do aviso da escala (vazio = volta ao texto do sistema). Garantia no RLS. */
+export async function salvarMensagemEscala(departamentoId: string, texto: string): Promise<{ erro?: string }> {
+  const { supabase } = await exigirPerfil();
+  const limpo = texto.trim().slice(0, 1000);
+  const { error } = limpo
+    ? await supabase.from("escala_mensagens").upsert({ departamento_id: departamentoId, texto: limpo })
+    : await supabase.from("escala_mensagens").delete().eq("departamento_id", departamentoId);
+  if (error) return { erro: "Só o líder do departamento (ou um ancião) pode mudar a mensagem." };
+  revalidatePath("/escalas", "layout");
+  return {};
 }
 
 export async function removerMembro(form: FormData) {

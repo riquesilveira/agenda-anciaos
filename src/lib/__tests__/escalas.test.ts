@@ -1,6 +1,8 @@
 import { expect, it } from "vitest";
 import {
+  aplicarModelo,
   lembreteAssociado,
+  MODELO_SUGERIDO,
   lembretesDeVespera,
   mensagemAvisoEscala,
   mensagemLinkLembretes,
@@ -89,4 +91,19 @@ it("link de lembretes e responsáveis", () => {
   expect(responsaveisDoDepartamento([], "h")).toEqual(["h"]);
   expect(responsaveisDoDepartamento(["a"], "h")).toEqual(["a"]);
   expect(responsaveisDoDepartamento([], null)).toEqual([]);
+});
+
+it("mensagem padrão do líder", () => {
+  const base = { nome: "Pedro", funcao: null, departamento: "Música", hoje: "2026-12-05" };
+  expect(aplicarModelo(MODELO_SUGERIDO, { ...base, dia: { data: "2026-12-06", horario: "09:00", titulo: null } })).toBe(
+    "Olá, Pedro! Passando para lembrar que amanhã é o seu dia na escala de Música, às 9h. Conto com você! 🙏",
+  );
+  // sem horário: some o "às"
+  expect(aplicarModelo(MODELO_SUGERIDO, { ...base, dia: { data: "2026-12-12", horario: null, titulo: null } })).toBe(
+    "Olá, Pedro! Passando para lembrar que sábado, 12 de dezembro é o seu dia na escala de Música. Conto com você! 🙏",
+  );
+  expect(aplicarModelo("Oi {NOME} ({funcao}) {xyz}", { ...base, dia: { data: "2026-12-05", horario: null, titulo: null } })).toBe("Oi Pedro {xyz}");
+  expect(
+    mensagemAvisoEscala({ ...base, dia: { data: "2026-12-05", horario: null, titulo: "Culto" }, modelo: "{nome}: {programacao} {quando}!" }),
+  ).toBe("Pedro: Culto hoje!");
 });

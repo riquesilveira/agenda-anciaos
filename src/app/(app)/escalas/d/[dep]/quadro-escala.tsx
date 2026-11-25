@@ -21,6 +21,7 @@ import {
   removerPessoaDia,
 } from "../../../acoes";
 import { FormDia } from "./form-dia";
+import { MensagemAviso } from "./mensagem-aviso";
 
 
 
@@ -42,6 +43,7 @@ export function QuadroEscala({
   lateral,
   cabecalho,
   abasCelular,
+  modeloMensagem,
 }: {
   departamento: { id: string; nome: string };
   membros: MembroDepartamento[];
@@ -61,6 +63,8 @@ export function QuadroEscala({
   cabecalho: React.ReactNode;
   /** Abas das escalas no celular (a lateral some). */
   abasCelular?: React.ReactNode;
+  /** Mensagem padrão do aviso escrita pelo líder (null = texto do sistema). */
+  modeloMensagem: string | null;
 }) {
   const router = useRouter();
   const [dias, setDias] = useState(diasIniciais);
@@ -73,6 +77,8 @@ export function QuadroEscala({
   });
   const [erro, setErro] = useState("");
   const [editandoMembro, setEditandoMembro] = useState<string | null>(null);
+  const [erroMembro, setErroMembro] = useState("");
+  const [modelo, setModelo] = useState(modeloMensagem);
   // "Avisar todos": fila de pessoas a avisar, uma de cada vez.
   const [fila, setFila] = useState<string[] | null>(null);
   const [, iniciar] = useTransition();
@@ -174,8 +180,12 @@ export function QuadroEscala({
                 editandoMembro === m.id ? (
                 <li key={m.id} className="w-full">
                   <form
-                    action={async (f) => {
-                      await editarMembro(f);
+                    // onSubmit (e não action=) para não apagar o que foi digitado se der erro
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const r = await editarMembro(new FormData(e.currentTarget));
+                      if (r.erro) return setErroMembro(r.erro);
+                      setErroMembro("");
                       setEditandoMembro(null);
                       router.refresh();
                     }}
@@ -190,9 +200,10 @@ export function QuadroEscala({
                       WhatsApp
                       <input className="campo mt-0.5" name="whatsapp" defaultValue={m.whatsapp ?? ""} inputMode="tel" placeholder="(opcional)" />
                     </label>
+                    {erroMembro && <p className="text-xs text-red-600">{erroMembro}</p>}
                     <div className="flex gap-2">
                       <button className="botao flex-1 py-1.5">Salvar</button>
-                      <button type="button" onClick={() => setEditandoMembro(null)} className="botao-secundario flex-1 py-1.5">
+                      <button type="button" onClick={() => { setEditandoMembro(null); setErroMembro(""); }} className="botao-secundario flex-1 py-1.5">
                         Cancelar
                       </button>
                     </div>
@@ -253,20 +264,33 @@ export function QuadroEscala({
                 <Bell size={12} className="inline text-emerald-600" fill="currentColor" /> = já ativou.
               </p>
             )}
+            <MensagemAviso
+              departamentoId={departamento.id}
+              departamento={departamento.nome}
+              modelo={modelo}
+              hoje={hoje}
+              aoSalvar={setModelo}
+            />
             <details className="group border-t border-slate-100 pt-3" open={membros.length === 0}>
               <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
                 <Plus size={16} className="transition group-open:rotate-45" /> Adicionar associado
               </summary>
             <form
-              action={async (f) => {
-                await adicionarMembro(f);
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const formulario = e.currentTarget;
+                const r = await adicionarMembro(new FormData(formulario));
+                if (r.erro) return setErroMembro(r.erro);
+                setErroMembro("");
+                formulario.reset();
                 router.refresh();
               }}
               className="space-y-2 pt-2"
             >
               <input type="hidden" name="departamento_id" value={departamento.id} />
               <input className="campo" name="nome" placeholder="Nome" required />
-              <input className="campo" name="whatsapp" placeholder="WhatsApp (opcional)" inputMode="tel" />
+              <input className="campo" name="whatsapp" placeholder="WhatsApp com DDD (opcional)" inputMode="tel" />
+              {erroMembro && !editandoMembro && <p className="text-xs text-red-600">{erroMembro}</p>}
               <button className="botao w-full bg-emerald-600 py-2.5 hover:bg-emerald-700"><Plus size={18} /> Adicionar à equipe</button>
             </form>
             </details>
@@ -424,7 +448,7 @@ export function QuadroEscala({
                 const nome = p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "—";
                 const zap = p.membro?.whatsapp ?? membroPorId.get(p.membro_id)?.whatsapp ?? null;
                 const dia = diasAbertos.find((d) => d.id === p.escala_dia_id) ?? diasAbertos[0];
-                const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje });
+                const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje, modelo });
                 const avancar = () => setFila((f) => (f && f.length > 1 ? f.slice(1) : null));
                 return (
                   <div className="space-y-2 rounded-xl border border-emerald-300 bg-emerald-50 p-3">
@@ -472,7 +496,7 @@ export function QuadroEscala({
                   const dia = diasAbertos.find((d) => d.id === p.escala_dia_id) ?? diasAbertos[0];
                   const nome = p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "—";
                   const zap = p.membro?.whatsapp ?? membroPorId.get(p.membro_id)?.whatsapp ?? null;
-                  const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje });
+                  const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje, modelo });
                   const provisorio = p.id.startsWith("tmp-");
                   return (
                     <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-sm">

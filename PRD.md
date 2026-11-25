@@ -91,6 +91,11 @@ equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" 
 "Não vou poder") os próximos dias. Quem ativou recebe o lembrete às 18h da
 véspera, fica marcado como avisado e sai da lista "para avisar" do líder. Uma
 recusa notifica o líder na hora.
+**Mensagem padrão do aviso:** cada departamento pode ter o próprio texto do
+botão Avisar (tabela `escala_mensagens`), com marcadores {nome}, {quando},
+{data}, {horario}, {programacao}, {funcao}, {departamento}. Sem texto próprio,
+vale a mensagem do sistema. O WhatsApp do associado aceita qualquer formato e é
+salvo como "(43) 99999-9999"; sem DDD, usa o do líder (ou o mais comum na equipe).
 **Link de entrada para líderes:** um link único do 7Líder (`/entrar`, também no
 login como "Criar meu acesso"). A pessoa escolhe a igreja e os departamentos que
 lidera e cria o acesso (e-mail/senha ou Google, quando ligado no Supabase); entra

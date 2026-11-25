@@ -3,8 +3,13 @@
 const { chromium } = require("playwright");
 // Uso: node scripts/gerar-icones.cjs public/icones
 const out = process.argv[2];
-const ESCURO = "#4f46e5", CLARO = "#a5b4fc", TOPO = "#c7d2fe", ARGOLA = "#e0e7ff";
-const SETE = new Set(["0,0", "1,0", "2,0", "2,1", "1,2"]); // (coluna,linha)
+const ESCURO = "#4f46e5", CLARO = "#c7d2fe", TOPO = "#c7d2fe", ARGOLA = "#e0e7ff";
+// Grade 4x4; os pontos escuros desenham um "7" (coluna,linha):
+//   ■ ■ ■ ■
+//   · · · ■
+//   · · ■ ·
+//   · ■ · ·
+const SETE = new Set(["0,0", "1,0", "2,0", "3,0", "3,1", "2,2", "1,3"]);
 
 // Desenho do calendário num quadro 512x512 (sem fundo).
 function calendario({ selo = false } = {}) {
@@ -17,12 +22,12 @@ function calendario({ selo = false } = {}) {
   } else {
     s += `<mask id="m"><rect width="512" height="512" fill="#fff"/>`;
   }
-  const xs = [182, 256, 330], ys = [250, 304, 358];
-  for (let c = 0; c < 3; c++)
-    for (let l = 0; l < 3; l++) {
+  const xs = [184, 232, 280, 328], ys = [234, 280, 326, 372];
+  for (let c = 0; c < 4; c++)
+    for (let l = 0; l < 4; l++) {
       const no7 = SETE.has(`${c},${l}`);
-      if (selo) { if (no7) s += `<circle cx="${xs[c]}" cy="${ys[l]}" r="20" fill="#000"/>`; }
-      else s += `<circle cx="${xs[c]}" cy="${ys[l]}" r="${no7 ? 17 : 15}" fill="${no7 ? ESCURO : CLARO}"/>`;
+      if (selo) { if (no7) s += `<circle cx="${xs[c]}" cy="${ys[l]}" r="15" fill="#000"/>`; }
+      else s += `<circle cx="${xs[c]}" cy="${ys[l]}" r="13" fill="${no7 ? ESCURO : CLARO}"/>`;
     }
   if (selo) {
     s += `</mask><g mask="url(#m)" fill="#fff"><rect x="103" y="112" width="307" height="306" rx="34"/>`;
