@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cultosDoMes, cultoValido, mensagemConvite, mensagemLembrete } from "../pregacao";
+import { cultosDoMes, cultoValido, mensagemConvite, mensagemLembrete, siglasAnciaos } from "../pregacao";
 
 describe("cultosDoMes", () => {
   it("dezembro/2026: 5 quartas, 4 sábados, 4 domingos, em ordem", () => {
@@ -30,4 +30,24 @@ it("mensagens de convite e lembrete", () => {
   expect(
     mensagemLembrete({ data: "2026-12-05", culto: "sabado_manha", pregador_nome: "Pr. João", tema: "Esperança" }, "Igreja do Aeroporto", henrique),
   ).toContain('Tema: "Esperança". Que Deus abençoe! Ancião Henrique');
+});
+
+describe("siglasAnciaos", () => {
+  it("usa a inicial quando não há repetição", () => {
+    const s = siglasAnciaos([
+      { id: "h", nome: "Henrique" },
+      { id: "j", nome: "Jurandir" },
+      { id: "d", nome: "Denise" },
+    ]);
+    expect([s.get("j")?.sigla, s.get("h")?.sigla, s.get("d")?.sigla]).toEqual(["J", "H", "D"]);
+    expect(new Set([...s.values()].map((x) => x.cor)).size).toBe(3);
+  });
+  it("desempata com mais letras", () => {
+    const s = siglasAnciaos([
+      { id: "1", nome: "João" },
+      { id: "2", nome: "Jurandir" },
+      { id: "3", nome: "Élcio" },
+    ]);
+    expect([s.get("1")?.sigla, s.get("2")?.sigla, s.get("3")?.sigla]).toEqual(["JO", "JU", "E"]);
+  });
 });

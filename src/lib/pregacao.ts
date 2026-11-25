@@ -63,3 +63,37 @@ export function mensagemLembrete(
     `${dataLonga(p.data)}.${tema} Que Deus abençoe! ${tratamento(remetente)}`
   );
 }
+
+/** Cores fixas para os anciãos na grade da escala (na ordem alfabética dos nomes). */
+export const CORES_ANCIAOS = [
+  "bg-indigo-600",
+  "bg-emerald-600",
+  "bg-rose-600",
+  "bg-amber-500",
+  "bg-sky-600",
+  "bg-violet-600",
+  "bg-teal-600",
+  "bg-orange-600",
+];
+
+function semAcento(texto: string) {
+  return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
+}
+
+/**
+ * Sigla curta de cada ancião para a grade: a inicial do nome (J, H, D…).
+ * Se duas pessoas começam com a mesma letra, usa as duas primeiras (JO, JU),
+ * e assim por diante até ficar único. Também devolve uma cor fixa para cada um.
+ */
+export function siglasAnciaos(pessoas: { id: string; nome: string }[]): Map<string, { sigla: string; cor: string }> {
+  const ordenadas = [...pessoas].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  const limpos = ordenadas.map((p) => semAcento(p.nome) || "?");
+  const saida = new Map<string, { sigla: string; cor: string }>();
+  ordenadas.forEach((p, i) => {
+    let tam = 1;
+    const sigla = () => limpos[i].slice(0, tam);
+    while (tam < limpos[i].length && limpos.some((outro, j) => j !== i && outro.slice(0, tam) === sigla())) tam++;
+    saida.set(p.id, { sigla: sigla(), cor: CORES_ANCIAOS[i % CORES_ANCIAOS.length] });
+  });
+  return saida;
+}

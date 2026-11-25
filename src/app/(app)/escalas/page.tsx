@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, MessageCircle, Mic } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { listarEscala, nomeDaIgreja } from "@/lib/consultas";
+import { GradeEscala } from "@/components/grade-escala";
+import { listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataCurta, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { ehLideranca } from "@/lib/permissoes";
-import { CULTOS, cultosDoMes, STATUS } from "@/lib/pregacao";
+import { CULTOS, cultosDoMes, siglasAnciaos, STATUS } from "@/lib/pregacao";
 import { linkWhatsapp, tratamento, ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { assumirCulto } from "../acoes";
@@ -17,7 +18,13 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
-  const [escala, igreja] = await Promise.all([listarEscala(supabase, `${mes}-01`, ultimoDiaDoMes(mes)), nomeDaIgreja(supabase)]);
+  const [escala, igreja, perfis] = await Promise.all([
+    listarEscala(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
+    nomeDaIgreja(supabase),
+    listarPerfis(supabase),
+  ]);
+  const ancionato = perfis.filter((x) => ehLideranca(x));
+  const siglas = siglasAnciaos(ancionato);
   const porChave = new Map(escala.map((e) => [`${e.data}|${e.culto}`, e]));
   const cultos = cultosDoMes(mes);
   const lideranca = ehLideranca(perfil);
@@ -64,6 +71,28 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           <Mic size={16} /> Pregação
         </span>
       </nav>
+
+      <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
+
+      {/* Legenda: sigla de cada ancião e sinais de situação */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600">
+        {ancionato.map((a) => {
+          const s = siglas.get(a.id)!;
+          return (
+            <span key={a.id} className="flex items-center gap-1.5">
+              <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${s.cor}`}>
+                {s.sigla}
+              </span>
+              {tratamento(a)}
+            </span>
+          );
+        })}
+        <span className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-[10px] font-bold text-slate-400">?</span>
+          sem responsável
+        </span>
+        <span className="text-slate-400">✓ confirmado · • convidado · ! recusou</span>
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
         <span>
