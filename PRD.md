@@ -91,12 +91,13 @@ equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" 
 "Não vou poder") os próximos dias. Quem ativou recebe o lembrete às 18h da
 véspera, fica marcado como avisado e sai da lista "para avisar" do líder. Uma
 recusa notifica o líder na hora.
-**Link de entrada para líderes:** a tela Departamentos mostra um link da igreja
-(`/entrar/<código>`) para mandar no grupo dos líderes. Cada um cria o próprio
-acesso (nome, e-mail, senha) e marca os departamentos que lidera; entra na hora
-como líder. Anciãos/pastor recebem uma notificação e veem "Entraram pelo link",
-com "Remover acesso". "Gerar link novo" invalida o anterior. O convite
-individual continua existindo.
+**Link de entrada para líderes:** um link único do 7Líder (`/entrar`, também no
+login como "Criar meu acesso"). A pessoa escolhe a igreja e os departamentos que
+lidera e cria o acesso (e-mail/senha ou Google, quando ligado no Supabase); entra
+na hora como líder. O ancionato daquela igreja recebe uma notificação e vê
+"Entraram pelo link" em Departamentos, com "Remover acesso". O card em
+Departamentos manda o link já com a igreja escolhida (`/entrar?igreja=<id>`).
+O convite individual continua existindo.
 Todos veem; editam o líder do departamento e anciãos/pastor (RLS).
 
 ## Fora da v1

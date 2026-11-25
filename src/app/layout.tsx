@@ -3,10 +3,10 @@ import "./globals.css";
 import { VersaoNova } from "@/components/versao-nova";
 
 export const metadata: Metadata = {
-  title: "IASD Agenda",
+  title: "7Líder",
   description: "Programações da Associação, do distrito e da igreja num só calendário.",
-  applicationName: "IASD Agenda",
-  appleWebApp: { capable: true, title: "IASD Agenda", statusBarStyle: "default" },
+  applicationName: "7Líder",
+  appleWebApp: { capable: true, title: "7Líder", statusBarStyle: "default" },
   icons: {
     icon: [{ url: "/icones/icone-192.png", sizes: "192x192", type: "image/png" }],
     apple: [{ url: "/icones/apple-touch-icon.png", sizes: "180x180" }],

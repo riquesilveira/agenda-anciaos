@@ -74,7 +74,7 @@ function DefinirSenha() {
       className="cartao w-full max-w-sm space-y-4 p-6"
     >
       <div>
-        <h1 className="text-xl font-semibold">Bem-vindo(a) à IASD Agenda</h1>
+        <h1 className="text-xl font-semibold">Bem-vindo(a) ao 7Líder</h1>
         <p className="text-sm text-slate-500">Crie sua senha para entrar.</p>
       </div>
       <div>

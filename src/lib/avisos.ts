@@ -22,7 +22,7 @@ export function mensagemNovaProgramacao(
   const dep = p.departamento ? ` (${p.departamento.nome})` : "";
   const por = autor ? `\nCadastrada por ${tratamento(autor)}.` : "";
   const ver = link ? `\nVeja na agenda: ${link}` : "";
-  return `📅 Nova programação na IASD Agenda: *${p.titulo}*${dep}, ${quando}${hora}${local}.${por}${ver}`;
+  return `📅 Nova programação no 7Líder: *${p.titulo}*${dep}, ${quando}${hora}${local}.${por}${ver}`;
 }
 
 export interface NotificacaoPush {

@@ -52,7 +52,7 @@ export function FormLogin({ google }: { google: boolean }) {
       <div className="flex flex-col items-center gap-2 pb-2 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icones/icone-192.png" alt="" width={64} height={64} className="h-16 w-16 rounded-2xl shadow-sm" />
-        <h1 className="text-xl font-bold"><span className="text-indigo-700">IASD</span> Agenda</h1>
+        <h1 className="text-xl font-bold"><span className="text-indigo-700">7</span>Líder</h1>
         <p className="text-sm text-slate-500">Entre com seu e-mail e senha.</p>
       </div>
       {google && (
@@ -73,6 +73,12 @@ export function FormLogin({ google }: { google: boolean }) {
       </div>
       {erro && <p className="text-sm text-red-600">{erro}</p>}
       <button className="botao w-full" disabled={carregando}>{carregando ? "Entrando…" : "Entrar"}</button>
+      <p className="text-center text-sm text-slate-500">
+        É líder e ainda não tem acesso?{" "}
+        <a href="/entrar" className="font-medium text-indigo-700 hover:underline">
+          Criar meu acesso
+        </a>
+      </p>
     </form>
   );
 }

@@ -87,9 +87,7 @@ export default async function PaginaDepartamentos() {
   const [departamentos, todos] = await Promise.all([listarDepartamentos(supabase), listarPerfis(supabase)]);
   const podeGerir = ehLideranca(perfil);
   const ancionato = todos.filter((p) => ehLideranca(p)).map((p) => ({ id: p.id, rotulo: p.nome }));
-  const { data: igreja } = podeGerir
-    ? await supabase.from("igrejas").select("nome, codigo_entrada").single<{ nome: string; codigo_entrada: string }>()
-    : { data: null };
+  const { data: igreja } = podeGerir ? await supabase.from("igrejas").select("id").single<{ id: string }>() : { data: null };
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com";
   // Quem entrou sozinho pelo link nos últimos 60 dias (para conferir).
   const limite = new Date(Date.now() - 60 * 86_400_000).toISOString();
@@ -111,7 +109,7 @@ export default async function PaginaDepartamentos() {
         </div>
       </div>
 
-      {podeGerir && igreja && <LinkEntrada link={`${base}/entrar/${igreja.codigo_entrada}`} igreja={igreja.nome} />}
+      {podeGerir && igreja && <LinkEntrada link={`${base}/entrar?igreja=${igreja.id}`} />}
 
       {podeGerir && entradas.length > 0 && (
         <section id="entradas" className="cartao scroll-mt-20 space-y-2">

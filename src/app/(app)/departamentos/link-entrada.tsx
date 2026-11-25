@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Link2, MessageCircle, RefreshCw } from "lucide-react";
-import { BotaoConfirmar } from "@/components/botao-confirmar";
+import { Check, Copy, Link2, MessageCircle } from "lucide-react";
 import { linkWhatsapp } from "@/lib/resumo";
-import { gerarNovoLinkEntrada } from "../acoes";
 
 /** Link para os líderes entrarem sozinhos (compartilhar no grupo do WhatsApp). */
-export function LinkEntrada({ link, igreja }: { link: string; igreja: string }) {
+export function LinkEntrada({ link }: { link: string }) {
   const [copiado, setCopiado] = useState(false);
   const mensagem =
-    `Líderes da ${/^(igreja|iasd)\b/i.test(igreja) ? igreja : `Igreja ${igreja}`}: para acessar a agenda da igreja e montar as escalas do seu departamento, ` +
+    `Líderes: para acessar a agenda da igreja no 7Líder e montar as escalas do seu departamento, ` +
     `crie seu acesso por este link: ${link}`;
   return (
     <section className="cartao space-y-3 border-indigo-200 bg-indigo-50/40">
@@ -45,14 +43,6 @@ export function LinkEntrada({ link, igreja }: { link: string; igreja: string }) 
         >
           {copiado ? <Check size={16} /> : <Copy size={16} />} {copiado ? "Copiado!" : "Copiar link"}
         </button>
-        <form action={gerarNovoLinkEntrada} className="ml-auto self-center">
-          <BotaoConfirmar
-            mensagem="Gerar um link novo? O link atual para de funcionar (quem já entrou continua com acesso)."
-            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
-          >
-            <RefreshCw size={13} /> Gerar link novo
-          </BotaoConfirmar>
-        </form>
       </div>
     </section>
   );

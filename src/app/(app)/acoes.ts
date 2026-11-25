@@ -306,14 +306,6 @@ async function gerarConviteLider(
   return { link, nome, whatsapp, departamento: dep.nome };
 }
 
-/** Troca o link de entrada da igreja (o antigo para de funcionar). Só anciãos/pastor. */
-export async function gerarNovoLinkEntrada() {
-  const { perfil } = await exigirPerfil();
-  if (!ehLideranca(perfil)) return;
-  await supabaseAdmin().from("igrejas").update({ codigo_entrada: crypto.randomUUID() }).eq("id", perfil.igreja_id);
-  revalidatePath("/departamentos");
-}
-
 /**
  * Remove o acesso de um líder (apaga o usuário). Só anciãos/pastor, só para
  * líderes da própria igreja. As programações que ele cadastrou continuam.

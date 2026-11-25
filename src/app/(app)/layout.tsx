@@ -23,7 +23,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icones/icone-192.png" alt="" width={32} height={32} className="h-8 w-8 rounded-lg" />
             <span className="text-[17px] font-bold tracking-tight text-slate-900">
-              <span className="text-indigo-700">IASD</span> Agenda
+              <span className="text-indigo-700">7</span>Líder
             </span>
           </Link>
           <NavTopo novidades={novidades ?? 0} />

@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
   if (error || !data.user) return para("/login?erro=google");
 
   const { data: perfil } = await supabase.from("perfis").select("id").eq("id", data.user.id).maybeSingle();
-  if (perfil) return para(proximo.startsWith("/entrar/") ? "/" : proximo);
-  if (proximo.startsWith("/entrar/")) return para(proximo);
+  if (perfil) return para(proximo.startsWith("/entrar") ? "/" : proximo);
+  if (proximo.startsWith("/entrar")) return para(proximo);
 
   await supabase.auth.signOut();
   return para("/login?erro=sem-acesso");
