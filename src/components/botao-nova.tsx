@@ -18,7 +18,7 @@ export function BotaoNova() {
   return (
     <Link
       href={href}
-      className="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 sm:bottom-6"
+      className={`fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 sm:bottom-6 ${caminho === "/" ? "lg:hidden" : ""}`}
       aria-label="Nova programação"
       title="Nova programação"
     >

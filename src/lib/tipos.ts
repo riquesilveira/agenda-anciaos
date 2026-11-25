@@ -6,7 +6,16 @@ export type Origem = "associacao" | "distrito" | "local";
 
 export const ORIGENS: Record<
   Origem,
-  { nome: string; classe: string; barra: string; ponto: string; fundoData: string; textoData: string }
+  {
+    nome: string;
+    classe: string;
+    barra: string;
+    ponto: string;
+    fundoData: string;
+    textoData: string;
+    /** Etiqueta do evento no calendário (fundo claro + barrinha à esquerda). */
+    etiqueta: string;
+  }
 > = {
   associacao: {
     nome: "Associação",
@@ -15,6 +24,7 @@ export const ORIGENS: Record<
     ponto: "bg-violet-500",
     fundoData: "bg-violet-50",
     textoData: "text-violet-700",
+    etiqueta: "bg-violet-50 text-violet-800 border-l-violet-500 hover:bg-violet-100",
   },
   distrito: {
     nome: "Distrito",
@@ -23,6 +33,7 @@ export const ORIGENS: Record<
     ponto: "bg-amber-500",
     fundoData: "bg-amber-50",
     textoData: "text-amber-700",
+    etiqueta: "bg-amber-50 text-amber-900 border-l-amber-500 hover:bg-amber-100",
   },
   local: {
     nome: "Local",
@@ -31,6 +42,7 @@ export const ORIGENS: Record<
     ponto: "bg-sky-500",
     fundoData: "bg-sky-50",
     textoData: "text-sky-700",
+    etiqueta: "bg-sky-50 text-sky-800 border-l-sky-500 hover:bg-sky-100",
   },
 };
 

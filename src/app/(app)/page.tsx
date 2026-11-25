@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, Check, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -11,6 +11,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { CalendarioMes } from "@/components/calendario-mes";
+import { FiltroDepartamento } from "@/components/filtro-departamento";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
@@ -45,11 +46,25 @@ export default async function PaginaCalendario({
       .filter((d) => d.anciao_id === perfil.id || d.lideres?.some((l) => l.perfil_id === perfil.id))
       .map((d) => d.id),
   );
+  // Origens visíveis (caixinhas da lateral). Sem parâmetro = todas.
+  const todasOrigens = Object.keys(ORIGENS) as Origem[];
+  const marcadas = new Set(
+    (params.origem ?? "").split(",").filter((o): o is Origem => todasOrigens.includes(o as Origem)),
+  );
+  const visiveis = marcadas.size ? marcadas : new Set(todasOrigens);
+  const alternarOrigem = (o: Origem) => {
+    const nova = new Set(visiveis);
+    if (nova.has(o)) nova.delete(o);
+    else nova.add(o);
+    // Desmarcar a última volta a mostrar todas.
+    return nova.size === 0 || nova.size === todasOrigens.length ? undefined : todasOrigens.filter((x) => nova.has(x)).join(",");
+  };
+
   const programacoes = todas.filter(
     (p) =>
       (!params.dep ||
         (params.dep === "meus" ? Boolean(p.departamento_id && meusDeps.has(p.departamento_id)) : p.departamento_id === params.dep)) &&
-      (!params.origem || p.origem === params.origem),
+      visiveis.has(p.origem),
   );
   // Eventos de vários dias aparecem em cada dia do período.
   const porDia = new Map<string, Programacao[]>();
@@ -76,84 +91,109 @@ export default async function PaginaCalendario({
   const [nomeMes, ano] = maiuscula(nomeDoMes(mes)).split(" de ");
   const doMes = programacoes.filter((p) => p.data <= `${mes}-31` && fimDe(p) >= `${mes}-01`);
 
+  const linkSemDep = (() => {
+    const q = new URLSearchParams();
+    Object.entries({ mes, origem: params.origem }).forEach(([k, v]) => v && q.set(k, v));
+    const t = q.toString();
+    return t ? `/?${t}&` : "/?";
+  })();
+
+  const caixasOrigem = (
+    <ul className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-col lg:gap-1">
+      {todasOrigens.map((o) => {
+        const ativa = visiveis.has(o);
+        return (
+          <li key={o}>
+            <Link
+              href={link({ origem: alternarOrigem(o), dia: undefined })}
+              aria-pressed={ativa}
+              className="flex items-center gap-2.5 rounded-lg py-1 text-sm text-slate-700 lg:px-1 lg:py-1.5 lg:hover:bg-slate-50"
+            >
+              <span
+                className={`flex h-[18px] w-[18px] items-center justify-center rounded-[5px] border-2 ${
+                  ativa ? `${ORIGENS[o].ponto} border-transparent text-white` : "border-slate-300 bg-white"
+                }`}
+              >
+                {ativa && <Check size={12} strokeWidth={3.5} />}
+              </span>
+              {ORIGENS[o].nome === "Local" ? "Igreja local" : ORIGENS[o].nome}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
-        </h1>
-        <div className="flex items-center gap-1.5">
-          <Link href="/minhas" className="botao-secundario px-3 py-1.5">
-            <Bell size={16} /> Minhas
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid lg:grid-cols-[16rem_1fr]">
+        {/* ----- Lateral (computador). No celular os filtros ficam abaixo do mês. ----- */}
+        <aside className="hidden space-y-5 border-r border-slate-200 p-5 lg:block">
+          <Link href="/programacoes/nova" className="botao w-full py-2.5">
+            <Plus size={18} /> Nova programação
           </Link>
-          {mes !== mesDeHoje && (
-            <Link href={link({ mes: mesDeHoje })} className="botao-secundario px-3 py-1.5">
-              Hoje
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-slate-900">Calendários</h2>
+            {caixasOrigem}
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-slate-900">Departamento</h2>
+            <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
+          </div>
+          <Link
+            href="/minhas"
+            className="flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-700"
+          >
+            <Bell size={16} /> Minhas programações
+          </Link>
+        </aside>
+
+        {/* ----- Calendário ----- */}
+        <div className="min-w-0">
+          <div className="flex items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-4">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                {nomeMes} <span className="font-normal text-slate-500">{ano}</span>
+              </h1>
+              <Link
+                href={link({ mes: mesDeHoje, dia: undefined })}
+                className={`rounded-lg border border-slate-200 px-3 py-1 text-sm font-medium shadow-sm hover:bg-slate-50 ${
+                  mes === mesDeHoje ? "text-slate-400" : "text-slate-700"
+                }`}
+              >
+                Hoje
+              </Link>
+              <div className="flex items-center">
+                <Link href={link({ mes: anterior, dia: undefined })} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Mês anterior">
+                  <ChevronLeft size={20} />
+                </Link>
+                <Link href={link({ mes: proximo, dia: undefined })} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Próximo mês">
+                  <ChevronRight size={20} />
+                </Link>
+              </div>
+            </div>
+            <Link href="/minhas" className="botao-secundario px-2.5 py-1.5 lg:hidden" aria-label="Minhas programações" title="Minhas programações">
+              <Bell size={16} />
             </Link>
-          )}
-          <Link href={link({ mes: anterior })} className="botao-secundario px-2 py-1.5" aria-label="Mês anterior">
-            <ChevronLeft size={18} />
-          </Link>
-          <Link href={link({ mes: proximo })} className="botao-secundario px-2 py-1.5" aria-label="Próximo mês">
-            <ChevronRight size={18} />
-          </Link>
+          </div>
+          <div className="space-y-2.5 px-4 pb-3 lg:hidden">
+            {caixasOrigem}
+            <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
+          </div>
+          <div className="border-t border-slate-200">
+            <CalendarioMes
+              dias={dias}
+              porDia={porDia}
+              mesAtual={mes}
+              hoje={hoje}
+              diaSelecionado={dia}
+              linkDoDia={(d) => `${link({ dia: d })}#lista`}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Abas de origem (a cor de cada uma é a mesma do calendário) */}
-      <nav className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm" aria-label="Origem">
-        {([["", "Todas"], ...(Object.keys(ORIGENS) as Origem[]).map((o) => [o, ORIGENS[o].nome])] as [string, string][]).map(
-          ([valor, rotulo]) => {
-            const ativa = (params.origem ?? "") === valor;
-            return (
-              <Link
-                key={rotulo}
-                href={link({ origem: valor || undefined, dia: undefined })}
-                aria-current={ativa ? "page" : undefined}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm whitespace-nowrap transition ${
-                  ativa ? "bg-indigo-600 font-semibold text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {valor && <span className={`h-2.5 w-2.5 rounded-full ${ORIGENS[valor as Origem].ponto} ${ativa ? "ring-2 ring-white" : ""}`} />}
-                {rotulo}
-              </Link>
-            );
-          },
-        )}
-      </nav>
-
-      {/* Filtro por departamento */}
-      <form action="/" className="flex gap-2">
-        <input type="hidden" name="mes" value={mes} />
-        {params.origem && <input type="hidden" name="origem" value={params.origem} />}
-        <select
-          name="dep"
-          aria-label="Departamento"
-          defaultValue={params.dep ?? ""}
-          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 sm:max-w-xs"
-        >
-          <option value="">Todos os departamentos</option>
-          <option value="meus">⭐ Meus departamentos</option>
-          {departamentos.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.sigla ? `${d.sigla} · ${d.nome}` : d.nome}
-            </option>
-          ))}
-        </select>
-        <button className="botao">Filtrar</button>
-      </form>
-
-      <CalendarioMes
-        dias={dias}
-        porDia={porDia}
-        mesAtual={mes}
-        hoje={hoje}
-        diaSelecionado={dia}
-        linkDoDia={(d) => `${link({ dia: d })}#lista`}
-      />
-
-      <section id="lista" className="scroll-mt-4 space-y-3">
-        {dia ? (
+      <section id="lista" className="scroll-mt-4 space-y-3">        {dia ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">{maiuscula(dataLonga(dia))}</h2>
