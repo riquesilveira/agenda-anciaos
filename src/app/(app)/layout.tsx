@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { CalendarDays, Bell, Users, Plus, LogOut, UserRound, Sparkles } from "lucide-react";
+import { CalendarDays, Bell, Users, LogOut, UserRound, Sparkles } from "lucide-react";
 import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
+import { BotaoNova } from "@/components/botao-nova";
 import { exigirPerfil } from "@/lib/sessao";
 import { tratamento } from "@/lib/resumo";
 import { sair } from "./acoes";
@@ -56,14 +57,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
 
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
 
-      <Link
-        href="/programacoes/nova"
-        className="fixed right-4 bottom-20 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 sm:bottom-6"
-        aria-label="Nova programação"
-        title="Nova programação"
-      >
-        <Plus size={26} />
-      </Link>
+      <BotaoNova />
 
       {/* Navegação inferior no celular */}
       <nav className="fixed inset-x-0 bottom-0 grid grid-cols-4 border-t border-slate-200 bg-white sm:hidden">

@@ -41,7 +41,7 @@ export function ConvidarLider({ departamentoId, departamento }: { departamentoId
 
   if (!aberto) {
     return (
-      <button type="button" className="botao-secundario" onClick={() => setAberto(true)}>
+      <button type="button" className="botao bg-emerald-600 hover:bg-emerald-700" onClick={() => setAberto(true)}>
         <UserPlus size={16} /> Convidar líder de {departamento}
       </button>
     );

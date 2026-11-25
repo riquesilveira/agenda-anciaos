@@ -111,6 +111,11 @@ export default async function PaginaDepartamentos() {
         </p>
       </div>
 
+      <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+        <b>Para dar acesso a um líder:</b> no cartão do departamento, use o botão verde <b>“Convidar líder de …”</b>.
+        O sistema gera um link para você mandar pelo WhatsApp.
+      </p>
+
       <section className="cartao">
         <h2 className="mb-3 text-sm font-semibold">Novo departamento</h2>
         <FormDepartamento perfis={perfis} />
