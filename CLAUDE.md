@@ -18,7 +18,9 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, site no Render, agendam
 - **Toda coluna/relação nova no banco precisa de um campo em `src/lib/tipos.ts`.**
 - **Isolamento por igreja é feito no RLS** (`minha_igreja()`), não só no código.
   O código do app usa o cliente com sessão (`supabaseServidor`); `supabaseAdmin`
-  (service role) só no cron e em scripts, e lá o filtro por `igreja_id` é manual.
+  (service role) só no cron, em scripts e no convite de líderes (`convidarLider`,
+  que antes confere o papel e a igreja de quem convida); nesses lugares o filtro
+  por `igreja_id` é manual.
 - **Papéis:** `anciao` e `pastor` podem tudo na igreja; `lider` vê tudo mas só
   escreve em programações locais dos departamentos que lidera
   (`departamento_lideres`). Garantia no RLS (`posso_editar_departamento`);
