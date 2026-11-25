@@ -241,6 +241,15 @@ export async function salvarFotoPerfil(url: string | null): Promise<{ erro?: str
   return {};
 }
 
+/** Abre outra igreja (só as liberadas em perfil_igrejas; conferido no banco). */
+export async function trocarIgreja(igrejaId: string) {
+  const { supabase } = await exigirPerfil();
+  const { data: trocou } = await supabase.rpc("trocar_igreja", { destino: igrejaId });
+  if (!trocou) return;
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
 export interface EstadoConvite {
   erro?: string;
   link?: string;

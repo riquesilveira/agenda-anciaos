@@ -384,6 +384,52 @@ begin
   assert copiar_calendario_associacao(nova) = 0, 'copiou de novo (duplicou)';
 end $$;
 
+-- Mesmo distrito: vê (mas não edita) as programações do distrito da outra igreja.
+reset role;
+set role service_role;
+update igrejas set distrito = 'teste' where id in ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000b');
+insert into programacoes (igreja_id, titulo, data, origem) values
+  ('00000000-0000-0000-0000-00000000000b', 'Retiro do distrito', '2027-02-01', 'distrito'),
+  ('00000000-0000-0000-0000-00000000000b', 'Culto local da outra', '2027-02-01', 'local');
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  select count(*) into n from programacoes where titulo = 'Retiro do distrito';
+  assert n = 1, 'não viu a programação do distrito da outra igreja';
+  select count(*) into n from programacoes where titulo = 'Culto local da outra';
+  assert n = 0, 'viu programação local de outra igreja';
+  update programacoes set titulo = 'hack' where titulo = 'Retiro do distrito';
+  get diagnostics n = row_count;
+  assert n = 0, 'editou programação do distrito cadastrada por outra igreja';
+end $$;
+reset role;
+set role service_role;
+update igrejas set distrito = null;
+
+-- Várias igrejas: só troca para uma igreja liberada.
+reset role;
+set role service_role;
+insert into perfil_igrejas values
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b');
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000002', false);
+do $$ begin
+  assert not trocar_igreja('00000000-0000-0000-0000-00000000000a'), 'trocou para igreja não liberada';
+  assert (select count(*) from minhas_igrejas()) = 1, 'viu igreja não liberada';
+end $$;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$ begin
+  assert (select count(*) from minhas_igrejas()) = 2, 'deveria listar as 2 igrejas liberadas';
+  assert trocar_igreja('00000000-0000-0000-0000-00000000000b'), 'não trocou de igreja';
+  assert minha_igreja() = '00000000-0000-0000-0000-00000000000b', 'minha_igreja não mudou';
+  assert trocar_igreja('00000000-0000-0000-0000-00000000000a'), 'não voltou';
+end $$;
+
 -- Chave de administrador (cron/scripts) lê e grava tudo.
 reset role;
 set role service_role;

@@ -40,7 +40,9 @@ export default async function DetalheProgramacao({
     return pessoa?.nome ?? "—";
   };
   const dep = p.departamento;
-  const podeEditar = podeEditarProgramacao(perfil, p, departamentos);
+  // Programação do distrito cadastrada por outra igreja: só leitura aqui.
+  const deOutraIgreja = p.igreja_id !== perfil.igreja_id;
+  const podeEditar = !deOutraIgreja && podeEditarProgramacao(perfil, p, departamentos);
   const lideranca = ehLideranca(perfil);
   const autor = perfis.find((x) => x.id === p.criado_por);
   const aviso = mensagemNovaProgramacao(p, autor, `${URL_SITE}/programacoes/${p.id}`);
@@ -71,6 +73,11 @@ export default async function DetalheProgramacao({
         <h1 className="text-lg font-semibold">{p.titulo}</h1>
         <SeloOrigem origem={p.origem} fonte={p.fonte} />
       </div>
+      {deOutraIgreja && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          Programação do distrito cadastrada por outra igreja. Só ela pode alterar.
+        </p>
+      )}
       <p className="text-sm text-slate-500">
         <span>{maiuscula(dataLonga(p.data))}</span>
         {p.data_fim && p.data_fim !== p.data && <> até {dataLonga(p.data_fim)}</>}
@@ -142,7 +149,9 @@ export default async function DetalheProgramacao({
         </section>
       ) : (
         <p className="text-xs text-slate-500">
-          Só o líder deste departamento e os anciãos podem editar esta programação.
+          {deOutraIgreja
+            ? "Para mudar algo, fale com a igreja que cadastrou."
+            : "Só o líder deste departamento e os anciãos podem editar esta programação."}
         </p>
       )}
 

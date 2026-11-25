@@ -3,6 +3,7 @@ import { Avatar } from "@/components/avatar";
 import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { BotaoNova } from "@/components/botao-nova";
 import { NavInferior, NavTopo } from "@/components/navegacao";
+import { SeletorIgreja } from "@/components/seletor-igreja";
 import { exigirPerfil } from "@/lib/sessao";
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
@@ -14,6 +15,9 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
     .gt("created_at", perfil.novidades_vistas_em)
     .neq("criado_por", perfil.id)
     .not("criado_por", "is", null);
+  // Quem atende mais de uma igreja escolhe qual está vendo.
+  const { data: igrejas } = await supabase.rpc("minhas_igrejas");
+  const minhasIgrejas = (igrejas ?? []) as { id: string; nome: string; atual: boolean }[];
 
   return (
     <div className="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
@@ -28,6 +32,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
           </Link>
           <NavTopo novidades={novidades ?? 0} />
           <div className="flex items-center gap-3">
+            {minhasIgrejas.length > 1 && <SeletorIgreja igrejas={minhasIgrejas} />}
             <Link
               href="/conta"
               className="flex items-center gap-2 rounded-full py-1 pr-1 pl-1 text-sm text-slate-600 hover:bg-slate-100 md:pr-3"

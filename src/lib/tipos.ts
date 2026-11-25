@@ -76,6 +76,8 @@ export interface Igreja {
   nome: string;
   /** Código do link de entrada para líderes (/entrar/<código>). */
   codigo_entrada: string;
+  /** Igrejas com o mesmo distrito veem as programações do distrito umas das outras. */
+  distrito: string | null;
 }
 
 export interface Departamento {
@@ -183,4 +185,10 @@ export interface EscalaMensagem {
   /** Texto com marcadores: {nome}, {quando}, {data}, {horario}, {programacao}, {funcao}, {departamento}. */
   texto: string;
   updated_at: string;
+}
+
+/** Igrejas que uma pessoa pode abrir (além da atual, em perfis.igreja_id). */
+export interface PerfilIgreja {
+  perfil_id: string;
+  igreja_id: string;
 }

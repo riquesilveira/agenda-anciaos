@@ -96,6 +96,13 @@ todas. `scripts/importar.ts` grava o PDF novo em todas as igrejas; igreja nova
 recebe a cópia sozinha (trigger em `igrejas`, função
 `copiar_calendario_associacao`) e, ao cadastrar um departamento, os eventos da
 ANP com esse nome se ligam a ele. O calendário do distrito não é copiado.
+**Distrito compartilhado:** igrejas com o mesmo `igrejas.distrito` veem as
+programações de origem "distrito" umas das outras (RLS
+`igreja_do_meu_distrito`), sem cópia; só a igreja que cadastrou edita.
+**Várias igrejas por pessoa (pastor do distrito):** `perfil_igrejas` lista as
+igrejas liberadas; um seletor no topo troca a igreja aberta
+(`trocar_igreja`, que muda `perfis.igreja_id`). Avisos e notificações seguem a
+igreja aberta no momento.
 **Fotos:** cada pessoa põe a própria foto em Minha conta; o associado que tem
 conta no sistema aparece na escala com a foto da conta (casado pelo WhatsApp ou,
 sem ele, pelo nome único). Não há envio de foto na escala. Storage, bucket
