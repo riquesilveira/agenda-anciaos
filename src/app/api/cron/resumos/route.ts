@@ -5,6 +5,7 @@ import { enviarEmail, htmlDoResumo } from "@/lib/email/enviar";
 import { gerarResumo, JANELA_SEMANAL_DIAS, type TipoResumo } from "@/lib/resumo";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Departamento, Perfil, Programacao } from "@/lib/tipos";
+import { URL_SITE } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ erro: "falha ao ler o banco" }, { status: 500 });
   }
 
-  const urlApp = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const urlApp = URL_SITE;
   const relatorio: { para: string; itens: number; status: string; texto?: string }[] = [];
 
   for (const pessoa of perfis.data) {

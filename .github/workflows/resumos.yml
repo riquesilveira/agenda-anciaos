@@ -7,7 +7,7 @@ name: Resumos por e-mail
 #
 # Precisa, no GitHub (Settings > Secrets and variables > Actions):
 #   secret   CRON_SECRET  = o mesmo CRON_SECRET configurado no Render
-#   variable APP_URL      = https://iasdagenda-pvbl.onrender.com (sem barra no fim)
+#   variable APP_URL      = https://7lider.com.br (sem barra no fim; o endereço do Render também funciona)
 
 on:
   schedule:

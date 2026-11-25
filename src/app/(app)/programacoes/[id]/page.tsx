@@ -15,6 +15,7 @@ import {
 import { exigirPerfil } from "@/lib/sessao";
 import type { Programacao } from "@/lib/tipos";
 import { excluirProgramacao, marcarAvisado } from "../../acoes";
+import { URL_SITE } from "@/lib/url";
 
 export default async function DetalheProgramacao({
   params,
@@ -42,7 +43,7 @@ export default async function DetalheProgramacao({
   const podeEditar = podeEditarProgramacao(perfil, p, departamentos);
   const lideranca = ehLideranca(perfil);
   const autor = perfis.find((x) => x.id === p.criado_por);
-  const aviso = mensagemNovaProgramacao(p, autor, `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/programacoes/${p.id}`);
+  const aviso = mensagemNovaProgramacao(p, autor, `${URL_SITE}/programacoes/${p.id}`);
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">

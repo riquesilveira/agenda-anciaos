@@ -2,6 +2,7 @@ import "server-only";
 import webpush from "web-push";
 import type { NotificacaoPush } from "./avisos";
 import { supabaseAdmin } from "./supabase/servidor";
+import { URL_SITE } from "@/lib/url";
 
 export function pushConfigurado(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
@@ -12,7 +13,7 @@ function configurar() {
   if (configurado) return;
   webpush.setVapidDetails(
     // Identificação do remetente exigida pelos serviços de push (URL do site, sem e-mail pessoal).
-    process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com",
+    URL_SITE,
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!,
   );

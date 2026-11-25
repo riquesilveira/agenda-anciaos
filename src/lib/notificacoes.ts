@@ -4,6 +4,7 @@ import { enviarEmail } from "./email/enviar";
 import { enviarPush } from "./push";
 import { supabaseAdmin } from "./supabase/servidor";
 import type { Perfil, Programacao } from "./tipos";
+import { URL_SITE } from "@/lib/url";
 
 function escapar(texto: string): string {
   return texto.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -38,7 +39,7 @@ export async function notificarNovaProgramacao(programacaoId: string) {
     );
 
     if (!process.env.RESEND_API_KEY) return;
-    const link = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/programacoes/${p.id}`;
+    const link = `${URL_SITE}/programacoes/${p.id}`;
     const texto = mensagemNovaProgramacao(p, autor, link).replace(/\*/g, "");
     const html = `<div style="font-family:system-ui,sans-serif;white-space:pre-wrap;line-height:1.5">${escapar(texto)}</div>`;
     for (const pessoa of destinatarios) {

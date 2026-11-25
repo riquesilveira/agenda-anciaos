@@ -9,6 +9,7 @@ import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/li
 import { linkWhatsapp, ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { QuadroEscala } from "./quadro-escala";
+import { URL_SITE } from "@/lib/url";
 
 export default async function EscalaDepartamento({
   params,
@@ -71,7 +72,7 @@ export default async function EscalaDepartamento({
         hoje={hoje}
         mes={mes}
         programacoes={programacoesLocais}
-        urlBase={process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com"}
+        urlBase={URL_SITE}
         modeloMensagem={mensagem?.texto ?? null}
         diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
         lateral={

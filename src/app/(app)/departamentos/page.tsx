@@ -9,6 +9,7 @@ import { excluirDepartamento, removerAcesso, removerLider } from "../acoes";
 import { LinkEntrada } from "./link-entrada";
 import { ConvidarLider } from "./convidar-lider";
 import { EditarDepartamento, NovoDepartamento } from "./form-departamento";
+import { URL_SITE } from "@/lib/url";
 
 function Cartao({ d, todos, podeGerir }: { d: Departamento; todos: Perfil[]; podeGerir: boolean }) {
   const responsavel = todos.find((x) => x.id === d.anciao_id);
@@ -88,7 +89,7 @@ export default async function PaginaDepartamentos() {
   const podeGerir = ehLideranca(perfil);
   const ancionato = todos.filter((p) => ehLideranca(p)).map((p) => ({ id: p.id, rotulo: p.nome }));
   const { data: igreja } = podeGerir ? await supabase.from("igrejas").select("id").single<{ id: string }>() : { data: null };
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com";
+  const base = URL_SITE;
   // Quem entrou sozinho pelo link nos últimos 60 dias (para conferir).
   const limite = new Date(Date.now() - 60 * 86_400_000).toISOString();
   const entradas = todos

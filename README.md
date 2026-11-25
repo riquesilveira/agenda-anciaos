@@ -49,9 +49,12 @@ O site roda no Render; banco e login continuam no Supabase.
    cria o serviço `iasdagenda` (plano free) e pede as variáveis do
    `.env.example`. `CRON_SECRET` é gerado sozinho.
 2. Depois do primeiro deploy, preencha `NEXT_PUBLIC_APP_URL` com o endereço
-   do Render (ex: `https://iasdagenda-pvbl.onrender.com`) e faça **Manual Deploy**.
+   público (hoje `https://7lider.com.br`; o domínio aponta para o Render pelo
+   DNS do registro.br) e faça **Manual Deploy**. Todos os links enviados
+   (convites, link de entrada, link dos associados) usam esse endereço.
    Variáveis `NEXT_PUBLIC_*` entram no build, então mudança nelas pede novo deploy.
-3. No Supabase: **Authentication > URL Configuration > Site URL** = o mesmo endereço.
+3. No Supabase: **Authentication > URL Configuration > Site URL** = o mesmo endereço,
+   e em **Redirect URLs** inclua `https://7lider.com.br/**` (login com Google).
 4. E-mail: crie uma conta no [Resend](https://resend.com), verifique o domínio
    do remetente e preencha `RESEND_API_KEY` e `EMAIL_REMETENTE`.
 

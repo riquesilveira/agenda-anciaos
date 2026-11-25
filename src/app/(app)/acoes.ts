@@ -14,6 +14,7 @@ import { CORES_PESSOA, cultoValido } from "@/lib/pregacao";
 import { dddDe, prepararWhatsapp } from "@/lib/resumo";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
+import { URL_SITE } from "@/lib/url";
 
 export interface EstadoFormProgramacao {
   erro?: string;
@@ -301,7 +302,7 @@ async function gerarConviteLider(
   // Mantém nome/WhatsApp do líder visíveis no departamento (usados nos lembretes).
   await admin.from("departamentos").update({ lider_nome: nome, lider_whatsapp: whatsapp }).eq("id", dep.id);
 
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const base = URL_SITE;
   const link = `${base}/definir-senha?token_hash=${encodeURIComponent(gerado.data.properties.hashed_token)}&type=${tipo}`;
   revalidatePath("/departamentos");
   return { link, nome, whatsapp, departamento: dep.nome };
