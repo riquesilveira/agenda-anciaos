@@ -57,6 +57,8 @@ export interface Perfil {
   tratamento: string | null;
   /** Até quando a pessoa já viu as programações criadas pelos outros. */
   novidades_vistas_em: string;
+  /** Quando entrou sozinho pelo link de entrada da igreja (null = convidado). */
+  entrou_pelo_link_em: string | null;
   /** Cor na grade da escala (laranja, verde_escuro, rosa…). */
   cor: string | null;
 }
@@ -65,6 +67,13 @@ export interface Perfil {
 export interface LiderDepartamento {
   perfil_id: string;
   perfil?: Pick<Perfil, "id" | "nome" | "email" | "whatsapp" | "papel" | "tratamento"> | null;
+}
+
+export interface Igreja {
+  id: string;
+  nome: string;
+  /** Código do link de entrada para líderes (/entrar/<código>). */
+  codigo_entrada: string;
 }
 
 export interface Departamento {

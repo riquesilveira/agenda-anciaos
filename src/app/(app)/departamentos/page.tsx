@@ -5,7 +5,8 @@ import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
 import { ehLideranca } from "@/lib/permissoes";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Departamento, Perfil } from "@/lib/tipos";
-import { excluirDepartamento, removerLider } from "../acoes";
+import { excluirDepartamento, removerAcesso, removerLider } from "../acoes";
+import { LinkEntrada } from "./link-entrada";
 import { ConvidarLider } from "./convidar-lider";
 import { EditarDepartamento, NovoDepartamento } from "./form-departamento";
 
@@ -86,6 +87,16 @@ export default async function PaginaDepartamentos() {
   const [departamentos, todos] = await Promise.all([listarDepartamentos(supabase), listarPerfis(supabase)]);
   const podeGerir = ehLideranca(perfil);
   const ancionato = todos.filter((p) => ehLideranca(p)).map((p) => ({ id: p.id, rotulo: p.nome }));
+  const { data: igreja } = podeGerir
+    ? await supabase.from("igrejas").select("nome, codigo_entrada").single<{ nome: string; codigo_entrada: string }>()
+    : { data: null };
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com";
+  // Quem entrou sozinho pelo link nos últimos 60 dias (para conferir).
+  const limite = new Date(Date.now() - 60 * 86_400_000).toISOString();
+  const entradas = todos
+    .filter((p) => p.papel === "lider" && p.entrou_pelo_link_em && p.entrou_pelo_link_em >= limite)
+    .sort((a, b) => b.entrou_pelo_link_em!.localeCompare(a.entrou_pelo_link_em!));
+  const depsDe = (id: string) => departamentos.filter((d) => d.lideres?.some((l) => l.perfil_id === id)).map((d) => d.nome);
 
   return (
     <div className="space-y-5">
@@ -99,6 +110,35 @@ export default async function PaginaDepartamentos() {
           </p>
         </div>
       </div>
+
+      {podeGerir && igreja && <LinkEntrada link={`${base}/entrar/${igreja.codigo_entrada}`} igreja={igreja.nome} />}
+
+      {podeGerir && entradas.length > 0 && (
+        <section id="entradas" className="cartao scroll-mt-20 space-y-2">
+          <h2 className="font-semibold">Entraram pelo link</h2>
+          <p className="text-xs text-slate-500">Confira se são mesmo líderes. Se não conhecer alguém, remova o acesso.</p>
+          <ul className="divide-y divide-slate-100">
+            {entradas.map((p) => (
+              <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
+                <span className="font-medium">{p.nome}</span>
+                <span className="text-slate-500">{depsDe(p.id).join(", ") || "sem departamento"}</span>
+                <span className="text-xs text-slate-400">
+                  {new Date(p.entrou_pelo_link_em!).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {p.email}
+                </span>
+                <form action={removerAcesso} className="ml-auto">
+                  <input type="hidden" name="perfil_id" value={p.id} />
+                  <BotaoConfirmar
+                    mensagem={`Remover o acesso de ${p.nome}? A pessoa não consegue mais entrar no sistema.`}
+                    className="text-xs font-medium text-red-600 hover:underline"
+                  >
+                    Remover acesso
+                  </BotaoConfirmar>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {podeGerir && <NovoDepartamento ancionato={ancionato} />}
 

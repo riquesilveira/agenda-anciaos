@@ -306,6 +306,29 @@ async function gerarConviteLider(
   return { link, nome, whatsapp, departamento: dep.nome };
 }
 
+/** Troca o link de entrada da igreja (o antigo para de funcionar). Só anciãos/pastor. */
+export async function gerarNovoLinkEntrada() {
+  const { perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
+  await supabaseAdmin().from("igrejas").update({ codigo_entrada: crypto.randomUUID() }).eq("id", perfil.igreja_id);
+  revalidatePath("/departamentos");
+}
+
+/**
+ * Remove o acesso de um líder (apaga o usuário). Só anciãos/pastor, só para
+ * líderes da própria igreja. As programações que ele cadastrou continuam.
+ */
+export async function removerAcesso(form: FormData) {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
+  // Cliente com sessão: o RLS só deixa ver perfis da própria igreja.
+  const { data: alvo } = await supabase.from("perfis").select("id, papel").eq("id", String(form.get("perfil_id"))).maybeSingle();
+  if (!alvo || alvo.papel !== "lider" || alvo.id === perfil.id) return;
+  const { error } = await supabaseAdmin().auth.admin.deleteUser(alvo.id);
+  if (error) console.error("Falha ao remover acesso", error);
+  revalidatePath("/", "layout");
+}
+
 export async function removerLider(form: FormData) {
   const { supabase, perfil } = await exigirPerfil();
   if (!ehLideranca(perfil)) return;
