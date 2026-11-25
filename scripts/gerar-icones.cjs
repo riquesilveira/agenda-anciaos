@@ -1,6 +1,7 @@
 // Gera os ícones do 7Líder: calendário com os pontos formando um "7".
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- script avulso em CommonJS
 const { chromium } = require("playwright");
-// Uso: node scripts/gerar-icones.js public/icones
+// Uso: node scripts/gerar-icones.cjs public/icones
 const out = process.argv[2];
 const ESCURO = "#4f46e5", CLARO = "#a5b4fc", TOPO = "#c7d2fe", ARGOLA = "#e0e7ff";
 const SETE = new Set(["0,0", "1,0", "2,0", "2,1", "1,2"]); // (coluna,linha)
