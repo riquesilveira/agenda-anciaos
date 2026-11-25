@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { AbasEscalas } from "@/components/abas-escalas";
-import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros } from "@/lib/consultas";
+import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes } from "@/lib/consultas";
 import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { textoEscalaMes } from "@/lib/escalas";
 import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
@@ -27,10 +27,13 @@ export default async function EscalaDepartamento({
   const [departamentos, comEquipe] = await Promise.all([listarDepartamentos(supabase), departamentosComEquipe(supabase)]);
   const departamento = departamentos.find((d) => d.id === dep);
   if (!departamento) notFound();
-  const [membros, dias] = await Promise.all([
+  const [membros, dias, programacoesMes] = await Promise.all([
     listarMembros(supabase, dep),
     listarDiasEscala(supabase, dep, `${mes}-01`, ultimoDiaDoMes(mes)),
+    listarProgramacoes(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
   ]);
+  // Só as programações da igreja local, para o líder saber quando vai precisar de gente.
+  const programacoesLocais = programacoesMes.filter((p) => p.origem === "local");
 
   const podeEditar = podeEditarProgramacao(perfil, { departamento_id: dep }, departamentos);
   const editaveis = new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id));
@@ -75,6 +78,7 @@ export default async function EscalaDepartamento({
         remetente={perfil}
         hoje={hoje}
         mes={mes}
+        programacoes={programacoesLocais}
       />
     </div>
   );

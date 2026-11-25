@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, GripVertical, MessageCircle, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
-import { dataLonga, horaCurta, maiuscula } from "@/lib/datas";
+import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala } from "@/lib/escalas";
 import { linkWhatsapp } from "@/lib/resumo";
-import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Perfil } from "@/lib/tipos";
+import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Perfil, Programacao } from "@/lib/tipos";
 import {
   adicionarMembro,
   avisoPessoa,
@@ -37,6 +38,7 @@ export function QuadroEscala({
   remetente,
   hoje,
   mes,
+  programacoes,
 }: {
   departamento: { id: string; nome: string };
   membros: MembroDepartamento[];
@@ -45,6 +47,8 @@ export function QuadroEscala({
   remetente: Remetente;
   hoje: string;
   mes: string; // yyyy-MM
+  /** Programações locais da igreja no mês (só para consulta). */
+  programacoes: Programacao[];
 }) {
   const router = useRouter();
   const [dias, setDias] = useState(diasIniciais);
@@ -72,6 +76,10 @@ export function QuadroEscala({
     return mapa;
   }, [dias]);
   const pessoasDoDia = (data: string) => (porData.get(data) ?? []).flatMap((d) => d.pessoas ?? []);
+  const eventosDoDia = (data: string) =>
+    programacoes
+      .filter((p) => p.data <= data && fimDe(p) >= data)
+      .sort((a, b) => (a.hora_inicio ?? "").localeCompare(b.hora_inicio ?? ""));
 
   function escalar(data: string, membroId: string) {
     const membro = membroPorId.get(membroId);
@@ -194,6 +202,7 @@ export function QuadroEscala({
               {grade.map((data) => {
                 const doMes = data.startsWith(mes);
                 const pessoas = pessoasDoDia(data);
+                const eventos = doMes ? eventosDoDia(data) : [];
                 const ehAberto = aberto === data;
                 const destacado = alvo === data;
                 return (
@@ -231,6 +240,17 @@ export function QuadroEscala({
                     >
                       {Number(data.slice(8))}
                     </span>
+                    {eventos.slice(0, 1).map((e) => (
+                      <span
+                        key={e.id}
+                        className="truncate rounded-r border-l-2 border-sky-500 bg-sky-50 px-1 text-[10px] leading-4 text-sky-900 sm:text-[11px]"
+                        title={`Na igreja: ${e.titulo}`}
+                      >
+                        {e.hora_inicio && <b>{horaCurta(e.hora_inicio)} </b>}
+                        {e.titulo}
+                      </span>
+                    ))}
+                    {eventos.length > 1 && <span className="px-1 text-[10px] text-sky-700">+{eventos.length - 1} na igreja</span>}
                     {pessoas.slice(0, 3).map((p) => (
                       <span
                         key={p.id}
@@ -275,6 +295,20 @@ export function QuadroEscala({
                   </div>
                 )}
               </div>
+
+              {eventosDoDia(aberto).length > 0 && (
+                <div className="space-y-1 rounded-lg border border-sky-100 bg-sky-50/60 p-2">
+                  <p className="text-[11px] font-semibold tracking-wide text-sky-800 uppercase">Na igreja neste dia</p>
+                  {eventosDoDia(aberto).map((e) => (
+                    <Link key={e.id} href={`/programacoes/${e.id}`} className="block text-sm text-sky-900 hover:underline">
+                      {e.hora_inicio && <b>{horaCurta(e.hora_inicio)} </b>}
+                      {e.titulo}
+                      {e.departamento?.sigla && <span className="ml-1 text-xs text-sky-700">({e.departamento.sigla})</span>}
+                      {e.local && <span className="text-xs text-sky-700"> · {e.local}</span>}
+                    </Link>
+                  ))}
+                </div>
+              )}
 
               <ul className="space-y-1.5">
                 {pessoasDoDia(aberto).map((p) => {
