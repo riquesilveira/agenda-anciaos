@@ -16,6 +16,7 @@ export function CalendarioMes({
   hoje,
   diaSelecionado,
   linkDoDia,
+  podeCriar = false,
 }: {
   dias: string[]; // yyyy-MM-dd, semanas completas
   porDia: Map<string, Programacao[]>;
@@ -23,6 +24,8 @@ export function CalendarioMes({
   hoje: string;
   diaSelecionado: string | null;
   linkDoDia: (dia: string) => string;
+  /** Computador: clicar no dia abre o cadastro rápido (NovoEventoRapido). */
+  podeCriar?: boolean;
 }) {
   return (
     <div>
@@ -42,7 +45,8 @@ export function CalendarioMes({
           return (
             <div
               key={d}
-              className={`group relative min-h-[4rem] border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
+              data-novo-dia={podeCriar ? d : undefined}
+              className={`group relative ${podeCriar ? "sm:cursor-pointer sm:hover:bg-slate-50/70" : ""} min-h-[4rem] border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
                 selecionado ? "z-10 bg-indigo-50/60 ring-2 ring-indigo-500 ring-inset" : ""
               }`}
             >
@@ -61,14 +65,15 @@ export function CalendarioMes({
                 >
                   {Number(d.slice(8))}
                 </span>
-                <Link
-                  href={`/programacoes/nova?data=${d}`}
-                  className="hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-indigo-100 hover:text-indigo-700 focus:opacity-100 sm:inline-flex"
-                  title="Nova programação neste dia"
-                  aria-label={`Nova programação em ${dataLonga(d)}`}
-                >
-                  <Plus size={16} />
-                </Link>
+                {podeCriar && (
+                  <span
+                    className="hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 opacity-0 transition group-hover:opacity-100 sm:inline-flex"
+                    title="Nova programação neste dia"
+                    aria-hidden
+                  >
+                    <Plus size={16} />
+                  </span>
+                )}
               </div>
 
               {/* celular: pontinhos coloridos pela origem */}

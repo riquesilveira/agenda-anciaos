@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Check, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -13,6 +13,8 @@ import {
 import { CalendarioMes } from "@/components/calendario-mes";
 import { FiltroDepartamento } from "@/components/filtro-departamento";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
+import { NovoEventoRapido } from "@/components/novo-evento-rapido";
+import { departamentosParaCriar } from "@/lib/permissoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
@@ -52,13 +54,6 @@ export default async function PaginaCalendario({
     (params.origem ?? "").split(",").filter((o): o is Origem => todasOrigens.includes(o as Origem)),
   );
   const visiveis = marcadas.size ? marcadas : new Set(todasOrigens);
-  const alternarOrigem = (o: Origem) => {
-    const nova = new Set(visiveis);
-    if (nova.has(o)) nova.delete(o);
-    else nova.add(o);
-    // Desmarcar a última volta a mostrar todas.
-    return nova.size === 0 || nova.size === todasOrigens.length ? undefined : todasOrigens.filter((x) => nova.has(x)).join(",");
-  };
 
   const programacoes = todas.filter(
     (p) =>
@@ -98,44 +93,43 @@ export default async function PaginaCalendario({
     return t ? `/?${t}&` : "/?";
   })();
 
-  const caixasOrigem = (
-    <ul className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-col lg:gap-1">
-      {todasOrigens.map((o) => {
-        const ativa = visiveis.has(o);
+  // Abas de origem (no lugar de Dia/Semana/Mês). "ANP" é a Associação desta igreja.
+  const origemAtiva = marcadas.size === 1 ? [...marcadas][0] : null;
+  const ROTULO_ORIGEM: Record<Origem, string> = { local: "Local", distrito: "Distrito", associacao: "ANP" };
+  const abasOrigem = (
+    <nav className="flex rounded-xl bg-slate-100 p-1" aria-label="Origem">
+      {([null, "local", "distrito", "associacao"] as (Origem | null)[]).map((o) => {
+        const ativa = origemAtiva === o;
         return (
-          <li key={o}>
-            <Link
-              href={link({ origem: alternarOrigem(o), dia: undefined })}
-              aria-pressed={ativa}
-              className="flex items-center gap-2.5 rounded-lg py-1 text-sm text-slate-700 lg:px-1 lg:py-1.5 lg:hover:bg-slate-50"
-            >
-              <span
-                className={`flex h-[18px] w-[18px] items-center justify-center rounded-[5px] border-2 ${
-                  ativa ? `${ORIGENS[o].ponto} border-transparent text-white` : "border-slate-300 bg-white"
-                }`}
-              >
-                {ativa && <Check size={12} strokeWidth={3.5} />}
-              </span>
-              {ORIGENS[o].nome === "Local" ? "Igreja local" : ORIGENS[o].nome}
-            </Link>
-          </li>
+          <Link
+            key={o ?? "todos"}
+            href={link({ origem: o ?? undefined, dia: undefined })}
+            aria-current={ativa ? "page" : undefined}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition ${
+              ativa ? "bg-white font-semibold text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            {o && <span className={`h-2 w-2 rounded-full ${ORIGENS[o].ponto}`} />}
+            {o ? ROTULO_ORIGEM[o] : "Todos"}
+          </Link>
         );
       })}
-    </ul>
+    </nav>
   );
+
+  const podeCriarEm = departamentosParaCriar(perfil, departamentos);
+  const soLocal = perfil.papel === "lider";
+  const podeCriar = !soLocal || podeCriarEm.length > 0;
 
   return (
     <div className="space-y-5">
+      {podeCriar && <NovoEventoRapido departamentos={podeCriarEm} soLocal={soLocal} />}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid lg:grid-cols-[16rem_1fr]">
         {/* ----- Lateral (computador). No celular os filtros ficam abaixo do mês. ----- */}
         <aside className="hidden space-y-5 border-r border-slate-200 p-5 lg:block">
           <Link href="/programacoes/nova" className="botao w-full py-2.5">
             <Plus size={18} /> Nova programação
           </Link>
-          <div className="space-y-2">
-            <h2 className="text-sm font-semibold text-slate-900">Calendários</h2>
-            {caixasOrigem}
-          </div>
           <div className="space-y-2">
             <h2 className="text-sm font-semibold text-slate-900">Departamento</h2>
             <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
@@ -172,12 +166,13 @@ export default async function PaginaCalendario({
                 </Link>
               </div>
             </div>
-            <Link href="/minhas" className="botao-secundario px-2.5 py-1.5 lg:hidden" aria-label="Minhas programações" title="Minhas programações">
+            <div className="hidden sm:block">{abasOrigem}</div>
+            <Link href="/minhas" className="botao-secundario px-2.5 py-1.5 sm:hidden" aria-label="Minhas programações" title="Minhas programações">
               <Bell size={16} />
             </Link>
           </div>
-          <div className="space-y-2.5 px-4 pb-3 lg:hidden">
-            {caixasOrigem}
+          <div className="space-y-2.5 px-4 pb-3 sm:hidden">{abasOrigem}</div>
+          <div className="px-4 pb-3 lg:hidden">
             <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
           </div>
           <div className="border-t border-slate-200">
@@ -188,6 +183,7 @@ export default async function PaginaCalendario({
               hoje={hoje}
               diaSelecionado={dia}
               linkDoDia={(d) => `${link({ dia: d })}#lista`}
+              podeCriar={podeCriar}
             />
           </div>
         </div>
