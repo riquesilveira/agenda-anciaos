@@ -1,4 +1,4 @@
-# Contexto do projeto: Agenda dos Anciãos
+# Contexto do projeto: IASD Agenda
 
 Antes de planejar algo novo, leia **`PRD.md`** (requisitos e o que ficou fora da v1).
 

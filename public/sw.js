@@ -8,10 +8,10 @@ self.addEventListener("push", (evento) => {
   try {
     dados = evento.data ? evento.data.json() : {};
   } catch {
-    dados = { titulo: "Agenda dos Anciãos", corpo: evento.data ? evento.data.text() : "" };
+    dados = { titulo: "IASD Agenda", corpo: evento.data ? evento.data.text() : "" };
   }
   evento.waitUntil(
-    self.registration.showNotification(dados.titulo || "Agenda dos Anciãos", {
+    self.registration.showNotification(dados.titulo || "IASD Agenda", {
       body: dados.corpo || "",
       icon: "/icones/icone-notificacao-96.png",
       badge: "/icones/selo-96.png",

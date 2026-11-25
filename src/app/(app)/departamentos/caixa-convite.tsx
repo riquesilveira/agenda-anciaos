@@ -10,7 +10,7 @@ export function CaixaConvite({ convite }: { convite: EstadoConvite }) {
   const [copiado, setCopiado] = useState(false);
   if (!convite.link) return null;
   const mensagem =
-    `Olá, ${convite.nome}! Você foi cadastrado(a) como líder de ${convite.departamento} na Agenda da igreja. ` +
+    `Olá, ${convite.nome}! Você foi cadastrado(a) como líder de ${convite.departamento} na IASD Agenda. ` +
     `Abra este link para criar sua senha (vale por 24 horas):\n${convite.link}`;
   return (
     <div className="space-y-2 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">

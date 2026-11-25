@@ -8,7 +8,7 @@ export function htmlDoResumo(resumo: Resumo, urlApp: string): string {
   return `<!doctype html><html><body style="font-family:system-ui,sans-serif;color:#0f172a;max-width:600px;margin:auto;padding:16px">
 <div style="white-space:pre-wrap;line-height:1.5">${escapar(resumo.texto)}</div>
 <p style="margin-top:24px"><a href="${escapar(urlApp)}/minhas" style="background:#4f46e5;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">Abrir minhas programações</a></p>
-<p style="color:#64748b;font-size:12px;margin-top:24px">Agenda dos Anciãos</p>
+<p style="color:#64748b;font-size:12px;margin-top:24px">IASD Agenda</p>
 </body></html>`;
 }
 

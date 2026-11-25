@@ -1,4 +1,4 @@
-# Agenda dos Anciãos
+# IASD Agenda
 
 Calendário único das programações da Associação, do distrito e da igreja local,
 com lembretes para cada ancião avisar os líderes dos seus departamentos.

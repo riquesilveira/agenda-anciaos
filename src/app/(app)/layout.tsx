@@ -24,9 +24,8 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icones/icone-192.png" alt="" width={32} height={32} className="h-8 w-8 rounded-lg" />
-            <span className="leading-tight">
-              <span className="block text-[15px] font-bold text-slate-900">Agenda</span>
-              <span className="block text-[11px] text-slate-500">dos Anciãos</span>
+            <span className="text-[17px] font-bold tracking-tight text-slate-900">
+              <span className="text-indigo-700">IASD</span> Agenda
             </span>
           </Link>
           <NavTopo novidades={novidades ?? 0} />

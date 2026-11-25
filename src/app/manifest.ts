@@ -4,8 +4,8 @@ import type { MetadataRoute } from "next";
 // No iPhone, é isso que libera as notificações.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Agenda dos Anciãos",
-    short_name: "Agenda",
+    name: "IASD Agenda",
+    short_name: "IASD Agenda",
     description: "Programações da Associação, do distrito e da igreja num só calendário.",
     start_url: "/",
     scope: "/",
