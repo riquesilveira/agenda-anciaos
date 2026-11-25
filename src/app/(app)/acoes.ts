@@ -7,6 +7,7 @@ import { detectarConflitos, type Conflito } from "@/lib/conflitos";
 import { exigirPerfil } from "@/lib/sessao";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { notificarNovaProgramacao } from "@/lib/notificacoes";
+import { enviarPush } from "@/lib/push";
 import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
@@ -239,4 +240,45 @@ export async function removerLider(form: FormData) {
     .eq("departamento_id", String(form.get("departamento_id")))
     .eq("perfil_id", String(form.get("perfil_id")));
   revalidatePath("/", "layout");
+}
+
+/** Guarda o aparelho em que a pessoa ativou as notificações. */
+export async function salvarInscricaoPush(inscricao: {
+  endpoint: string;
+  keys?: { p256dh?: string; auth?: string };
+  aparelho?: string;
+}): Promise<{ ok: boolean }> {
+  const { supabase, perfil } = await exigirPerfil();
+  const { endpoint, keys } = inscricao;
+  if (!endpoint?.startsWith("https://") || !keys?.p256dh || !keys?.auth) return { ok: false };
+  // Mesmo aparelho com outra pessoa logada: a inscrição passa a ser de quem está logado agora.
+  await supabaseAdmin().from("push_inscricoes").delete().eq("endpoint", endpoint).neq("perfil_id", perfil.id);
+  const { error } = await supabase.from("push_inscricoes").upsert(
+    {
+      perfil_id: perfil.id,
+      endpoint,
+      p256dh: keys.p256dh,
+      auth: keys.auth,
+      aparelho: inscricao.aparelho?.slice(0, 120) ?? null,
+    },
+    { onConflict: "endpoint" },
+  );
+  return { ok: !error };
+}
+
+export async function removerInscricaoPush(endpoint: string): Promise<void> {
+  const { supabase } = await exigirPerfil();
+  await supabase.from("push_inscricoes").delete().eq("endpoint", endpoint);
+}
+
+/** Notificação de teste para os aparelhos da própria pessoa. */
+export async function testarPush(): Promise<{ enviados: number }> {
+  const { perfil } = await exigirPerfil();
+  const enviados = await enviarPush([perfil.id], {
+    titulo: "Notificações ativadas ✅",
+    corpo: "É assim que você vai ser avisado quando alguém cadastrar uma programação.",
+    url: "/novidades",
+    tag: "teste",
+  });
+  return { enviados };
 }

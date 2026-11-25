@@ -1,3 +1,4 @@
+import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { tratamento } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { salvarMeuPerfil } from "../acoes";
@@ -36,6 +37,8 @@ export default async function MinhaConta() {
         </div>
         <button className="botao">Salvar</button>
       </form>
+
+      <AtivarNotificacoes modo="conta" />
 
       <FormSenha email={perfil.email} />
     </div>

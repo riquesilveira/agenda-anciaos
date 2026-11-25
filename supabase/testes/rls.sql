@@ -174,6 +174,30 @@ begin
   assert n = 1, 'ancião deveria editar departamento';
 end $$;
 
+-- Notificações: cada um só mexe nas próprias inscrições.
+reset role;
+insert into push_inscricoes (perfil_id, endpoint, p256dh, auth) values
+  ('10000000-0000-0000-0000-000000000001', 'https://push.exemplo/henrique', 'k', 'a');
+set role authenticated;
+select set_config('request.jwt.claim.sub', '30000000-0000-0000-0000-000000000003', false);
+do $$
+declare n int;
+begin
+  select count(*) into n from push_inscricoes;
+  assert n = 0, 'líder viu inscrição de outra pessoa';
+  insert into push_inscricoes (perfil_id, endpoint, p256dh, auth)
+    values ('30000000-0000-0000-0000-000000000003', 'https://push.exemplo/ana', 'k', 'a');
+  begin
+    insert into push_inscricoes (perfil_id, endpoint, p256dh, auth)
+      values ('10000000-0000-0000-0000-000000000001', 'https://push.exemplo/falsa', 'k', 'a');
+    raise exception 'FALHOU: criou inscrição em nome de outra pessoa';
+  exception when insufficient_privilege then null;
+  end;
+  delete from push_inscricoes where endpoint = 'https://push.exemplo/henrique';
+  get diagnostics n = row_count;
+  assert n = 0, 'apagou inscrição de outra pessoa';
+end $$;
+
 -- Chave de administrador (cron/scripts) lê e grava tudo.
 reset role;
 set role service_role;

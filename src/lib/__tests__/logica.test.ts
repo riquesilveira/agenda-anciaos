@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { detectarConflitos } from "../conflitos";
+import { pushNovaProgramacao } from "../avisos";
 import { hojeISO } from "../datas";
 import { gerarResumo, linkWhatsapp, mensagemParaLider, normalizarWhatsapp } from "../resumo";
 import type { Departamento, Perfil, Programacao } from "../tipos";
@@ -146,5 +147,18 @@ describe("líder de departamento", () => {
     expect(r.texto).toContain("Você lidera Jovens.");
     expect(r.texto).not.toContain("lembre");
     expect(r.texto).not.toContain("avisado");
+  });
+});
+
+it("notificação de nova programação", () => {
+  const n = pushNovaProgramacao(
+    { ...prog({ titulo: "Culto Jovem", data: "2026-12-12", hora_inicio: "19:30", local: "Templo" }), id: "abc", departamento: { nome: "Jovens" } },
+    { nome: "Ana", papel: "lider" },
+  );
+  expect(n).toEqual({
+    titulo: "Nova programação: Culto Jovem",
+    corpo: "12/12 (sáb) às 19h30 · Templo\nCadastrada por Ana (Jovens)",
+    url: "/programacoes/abc",
+    tag: "programacao-abc",
   });
 });

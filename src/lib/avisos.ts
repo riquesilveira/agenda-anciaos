@@ -1,4 +1,4 @@
-import { dataLonga, horaCurta } from "./datas";
+import { dataCurta, dataLonga, horaCurta } from "./datas";
 import { tratamento } from "./resumo";
 import type { Perfil, Programacao } from "./tipos";
 
@@ -23,4 +23,30 @@ export function mensagemNovaProgramacao(
   const por = autor ? `\nCadastrada por ${tratamento(autor)}.` : "";
   const ver = link ? `\nVeja na agenda: ${link}` : "";
   return `📅 Nova programação na agenda da igreja: *${p.titulo}*${dep}, ${quando}${hora}${local}.${por}${ver}`;
+}
+
+export interface NotificacaoPush {
+  titulo: string;
+  corpo: string;
+  url: string;
+  tag?: string;
+}
+
+/** Notificação no celular para "nova programação". */
+export function pushNovaProgramacao(
+  p: Pick<Programacao, "id" | "titulo" | "data" | "data_fim" | "hora_inicio" | "local"> & {
+    departamento?: { nome: string } | null;
+  },
+  autor: Autor,
+): NotificacaoPush {
+  const data =
+    p.data_fim && p.data_fim !== p.data ? `${dataCurta(p.data)} a ${dataCurta(p.data_fim)}` : dataCurta(p.data);
+  const detalhes = [data + (p.hora_inicio ? ` às ${horaCurta(p.hora_inicio)}` : ""), p.local].filter(Boolean).join(" · ");
+  const por = autor ? `\nCadastrada por ${tratamento(autor)}${p.departamento ? ` (${p.departamento.nome})` : ""}` : "";
+  return {
+    titulo: `Nova programação: ${p.titulo}`,
+    corpo: `${detalhes}${por}`,
+    url: `/programacoes/${p.id}`,
+    tag: `programacao-${p.id}`,
+  };
 }

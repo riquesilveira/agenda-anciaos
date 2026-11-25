@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, Bell, Users, Plus, LogOut, UserRound, Sparkles } from "lucide-react";
+import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { exigirPerfil } from "@/lib/sessao";
 import { tratamento } from "@/lib/resumo";
 import { sair } from "./acoes";
@@ -51,6 +52,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
+      <AtivarNotificacoes modo="aviso" />
 
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
 
