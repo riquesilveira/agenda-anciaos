@@ -46,7 +46,8 @@ export function CalendarioMes({
               }`}
             >
               {/* celular: tocar no dia mostra a lista dele logo abaixo */}
-              {!podeCriar && <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />}
+              {/* celular: tocar no dia seleciona e mostra a lista dele (o "+" abre o cadastro) */}
+              <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
 
               <div className="mb-1 flex items-center justify-center sm:mb-2 sm:justify-between">
                 <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />

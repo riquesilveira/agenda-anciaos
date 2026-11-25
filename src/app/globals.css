@@ -51,3 +51,18 @@
 body[data-folha-aberta] .nav-inferior {
   display: none;
 }
+
+/* Tela cheia do cadastro rápido no celular: entra subindo. */
+@keyframes subir {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.animate-subir {
+  animation: subir 0.18s ease-out;
+}

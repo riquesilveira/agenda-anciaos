@@ -39,7 +39,7 @@ export function NovoEventoRapido({
 }) {
   const [aberto, setAberto] = useState<{
     data: string;
-    celula: HTMLElement;
+    celula: HTMLElement | null;
     posicao: Posicao;
     linkDia: string | null;
     qtd: number;
@@ -57,8 +57,9 @@ export function NovoEventoRapido({
       const alvo = e.target as HTMLElement;
       if (cartao.current?.contains(alvo)) return;
       const celula = alvo.closest<HTMLElement>("[data-novo-dia]");
-      // Clique em evento (link) segue para o evento.
-      if (!celula || alvo.closest("a")) {
+      // Clique em evento (link) segue para o evento. No celular, tocar no dia só
+      // seleciona (o link do dia); o cadastro abre pelo "+".
+      if (!celula || alvo.closest("a") || window.innerWidth < 640) {
         if (aberto && !celula) setAberto(null);
         return;
       }
@@ -74,11 +75,28 @@ export function NovoEventoRapido({
     function aoTeclar(e: KeyboardEvent) {
       if (e.key === "Escape") setAberto(null);
     }
+    // Botão "+" (BotaoNova): abre o mesmo cadastro, na data pedida.
+    function aoPedirNova(e: Event) {
+      const data = (e as CustomEvent<{ data: string }>).detail.data;
+      const celula = document.querySelector<HTMLElement>(`[data-novo-dia="${data}"]`);
+      setAberto({
+        data,
+        celula,
+        posicao: celula ? posicaoPara(celula, 520) : { modo: "folha" },
+        linkDia: celula?.dataset.linkDia ?? null,
+        qtd: Number(celula?.dataset.qtd ?? 0),
+      });
+      setChave((k) => k + 1);
+    }
     document.addEventListener("click", aoClicar);
     document.addEventListener("keydown", aoTeclar);
+    document.addEventListener("nova-programacao", aoPedirNova);
+    document.body.dataset.cadastroRapido = "1"; // o "+" usa este cadastro
     return () => {
       document.removeEventListener("click", aoClicar);
       document.removeEventListener("keydown", aoTeclar);
+      document.removeEventListener("nova-programacao", aoPedirNova);
+      delete document.body.dataset.cadastroRapido;
     };
   }, [aberto]);
 

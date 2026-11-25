@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
-/** Onde o cartão aparece: ao lado do dia (computador) ou subindo de baixo (celular). */
+/** Onde o cartão aparece: ao lado do dia (computador) ou em tela cheia (celular). */
 export type Posicao = { modo: "flutuante"; x: number; y: number; largura: number } | { modo: "folha" };
 
 const LARGURA = 336;
@@ -44,7 +44,7 @@ export function CartaoFlutuante({
     return () => celula.removeAttribute("data-selecionado");
   }, [celula]);
 
-  // Celular: trava a rolagem da página por trás da folha.
+  // Celular: trava a rolagem da página por trás da tela cheia.
   useEffect(() => {
     if (posicao.modo !== "folha") return;
     const antes = document.body.style.overflow;
@@ -69,20 +69,17 @@ export function CartaoFlutuante({
   );
 
   if (posicao.modo === "folha") {
+    // Celular: tela cheia (como uma página), cabeçalho fixo no topo.
     return (
-      <>
-        <div className="fixed inset-0 z-[60] bg-slate-900/30" aria-hidden onClick={aoFechar} />
-        <div
-          ref={cartaoRef}
-          role="dialog"
-          aria-label={titulo}
-          className="fixed inset-x-0 bottom-0 z-[70] max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl"
-        >
-          <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-slate-200" aria-hidden />
-          {cabecalho}
-          {children}
-        </div>
-      </>
+      <div
+        ref={cartaoRef}
+        role="dialog"
+        aria-label={titulo}
+        className="animate-subir fixed inset-0 z-[70] overflow-y-auto bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="sticky top-0 z-10 bg-white">{cabecalho}</div>
+        {children}
+      </div>
     );
   }
   return (
