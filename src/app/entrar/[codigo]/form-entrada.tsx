@@ -14,6 +14,7 @@ export function FormEntrada({
 }) {
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [quantos, setQuantos] = useState(1); // quantos departamentos a pessoa lidera
 
   return (
     <form
@@ -45,21 +46,28 @@ export function FormEntrada({
         <input className="campo" id="nome" name="nome" required autoComplete="name" placeholder="Ex: Roberto Silva" />
       </div>
 
-      <fieldset>
-        <legend className="rotulo">Qual departamento você lidera?</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {departamentos.map((d) => (
-            <label
-              key={d.id}
-              className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-200 px-3 py-2 text-sm has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50"
-            >
-              <input type="checkbox" name="departamento_id" value={d.id} className="h-4 w-4 accent-indigo-600" />
-              {d.nome}
-            </label>
+      <div>
+        <label className="rotulo" htmlFor="departamento_0">Qual departamento você lidera?</label>
+        <div className="space-y-2">
+          {Array.from({ length: quantos }, (_, i) => (
+            <select key={i} id={`departamento_${i}`} name="departamento_id" required={i === 0} defaultValue="" className="campo">
+              <option value="" disabled={i === 0}>
+                {i === 0 ? "Escolha o departamento" : "Outro departamento (opcional)"}
+              </option>
+              {departamentos.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.nome}
+                </option>
+              ))}
+            </select>
           ))}
         </div>
-        <p className="mt-1 text-xs text-slate-500">Pode marcar mais de um.</p>
-      </fieldset>
+        {quantos < 3 && (
+          <button type="button" onClick={() => setQuantos((n) => n + 1)} className="mt-1.5 text-sm font-medium text-indigo-700 hover:underline">
+            + Lidero outro departamento
+          </button>
+        )}
+      </div>
 
       <div>
         <label className="rotulo" htmlFor="whatsapp">WhatsApp <span className="font-normal text-slate-400">(opcional)</span></label>
