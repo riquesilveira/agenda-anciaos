@@ -5,12 +5,7 @@ import type { Pregacao } from "@/lib/tipos";
 
 const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
-const SINAL: Record<Pregacao["status"], { texto: string; classe: string; titulo: string } | null> = {
-  a_convidar: null,
-  convidado: { texto: "•", classe: "bg-amber-400 text-white", titulo: "convidado" },
-  confirmado: { texto: "✓", classe: "bg-emerald-500 text-white", titulo: "confirmado" },
-  recusou: { texto: "!", classe: "bg-red-500 text-white", titulo: "recusou" },
-};
+const DEFINIDO = { texto: "✓", classe: "bg-emerald-500 text-white", titulo: "pregador definido" };
 
 /**
  * Grade do mês da escala: em cada dia de culto, a sigla (inicial) do ancião
@@ -48,7 +43,7 @@ export function GradeEscala({
           const c = foraDoMes ? undefined : cultoDoDia.get(d);
           const e = c ? porChave.get(`${c.data}|${c.culto}`) : undefined;
           const quem = e ? siglas.get(e.anciao_id) : undefined;
-          const sinal = e ? SINAL[e.status] : null;
+          const sinal = e?.pregador_nome ? DEFINIDO : null;
           const passou = d < hoje;
           const numero = (
             <span

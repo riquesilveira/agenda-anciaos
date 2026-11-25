@@ -380,24 +380,21 @@ export interface EstadoPregacao {
   erro?: string;
 }
 
-const STATUS_VALIDOS = ["a_convidar", "convidado", "confirmado", "recusou"];
 
 export async function salvarPregacao(_anterior: EstadoPregacao, form: FormData): Promise<EstadoPregacao> {
   const { supabase, perfil } = await exigirPerfil();
   const id = texto(form, "id");
-  const status = texto(form, "status") ?? "a_convidar";
   const anciaoId = texto(form, "anciao_id") ?? perfil.id;
-  if (!id || !STATUS_VALIDOS.includes(status)) return { erro: "Dados inválidos." };
+  if (!id) return { erro: "Dados inválidos." };
+  const pregador = texto(form, "pregador_nome");
 
   const { data, error } = await supabase
     .from("escala_pregacao")
     .update({
-      pregador_nome: texto(form, "pregador_nome"),
-      pregador_whatsapp: texto(form, "pregador_whatsapp"),
-      pregador_igreja: texto(form, "pregador_igreja"),
-      tema: texto(form, "tema"),
-      status,
+      pregador_nome: pregador,
       observacoes: texto(form, "observacoes"),
+      // Formulário simples: com pregador = definido; sem = a definir.
+      status: pregador ? "confirmado" : "a_convidar",
       anciao_id: anciaoId,
     })
     .eq("id", id)

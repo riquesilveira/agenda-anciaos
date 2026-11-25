@@ -5,8 +5,10 @@ import { Voltar } from "@/components/voltar";
 import { listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataLonga, hojeISO, maiuscula } from "@/lib/datas";
 import { ehLideranca } from "@/lib/permissoes";
-import { CULTOS, cultoValido, mensagemConvite, mensagemLembrete, STATUS } from "@/lib/pregacao";
-import { linkWhatsapp, tratamento } from "@/lib/resumo";
+import { CULTOS, cultoValido, mensagemConvite, mensagemLembrete } from "@/lib/pregacao";
+import {
+  linkWhatsapp,
+} from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { assumirCulto, liberarCulto } from "../../../acoes";
 import { FormPregacao } from "./form-pregacao";
@@ -18,7 +20,7 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
   const [escala, perfis, igreja] = await Promise.all([listarEscala(supabase, data, data), listarPerfis(supabase), nomeDaIgreja(supabase)]);
   const p = escala.find((e) => e.culto === culto);
   const meu = p?.anciao_id === perfil.id;
-  const ancionato = perfis.filter((x) => ehLideranca(x)).map((x) => ({ id: x.id, rotulo: tratamento(x) }));
+  const ancionato = perfis.filter((x) => ehLideranca(x)).map((x) => ({ id: x.id, rotulo: x.nome }));
   const hoje = hojeISO();
 
   return (
@@ -45,13 +47,8 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
       {p && !meu && (
         <section className="cartao space-y-1 text-sm">
           <p><span className="text-slate-500">Pregador:</span> <b>{p.pregador_nome ?? "a definir"}</b></p>
-          {p.pregador_igreja && <p><span className="text-slate-500">Igreja:</span> {p.pregador_igreja}</p>}
-          {p.tema && <p><span className="text-slate-500">Tema:</span> {p.tema}</p>}
-          <p>
-            <span className="text-slate-500">Situação:</span>{" "}
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS[p.status].classe}`}>{STATUS[p.status].nome}</span>
-          </p>
-          <p><span className="text-slate-500">Responsável:</span> {p.anciao ? tratamento(p.anciao) : "—"}</p>
+          {p.observacoes && <p className="whitespace-pre-wrap"><span className="text-slate-500">Observação:</span> {p.observacoes}</p>}
+          <p><span className="text-slate-500">Responsável:</span> {p.anciao?.nome ?? "—"}</p>
           <p className="pt-2 text-xs text-slate-500">Só o ancião responsável pode alterar este culto.</p>
         </section>
       )}
@@ -79,7 +76,7 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
           {!p.pregador_whatsapp && (
             <p className="text-xs text-slate-500">Sem o WhatsApp do pregador, o botão abre o WhatsApp para você escolher o contato.</p>
           )}
-          <FormPregacao p={p} ancionato={ancionato} euId={perfil.id} />
+          <FormPregacao p={p} dataTexto={`${maiuscula(dataLonga(data))} · ${CULTOS[culto].curto}`} ancionato={ancionato} euId={perfil.id} />
           <form action={liberarCulto} className="text-right">
             <input type="hidden" name="id" value={p.id} />
             <BotaoConfirmar

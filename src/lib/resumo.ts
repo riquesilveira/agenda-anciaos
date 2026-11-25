@@ -108,7 +108,7 @@ export function gerarResumo(opcoes: {
   const { tipo, destinatario, departamentos, hoje } = opcoes;
   const mes = opcoes.mes ?? hoje.slice(0, 7);
   const porId = new Map(departamentos.map((d) => [d.id, d]));
-  const nomesAnciaos = new Map(opcoes.perfis.map((p) => [p.id, tratamento(p)]));
+  const nomesAnciaos = new Map(opcoes.perfis.map((p) => [p.id, p.nome]));
   const limiteSemanal = somarDias(hoje, JANELA_SEMANAL_DIAS);
   const fimDoMes = ultimoDiaDoMes(mes);
 

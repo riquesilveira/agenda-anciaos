@@ -8,7 +8,10 @@ import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
 import { mensagemNovaProgramacao } from "@/lib/avisos";
 import { dataLonga, horaCurta, maiuscula } from "@/lib/datas";
 import { departamentosParaCriar, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
-import { linkWhatsapp, mensagemParaLider, tratamento } from "@/lib/resumo";
+import {
+  linkWhatsapp,
+  mensagemParaLider,
+} from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Programacao } from "@/lib/tipos";
 import { excluirProgramacao, marcarAvisado } from "../../acoes";
@@ -33,7 +36,7 @@ export default async function DetalheProgramacao({
 
   const nome = (pid: string | null) => {
     const pessoa = perfis.find((x) => x.id === pid);
-    return pessoa ? tratamento(pessoa) : "—";
+    return pessoa?.nome ?? "—";
   };
   const dep = p.departamento;
   const podeEditar = podeEditarProgramacao(perfil, p, departamentos);

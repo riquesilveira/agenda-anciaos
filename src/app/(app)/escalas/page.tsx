@@ -6,8 +6,11 @@ import { GradeEscala } from "@/components/grade-escala";
 import { listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataCurta, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { ehLideranca } from "@/lib/permissoes";
-import { CULTOS, cultosDoMes, siglasAnciaos, STATUS } from "@/lib/pregacao";
-import { linkWhatsapp, tratamento, ultimoDiaDoMes } from "@/lib/resumo";
+import { CULTOS, cultosDoMes, siglasAnciaos } from "@/lib/pregacao";
+import {
+  linkWhatsapp,
+  ultimoDiaDoMes,
+} from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import { assumirCulto } from "../acoes";
 
@@ -38,7 +41,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
     "",
     ...cultos.map((c) => {
       const e = porChave.get(`${c.data}|${c.culto}`);
-      const quem = e?.pregador_nome ? `${e.pregador_nome}${e.status === "confirmado" ? "" : " (a confirmar)"}` : "a definir";
+      const quem = e?.pregador_nome ?? "a definir";
       return `${dataCurta(c.data)} · ${CULTOS[c.culto].curto}: ${quem}`;
     }),
   ].join("\n");
@@ -83,7 +86,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
               <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${s.cor}`}>
                 {s.sigla}
               </span>
-              {tratamento(a)}
+              {a.nome}
             </span>
           );
         })}
@@ -91,7 +94,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-[10px] font-bold text-slate-400">?</span>
           sem responsável
         </span>
-        <span className="text-slate-400">✓ confirmado · • convidado · ! recusou</span>
+        <span className="text-slate-400">✓ pregador definido</span>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
@@ -128,11 +131,9 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
                       {e ? (
                         <>
-                          <span className={`rounded-full px-2 py-0.5 font-medium ${STATUS[e.status].classe}`}>{STATUS[e.status].nome}</span>
                           <span className="text-slate-500">
-                            Resp.: {meu ? "você" : e.anciao ? tratamento(e.anciao) : "—"}
+                            Resp.: {meu ? "você" : e.anciao?.nome ?? "—"}
                           </span>
-                          {e.tema && <span className="truncate text-slate-500">· “{e.tema}”</span>}
                         </>
                       ) : (
                         <span className="text-slate-400">Sem ancião responsável</span>

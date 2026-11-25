@@ -67,7 +67,7 @@ describe("gerarResumo", () => {
   it("pastor vê tudo e o ancião responsável de cada item", () => {
     const r = gerarResumo({ ...base, tipo: "mensal", destinatario: pastor });
     expect(r.itens).toHaveLength(2);
-    expect(r.texto).toContain("Responsável: Ancião Paulo.");
+    expect(r.texto).toContain("Responsável: Paulo.");
     expect(r.introducao.startsWith("Pastor Marcos")).toBe(true);
   });
 });

@@ -11,7 +11,6 @@ import {
   JANELA_SEMANAL_DIAS,
   linkWhatsapp,
   mensagemParaLider,
-  tratamento,
   type TipoResumo,
 } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
@@ -111,7 +110,7 @@ export default async function MinhasProgramacoes({
                     ? <>Você acompanha <b>{d.nome}</b>: lembre <b>{d.lider_nome ?? "o líder"}</b> sobre esta programação.</>
                     : <>Responsável: {(() => {
                         const a = perfis.find((x) => x.id === d.anciao_id);
-                        return a ? tratamento(a) : "ninguém definido";
+                        return a?.nome ?? "ninguém definido";
                       })()}.</>}
                 </p>
               )}

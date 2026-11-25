@@ -1,7 +1,6 @@
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { listarPerfis } from "@/lib/consultas";
 import { hojeISO } from "@/lib/datas";
-import { tratamento } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Programacao } from "@/lib/tipos";
 
@@ -33,7 +32,7 @@ export default async function Novidades() {
 
   const autor = (id: string | null) => {
     const p = perfis.find((x) => x.id === id);
-    return p ? tratamento(p) : "alguém";
+    return p?.nome ?? "alguém";
   };
   const hoje = hojeISO();
 
