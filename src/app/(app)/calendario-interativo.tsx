@@ -11,7 +11,7 @@ import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
 import { dataLonga, fimDe, maiuscula } from "@/lib/datas";
 import { ORIGENS, type Departamento, type Origem, type Programacao } from "@/lib/tipos";
-import { programacoesDoPeriodo } from "./acoes";
+import { programacoesDoPeriodo, removerProgramacao } from "./acoes";
 
 const ROTULO_ORIGEM: Record<Origem, string> = { local: "Local", distrito: "Distrito", associacao: "ANP" };
 
@@ -38,6 +38,8 @@ export function CalendarioInterativo({
   meusDeps,
   hoje,
   podeCriar,
+  lideranca,
+  igrejaId,
 }: {
   inicial: { mes: string; dia: string | null; origem: Origem | null; dep: string };
   mesesCarregados: string[];
@@ -46,6 +48,9 @@ export function CalendarioInterativo({
   meusDeps: string[];
   hoje: string;
   podeCriar: boolean;
+  /** Anciãos/pastor: podem excluir qualquer programação da própria igreja. */
+  lideranca: boolean;
+  igrejaId: string;
 }) {
   const [mes, setMes] = useState(inicial.mes);
   const [dia, setDia] = useState<string | null>(inicial.dia);
@@ -255,6 +260,17 @@ export function CalendarioInterativo({
               dia={dia}
               programacoes={porDia.get(dia) ?? []}
               hoje={hoje}
+              podeRemover={(p) => lideranca && p.igreja_id === igrejaId}
+              aoRemover={(p) => {
+                setTodas((atuais) => atuais.filter((x) => x.id !== p.id));
+                iniciar(async () => {
+                  const r = await removerProgramacao(p.id);
+                  if (r.erro) {
+                    setTodas((atuais) => [...atuais, p]);
+                    window.alert(r.erro);
+                  }
+                });
+              }}
               aoNova={
                 podeCriar
                   ? () => document.dispatchEvent(new CustomEvent("nova-programacao", { detail: { data: dia } }))

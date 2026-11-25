@@ -2,7 +2,7 @@ import { addMonths, endOfMonth, endOfWeek, format, parseISO, startOfMonth, start
 import { NovoEventoRapido } from "@/components/novo-evento-rapido";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
 import { hojeISO } from "@/lib/datas";
-import { departamentosParaCriar } from "@/lib/permissoes";
+import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem } from "@/lib/tipos";
 import { CalendarioInterativo } from "./calendario-interativo";
@@ -46,6 +46,8 @@ export default async function PaginaCalendario({
         meusDeps={meusDeps}
         hoje={hoje}
         podeCriar={podeCriar}
+        lideranca={ehLideranca(perfil)}
+        igrejaId={perfil.igreja_id}
       />
     </div>
   );

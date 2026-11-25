@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarDays, MapPin, Plus, Users } from "lucide-react";
+import { CalendarDays, MapPin, Plus, Trash2, Users } from "lucide-react";
 import { FUSO, horaCurta, maiuscula, periodoCurto } from "@/lib/datas";
 import type { Origem, Programacao } from "@/lib/tipos";
 
@@ -102,12 +102,17 @@ export function LinhaDoTempo({
   programacoes,
   hoje,
   aoNova,
+  aoRemover,
+  podeRemover,
 }: {
   dia: string;
   programacoes: Programacao[];
   hoje: string;
   /** Abre o cadastro rápido neste dia (quem pode criar). */
   aoNova?: () => void;
+  /** Lixeira (anciãos/pastor). Recebe a programação; devolve se pode excluir aquela. */
+  aoRemover?: (p: Programacao) => void;
+  podeRemover?: (p: Programacao) => boolean;
 }) {
   const [agora, setAgora] = useState<number | null>(null);
   useEffect(() => {
@@ -225,42 +230,71 @@ export function LinhaDoTempo({
       )}
     </div>
   );
+  const lixeira = (
+    p: Programacao,
+    extra: string,
+    estilo?: React.CSSProperties,
+  ) =>
+    aoRemover && podeRemover?.(p) ? (
+      <button
+        type="button"
+        style={estilo}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (
+            window.confirm(
+              `Excluir "${p.titulo}"? Ela some do calendário de todos.`,
+            )
+          )
+            aoRemover(p);
+        }}
+        title="Excluir programação"
+        aria-label={`Excluir ${p.titulo}`}
+        className={`absolute z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-white/90 text-slate-400 shadow-sm transition hover:bg-red-50 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 ${extra}`}
+      >
+        <Trash2 size={14} />
+      </button>
+    ) : null;
+
   const cartoesDiaTodo = diaTodo.length > 0 && (
     <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
         Dia todo
       </p>
       {diaTodo.map((p) => (
-        <Link
-          key={p.id}
-          href={`/programacoes/${p.id}`}
-          className={`block rounded-xl border-t-2 px-3 py-2.5 transition ${CORES[p.origem].bloco}`}
-        >
-          <p
-            className={`text-sm leading-snug font-semibold ${CORES[p.origem].titulo}`}
+        <div key={p.id} className="group relative">
+          <Link
+            href={`/programacoes/${p.id}`}
+            className={`block rounded-xl border-t-2 px-3 py-2.5 pr-10 transition ${CORES[p.origem].bloco}`}
           >
-            {p.titulo}
-          </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {p.data_fim && p.data_fim !== p.data && (
-              <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
-                <CalendarDays size={11} /> {periodoCurto(p)}
-              </span>
-            )}
-            <span
-              className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${CORES[p.origem].selo}`}
+            <p
+              className={`text-sm leading-snug font-semibold ${CORES[p.origem].titulo}`}
             >
-              {CORES[p.origem].nome}
-            </span>
-            {p.departamento && (
+              {p.titulo}
+            </p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {p.data_fim && p.data_fim !== p.data && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
+                  <CalendarDays size={11} /> {periodoCurto(p)}
+                </span>
+              )}
               <span
                 className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${CORES[p.origem].selo}`}
               >
-                {p.departamento.nome}
+                {CORES[p.origem].nome}
               </span>
-            )}
-          </div>
-        </Link>
+              {p.departamento && (
+                <span
+                  className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${CORES[p.origem].selo}`}
+                >
+                  {p.departamento.nome}
+                </span>
+              )}
+            </div>
+          </Link>
+          {lixeira(p, "top-2 right-2")}
+        </div>
       ))}
     </div>
   );
@@ -283,7 +317,10 @@ export function LinhaDoTempo({
                   <span className="h-px flex-1 bg-slate-200/80" />
                 </div>
                 {h < ultima && (
-                  <div className="absolute inset-x-0 flex items-center gap-3" style={{ top: y(h + 30) - 7 }}>
+                  <div
+                    className="absolute inset-x-0 flex items-center gap-3"
+                    style={{ top: y(h + 30) - 7 }}
+                  >
                     <span className="w-12 shrink-0 text-right text-[10px] text-slate-300 tabular-nums sm:w-14 sm:text-[11px]">
                       {hhmm(h + 30)}
                     </span>
@@ -304,83 +341,96 @@ export function LinhaDoTempo({
                   p.hora_fim && (!p.data_fim || p.data_fim === p.data)
                     ? ` – ${horaCurta(p.hora_fim)}`
                     : "";
+                const posicao = {
+                  top: y(inicio) + 2,
+                  height: altura,
+                  left: `calc(${(coluna / colunas) * 100}% + ${coluna ? 4 : 0}px)`,
+                  width: `calc(${100 / colunas}% - ${colunas > 1 ? 4 : 0}px)`,
+                };
                 return (
-                  <Link
-                    key={p.id}
-                    href={`/programacoes/${p.id}`}
-                    title={p.titulo}
-                    style={{
-                      top: y(inicio) + 2,
-                      height: altura,
-                      left: `calc(${(coluna / colunas) * 100}% + ${coluna ? 4 : 0}px)`,
-                      width: `calc(${100 / colunas}% - ${colunas > 1 ? 4 : 0}px)`,
-                    }}
-                    className={`absolute flex flex-col overflow-hidden rounded-xl border-t-2 px-3 py-2 shadow-xs transition sm:px-4 ${cor.bloco}`}
-                  >
-                    {tamanho === "linha" ? (
-                      <p className="truncate text-sm">
-                        <span className={`font-medium ${cor.hora}`}>
-                          {horaCurta(p.hora_inicio)}{" "}
-                        </span>
-                        <span className={`font-semibold ${cor.titulo}`}>
-                          {p.titulo}
-                        </span>
-                      </p>
-                    ) : (
-                      <>
-                        {tamanho === "medio" ? (
-                          <p className="truncate text-[15px] leading-snug">
-                            <span className={`text-xs font-medium ${cor.hora}`}>
-                              {horaCurta(p.hora_inicio)}
-                              {fimMostrado}
-                            </span>{" "}
-                            <span className={`font-semibold ${cor.titulo}`}>
-                              {p.titulo}
-                            </span>
-                          </p>
-                        ) : (
-                          <>
-                            <p className={`text-xs font-medium ${cor.hora}`}>
-                              {horaCurta(p.hora_inicio)}
-                              {fimMostrado}
-                            </p>
-                            <p
-                              className={`mt-0.5 line-clamp-2 text-[15px] leading-snug font-semibold ${cor.titulo}`}
-                            >
-                              {p.titulo}
-                            </p>
-                          </>
-                        )}
-                        <div
-                          className={`mt-auto flex items-center gap-x-3 gap-y-1 overflow-hidden pt-1 text-xs text-slate-600 ${
-                            tamanho === "medio"
-                              ? "flex-nowrap whitespace-nowrap"
-                              : "flex-wrap"
-                          }`}
-                        >
-                          {p.local && (
-                            <span className="inline-flex min-w-0 items-center gap-1">
-                              <MapPin size={12} className="shrink-0" />{" "}
-                              <span className="truncate">{p.local}</span>
-                            </span>
-                          )}
-                          {p.departamento && (
-                            <span className="inline-flex min-w-0 items-center gap-1">
-                              <Users size={12} className="shrink-0" />{" "}
-                              <span className="truncate">
-                                {p.departamento.nome}
-                              </span>
-                            </span>
-                          )}
-                          <span
-                            className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-medium ${cor.selo}`}
-                          >
-                            {cor.nome}
+                  <div key={p.id} className="group">
+                    <Link
+                      href={`/programacoes/${p.id}`}
+                      title={p.titulo}
+                      style={{
+                        top: y(inicio) + 2,
+                        height: altura,
+                        left: `calc(${(coluna / colunas) * 100}% + ${coluna ? 4 : 0}px)`,
+                        width: `calc(${100 / colunas}% - ${colunas > 1 ? 4 : 0}px)`,
+                      }}
+                      className={`absolute flex flex-col overflow-hidden rounded-xl border-t-2 px-3 py-2 pr-10 shadow-xs transition sm:px-4 sm:pr-11 ${cor.bloco}`}
+                    >
+                      {tamanho === "linha" ? (
+                        <p className="truncate text-sm">
+                          <span className={`font-medium ${cor.hora}`}>
+                            {horaCurta(p.hora_inicio)}{" "}
                           </span>
-                        </div>
-                      </>
-                    )}
-                  </Link>
+                          <span className={`font-semibold ${cor.titulo}`}>
+                            {p.titulo}
+                          </span>
+                        </p>
+                      ) : (
+                        <>
+                          {tamanho === "medio" ? (
+                            <p className="truncate text-[15px] leading-snug">
+                              <span
+                                className={`text-xs font-medium ${cor.hora}`}
+                              >
+                                {horaCurta(p.hora_inicio)}
+                                {fimMostrado}
+                              </span>{" "}
+                              <span className={`font-semibold ${cor.titulo}`}>
+                                {p.titulo}
+                              </span>
+                            </p>
+                          ) : (
+                            <>
+                              <p className={`text-xs font-medium ${cor.hora}`}>
+                                {horaCurta(p.hora_inicio)}
+                                {fimMostrado}
+                              </p>
+                              <p
+                                className={`mt-0.5 line-clamp-2 text-[15px] leading-snug font-semibold ${cor.titulo}`}
+                              >
+                                {p.titulo}
+                              </p>
+                            </>
+                          )}
+                          <div
+                            className={`mt-auto flex items-center gap-x-3 gap-y-1 overflow-hidden pt-1 text-xs text-slate-600 ${
+                              tamanho === "medio"
+                                ? "flex-nowrap whitespace-nowrap"
+                                : "flex-wrap"
+                            }`}
+                          >
+                            {p.local && (
+                              <span className="inline-flex min-w-0 items-center gap-1">
+                                <MapPin size={12} className="shrink-0" />{" "}
+                                <span className="truncate">{p.local}</span>
+                              </span>
+                            )}
+                            {p.departamento && (
+                              <span className="inline-flex min-w-0 items-center gap-1">
+                                <Users size={12} className="shrink-0" />{" "}
+                                <span className="truncate">
+                                  {p.departamento.nome}
+                                </span>
+                              </span>
+                            )}
+                            <span
+                              className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-medium ${cor.selo}`}
+                            >
+                              {cor.nome}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </Link>
+                    {lixeira(p, "", {
+                      top: posicao.top + (altura < 52 ? 6 : 8),
+                      left: `calc(${posicao.left} + ${posicao.width} - 36px)`,
+                    })}
+                  </div>
                 );
               })}
             </div>

@@ -107,6 +107,16 @@ export async function excluirProgramacao(form: FormData) {
   redirect(data ? `/?mes=${String(data.data).slice(0, 7)}` : "/");
 }
 
+/** Excluir pelo calendário (lixeira da linha do tempo). Só anciãos/pastor; RLS garante a igreja. */
+export async function removerProgramacao(id: string): Promise<{ erro?: string }> {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem excluir programações." };
+  const { data, error } = await supabase.from("programacoes").delete().eq("id", id).select("id");
+  if (error || !data?.length) return { erro: "Não foi possível excluir esta programação." };
+  revalidatePath("/", "layout");
+  return {};
+}
+
 export async function marcarAvisado(form: FormData) {
   const { supabase, perfil } = await exigirPerfil();
   const id = String(form.get("id"));
