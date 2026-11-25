@@ -74,7 +74,7 @@ export default async function EscalaDepartamento({
         podeEditar={podeEditar}
         remetente={perfil}
         hoje={hoje}
-        mesPadrao={mes}
+        mes={mes}
       />
     </div>
   );

@@ -519,3 +519,38 @@ export async function excluirDiaEscala(form: FormData) {
   revalidatePath("/escalas", "layout");
   redirect(data ? `/escalas/d/${data.departamento_id}?mes=${String(data.data).slice(0, 7)}` : "/escalas");
 }
+
+/**
+ * Soltar um nome num dia do calendário da escala: usa o dia da escala que já
+ * existe nessa data (ou cria um) e coloca a pessoa nele.
+ */
+export async function escalarNaData(
+  departamentoId: string,
+  data: string,
+  membroId: string,
+): Promise<{ diaId?: string; pessoaId?: string; erro?: string }> {
+  const { supabase } = await exigirPerfil();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return { erro: "Data inválida." };
+  const negado = "Só o líder deste departamento (ou um ancião) pode alterar a escala.";
+
+  const { data: existente } = await supabase
+    .from("escala_dias")
+    .select("id")
+    .eq("departamento_id", departamentoId)
+    .eq("data", data)
+    .order("horario", { nullsFirst: true })
+    .limit(1)
+    .maybeSingle();
+  let diaId = existente?.id as string | undefined;
+  if (!diaId) {
+    const novo = await supabase.from("escala_dias").insert({ departamento_id: departamentoId, data }).select("id").single();
+    if (novo.error || !novo.data) {
+      console.error("Falha ao criar dia da escala", novo.error);
+      return { erro: negado };
+    }
+    diaId = novo.data.id as string;
+  }
+  const r = await adicionarPessoaDia(diaId, membroId);
+  if (r.erro) return { erro: negado };
+  return { diaId, pessoaId: r.id };
+}

@@ -47,7 +47,7 @@ export function FormDia({
         const dados = new FormData(e.currentTarget);
         startTransition(() => acao(dados));
       }}
-      className={`space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 ${dia ? "absolute right-4 z-20 w-[min(22rem,calc(100vw-2rem))] bg-white shadow-lg" : ""}`}
+      className={`space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 ${dia ? "absolute top-9 right-0 z-30 w-[min(22rem,calc(100vw-2rem))] bg-white shadow-lg" : ""}`}
     >
       {dia && <input type="hidden" name="id" value={dia.id} />}
       <input type="hidden" name="departamento_id" value={departamentoId} />
