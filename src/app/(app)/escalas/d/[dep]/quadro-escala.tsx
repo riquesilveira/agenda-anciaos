@@ -22,7 +22,6 @@ import { FormDia } from "./form-dia";
 
 const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
-type Remetente = Pick<Perfil, "nome" | "papel" | "tratamento">;
 
 /**
  * Escala de um departamento: equipe de um lado e o calendário do mês.
@@ -34,7 +33,6 @@ export function QuadroEscala({
   membros,
   diasIniciais,
   podeEditar,
-  remetente,
   hoje,
   mes,
   programacoes,
@@ -44,7 +42,6 @@ export function QuadroEscala({
   membros: MembroDepartamento[];
   diasIniciais: EscalaDia[];
   podeEditar: boolean;
-  remetente: Remetente;
   hoje: string;
   mes: string; // yyyy-MM
   /** Programações locais da igreja no mês (só para consulta). */
@@ -348,7 +345,7 @@ export function QuadroEscala({
                 const nome = p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "—";
                 const zap = p.membro?.whatsapp ?? membroPorId.get(p.membro_id)?.whatsapp ?? null;
                 const dia = diasAbertos.find((d) => d.id === p.escala_dia_id) ?? diasAbertos[0];
-                const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, remetente, hoje });
+                const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje });
                 const avancar = () => setFila((f) => (f && f.length > 1 ? f.slice(1) : null));
                 return (
                   <div className="space-y-2 rounded-xl border border-emerald-300 bg-emerald-50 p-3">
@@ -396,7 +393,7 @@ export function QuadroEscala({
                   const dia = diasAbertos.find((d) => d.id === p.escala_dia_id) ?? diasAbertos[0];
                   const nome = p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "—";
                   const zap = p.membro?.whatsapp ?? membroPorId.get(p.membro_id)?.whatsapp ?? null;
-                  const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, remetente, hoje });
+                  const msg = mensagemAvisoEscala({ nome, funcao: p.funcao, dia, departamento: departamento.nome, hoje });
                   const provisorio = p.id.startsWith("tmp-");
                   return (
                     <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-sm">

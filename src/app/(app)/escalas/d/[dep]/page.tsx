@@ -75,7 +75,6 @@ export default async function EscalaDepartamento({
         membros={membros}
         diasIniciais={dias}
         podeEditar={podeEditar}
-        remetente={perfil}
         hoje={hoje}
         mes={mes}
         programacoes={programacoesLocais}

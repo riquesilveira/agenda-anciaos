@@ -1,8 +1,5 @@
 import { dataLonga, horaCurta, somarDias } from "./datas";
-import { tratamento } from "./resumo";
-import type { EscalaDia, Perfil } from "./tipos";
-
-type Remetente = Pick<Perfil, "nome" | "papel"> & { tratamento?: string | null };
+import type { EscalaDia } from "./tipos";
 
 /** "hoje", "amanhã" ou "sábado, 5 de dezembro". */
 export function quandoE(data: string, hoje: string): string {
@@ -21,15 +18,14 @@ export function mensagemAvisoEscala(opcoes: {
   funcao: string | null;
   dia: Pick<EscalaDia, "data" | "horario" | "titulo">;
   departamento: string;
-  remetente: Remetente;
   hoje: string;
 }): string {
-  const { nome, funcao, dia, departamento, remetente, hoje } = opcoes;
+  const { nome, funcao, dia, departamento, hoje } = opcoes;
   const detalhes = [dia.titulo, dia.horario ? `às ${horaCurta(dia.horario)}` : null].filter(Boolean).join(", ");
   return (
     `Olá, ${nome}! Passando para lembrar que ${quandoE(dia.data, hoje)} é o seu dia na escala de ${departamento}` +
     `${funcao ? ` (${funcao})` : ""}${detalhes ? `: ${detalhes}` : ""}. ` +
-    `Conto com você! ${tratamento(remetente)} – ${departamento}`
+    `Conto com você!`
   );
 }
 

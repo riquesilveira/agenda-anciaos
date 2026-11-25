@@ -1,8 +1,6 @@
 import { expect, it } from "vitest";
 import { lembretesDeVespera, mensagemAvisoEscala, quandoE, textoEscalaMes } from "../escalas";
 
-const ana = { nome: "Ana", papel: "lider" as const };
-
 it("quandoE", () => {
   expect(quandoE("2026-12-05", "2026-12-05")).toBe("hoje");
   expect(quandoE("2026-12-06", "2026-12-05")).toBe("amanhã");
@@ -16,10 +14,9 @@ it("mensagem de aviso no dia", () => {
       funcao: "Teclado",
       dia: { data: "2026-12-05", horario: "09:00", titulo: "Culto Divino" },
       departamento: "Música",
-      remetente: ana,
       hoje: "2026-12-05",
     }),
-  ).toBe("Olá, Pedro! Passando para lembrar que hoje é o seu dia na escala de Música (Teclado): Culto Divino, às 9h. Conto com você! Ana – Música");
+  ).toBe("Olá, Pedro! Passando para lembrar que hoje é o seu dia na escala de Música (Teclado): Culto Divino, às 9h. Conto com você!");
 });
 
 it("mensagem com data e sem função/título", () => {
@@ -29,10 +26,9 @@ it("mensagem com data e sem função/título", () => {
       funcao: null,
       dia: { data: "2026-12-12", horario: null, titulo: null },
       departamento: "Diaconato",
-      remetente: { nome: "Henrique", papel: "anciao" },
       hoje: "2026-12-05",
     }),
-  ).toBe("Olá, Lucas! Passando para lembrar que sábado, 12 de dezembro é o seu dia na escala de Diaconato. Conto com você! Ancião Henrique – Diaconato");
+  ).toBe("Olá, Lucas! Passando para lembrar que sábado, 12 de dezembro é o seu dia na escala de Diaconato. Conto com você!");
 });
 
 it("texto da escala do mês", () => {
