@@ -410,8 +410,8 @@ export async function salvarPregacao(_anterior: EstadoPregacao, form: FormData):
     return { erro: "Só o ancião responsável por este culto pode alterar." };
   }
   revalidatePath("/escalas", "layout");
-  if (anciaoId !== perfil.id) redirect(`/escalas/${data[0].data}/${data[0].culto}`);
-  return { ok: true };
+  // Depois de salvar, volta para a escala do mês.
+  redirect(`/escalas?mes=${String(data[0].data).slice(0, 7)}`);
 }
 
 export async function liberarCulto(form: FormData) {
