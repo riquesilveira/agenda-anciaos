@@ -4,7 +4,6 @@ import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { BotaoNova } from "@/components/botao-nova";
 import { NavInferior, NavTopo } from "@/components/navegacao";
 import { exigirPerfil } from "@/lib/sessao";
-import { tratamento } from "@/lib/resumo";
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
   const { supabase, perfil } = await exigirPerfil();
@@ -37,7 +36,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
                 {perfil.nome.trim().charAt(0).toUpperCase() || <UserRound size={16} />}
               </span>
-              <span className="hidden md:inline">{tratamento(perfil)}</span>
+              <span className="hidden md:inline">{perfil.nome}</span>
             </Link>
           </div>
         </div>
