@@ -24,7 +24,7 @@ dos departamentos pelos quais é responsável:
 |---|---|
 | 3 anciãos | Login. Veem tudo, cadastram e editam qualquer programação. Recebem o resumo dos seus departamentos. |
 | Pastor | Login. Igual aos anciãos e recebe o resumo de todos os departamentos. |
-| Líderes de departamento | Sem login. São só nome + WhatsApp no cadastro do departamento. |
+| Líderes de departamento | Login por convite (link enviado pelo ancião no WhatsApp). Veem o calendário todo, mas só criam/editam/excluem programações locais dos departamentos que lideram. Sem aprovação. |
 
 O pastor atende outras igrejas do distrito, mas a v1 é **só a Igreja do
 Aeroporto**. O banco já tem `igreja_id` em tudo, então abrir para outras
@@ -59,10 +59,15 @@ Comissões). `scripts/extrair-calendario-pdf.py` converte para JSON e
 `npm run importar` grava. O resumo do pastor não inclui eventos da Associação
 sem departamento (são ~90 por ano e afogariam o resumo); eles aparecem no calendário.
 
+### Aviso de nova programação
+Quem cria uma programação vê o botão "Avisar no WhatsApp" (mensagem pronta,
+a pessoa escolhe o grupo dos líderes). Todos da igreja veem em **Novidades**
+(com contador no menu) e recebem e-mail automático quando `RESEND_API_KEY`
+estiver configurada.
+
 ## Fora da v1
 - Importar do Google Agenda (ainda não se sabe se o calendário da Associação chega por lá)
 - Outras igrejas do distrito
-- Login para líderes de departamento
 - WhatsApp automático (API oficial é paga)
 - Inscrições e lista de presença
 - Programações recorrentes (cultos semanais)

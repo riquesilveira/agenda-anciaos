@@ -38,7 +38,10 @@ export default async function MinhasProgramacoes({
   ]);
 
   const resumo = gerarResumo({ tipo, destinatario: perfil, programacoes, departamentos, perfis, hoje, mes });
-  const meusDeps = departamentos.filter((d) => d.anciao_id === perfil.id);
+  const ehLider = perfil.papel === "lider";
+  const meusDeps = departamentos.filter((d) =>
+    ehLider ? d.lideres?.some((l) => l.perfil_id === perfil.id) : d.anciao_id === perfil.id,
+  );
   const proximoMes = format(addMonths(parseISO(`${hoje.slice(0, 7)}-01`), 1), "yyyy-MM");
 
   const aba = (ativo: boolean) =>
@@ -52,8 +55,10 @@ export default async function MinhasProgramacoes({
           {perfil.papel === "pastor"
             ? "Como pastor, você vê as programações de todos os departamentos."
             : meusDeps.length
-              ? `Você acompanha: ${meusDeps.map((d) => d.nome).join(", ")}.`
-              : "Você ainda não é responsável por nenhum departamento. Defina em Departamentos."}
+              ? `${ehLider ? "Você lidera" : "Você acompanha"}: ${meusDeps.map((d) => d.nome).join(", ")}.`
+              : ehLider
+                ? "Você ainda não está como líder de nenhum departamento. Fale com um ancião."
+                : "Você ainda não é responsável por nenhum departamento. Defina em Departamentos."}
         </p>
       </div>
 
@@ -86,7 +91,9 @@ export default async function MinhasProgramacoes({
                 </span>
               </div>
 
-              {d && (
+              {d && ehLider && <p className="mt-1 text-sm text-slate-600">Você lidera <b>{d.nome}</b>.</p>}
+
+              {d && !ehLider && (
                 <p className="mt-1 text-sm text-slate-600">
                   {responsavel
                     ? <>Você acompanha <b>{d.nome}</b>: lembre <b>{d.lider_nome ?? "o líder"}</b> sobre esta programação.</>
@@ -97,7 +104,7 @@ export default async function MinhasProgramacoes({
                 </p>
               )}
 
-              {d && (
+              {d && !ehLider && (
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {avisado ? (
                     <span className="text-sm text-emerald-700">✅ Líder avisado</span>

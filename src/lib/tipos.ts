@@ -1,7 +1,7 @@
 // Espelho das tabelas em supabase/migrations. Toda coluna/relacionamento novo
 // no banco precisa de um campo aqui.
 
-export type Papel = "anciao" | "pastor";
+export type Papel = "anciao" | "pastor" | "lider";
 export type Origem = "associacao" | "distrito" | "local";
 
 export const ORIGENS: Record<Origem, { nome: string; classe: string }> = {
@@ -19,6 +19,14 @@ export interface Perfil {
   whatsapp: string | null;
   /** "Ancião", "Anciã", "Pastor"… Vazio = padrão pelo papel. */
   tratamento: string | null;
+  /** Até quando a pessoa já viu as programações criadas pelos outros. */
+  novidades_vistas_em: string;
+}
+
+/** Líder (com login) de um departamento. */
+export interface LiderDepartamento {
+  perfil_id: string;
+  perfil?: Pick<Perfil, "id" | "nome" | "email" | "whatsapp" | "papel" | "tratamento"> | null;
 }
 
 export interface Departamento {
@@ -30,6 +38,7 @@ export interface Departamento {
   lider_nome: string | null;
   lider_whatsapp: string | null;
   anciao?: Pick<Perfil, "id" | "nome"> | null;
+  lideres?: LiderDepartamento[];
 }
 
 export interface Programacao {
@@ -51,5 +60,6 @@ export interface Programacao {
   lider_avisado_por: string | null;
   criado_por: string | null;
   atualizado_por: string | null;
+  created_at: string;
   departamento?: Departamento | null;
 }

@@ -19,6 +19,10 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, site no Render, agendam
 - **Isolamento por igreja é feito no RLS** (`minha_igreja()`), não só no código.
   O código do app usa o cliente com sessão (`supabaseServidor`); `supabaseAdmin`
   (service role) só no cron e em scripts, e lá o filtro por `igreja_id` é manual.
+- **Papéis:** `anciao` e `pastor` podem tudo na igreja; `lider` vê tudo mas só
+  escreve em programações locais dos departamentos que lidera
+  (`departamento_lideres`). Garantia no RLS (`posso_editar_departamento`);
+  `src/lib/permissoes.ts` só espelha para a interface.
 - **Identidade vem da sessão** (`exigirPerfil`), nunca de um id vindo do formulário.
 - **Datas** são `date` + `time` sem fuso; "hoje" sempre por `hojeISO()` (Brasília),
   porque o servidor (Render) roda em UTC.

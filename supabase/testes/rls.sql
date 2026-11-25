@@ -72,6 +72,108 @@ begin
   end;
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- Líder de departamento: vê tudo da igreja, mas só mexe no próprio departamento.
+-- ---------------------------------------------------------------------------
+reset role;
+insert into auth.users values ('30000000-0000-0000-0000-000000000003', 'lider@x');
+insert into perfis (id, igreja_id, nome, papel, email) values
+  ('30000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000a', 'Ana', 'lider', 'lider@x');
+insert into departamentos (id, igreja_id, nome) values
+  ('d1000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 'Jovens'),
+  ('d2000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', 'Música');
+insert into departamento_lideres (departamento_id, perfil_id) values
+  ('d1000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003');
+insert into programacoes (id, igreja_id, titulo, data, departamento_id) values
+  ('e2000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', 'Ensaio', '2026-12-01', 'd2000000-0000-0000-0000-000000000002');
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '30000000-0000-0000-0000-000000000003', false);
+
+do $$
+declare n int;
+begin
+  select count(*) into n from programacoes;
+  assert n >= 4, 'líder deveria ver todas as programações da igreja, viu ' || n;
+  select count(*) into n from programacoes where igreja_id = '00000000-0000-0000-0000-00000000000b';
+  assert n = 0, 'líder não pode ver outra igreja';
+
+  -- pode criar no próprio departamento (origem local)
+  insert into programacoes (igreja_id, titulo, data, departamento_id, origem)
+    values ('00000000-0000-0000-0000-00000000000a', 'Culto Jovem', '2026-12-05', 'd1000000-0000-0000-0000-000000000001', 'local');
+  update programacoes set titulo = 'Culto Jovem (editado)' where titulo = 'Culto Jovem';
+  get diagnostics n = row_count;
+  assert n = 1, 'líder deveria editar programação do próprio departamento';
+
+  begin
+    insert into programacoes (igreja_id, titulo, data, departamento_id)
+      values ('00000000-0000-0000-0000-00000000000a', 'Invasão', '2026-12-05', 'd2000000-0000-0000-0000-000000000002');
+    raise exception 'FALHOU: líder criou em outro departamento';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    insert into programacoes (igreja_id, titulo, data)
+      values ('00000000-0000-0000-0000-00000000000a', 'Sem departamento', '2026-12-05');
+    raise exception 'FALHOU: líder criou sem departamento';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    insert into programacoes (igreja_id, titulo, data, departamento_id, origem)
+      values ('00000000-0000-0000-0000-00000000000a', 'Fingindo Associação', '2026-12-05', 'd1000000-0000-0000-0000-000000000001', 'associacao');
+    raise exception 'FALHOU: líder criou programação da Associação';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    update programacoes set departamento_id = 'd2000000-0000-0000-0000-000000000002' where titulo = 'Culto Jovem (editado)';
+    raise exception 'FALHOU: líder moveu programação para outro departamento';
+  exception when insufficient_privilege then null;
+  end;
+
+  update programacoes set titulo = 'hack' where id = 'e2000000-0000-0000-0000-000000000002';
+  get diagnostics n = row_count;
+  assert n = 0, 'líder não pode editar programação de outro departamento';
+  delete from programacoes where id = 'e2000000-0000-0000-0000-000000000002';
+  get diagnostics n = row_count;
+  assert n = 0, 'líder não pode excluir programação de outro departamento';
+
+  update departamentos set nome = 'hack' where id = 'd2000000-0000-0000-0000-000000000002';
+  get diagnostics n = row_count;
+  assert n = 0, 'líder não pode editar departamentos';
+
+  begin
+    insert into departamento_lideres (departamento_id, perfil_id)
+      values ('d2000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000003');
+    raise exception 'FALHOU: líder se colocou como líder de outro departamento';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    update perfis set papel = 'anciao' where id = auth.uid();
+    raise exception 'FALHOU: líder virou ancião';
+  exception when insufficient_privilege then null;
+  end;
+
+  update perfis set novidades_vistas_em = now() where id = auth.uid();
+end $$;
+
+-- Ancião continua podendo tudo na igreja, inclusive gerir líderes.
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  update programacoes set titulo = 'Ensaio geral' where id = 'e2000000-0000-0000-0000-000000000002';
+  get diagnostics n = row_count;
+  assert n = 1, 'ancião deveria editar qualquer programação da igreja';
+  insert into departamento_lideres (departamento_id, perfil_id)
+    values ('d2000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000003');
+  update departamentos set cor = '#000000' where id = 'd2000000-0000-0000-0000-000000000002';
+  get diagnostics n = row_count;
+  assert n = 1, 'ancião deveria editar departamento';
+end $$;
+
 -- Chave de administrador (cron/scripts) lê e grava tudo.
 reset role;
 set role service_role;

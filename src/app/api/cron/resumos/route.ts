@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   const db = supabaseAdmin();
   const [perfis, departamentos, programacoes] = await Promise.all([
     db.from("perfis").select("*").returns<Perfil[]>(),
-    db.from("departamentos").select("*").returns<Departamento[]>(),
+    db.from("departamentos").select("*, lideres:departamento_lideres(perfil_id)").returns<Departamento[]>(),
     db.from("programacoes").select("*").gte("data", hoje).lte("data", ate).returns<Programacao[]>(),
   ]);
   if (perfis.error || departamentos.error || programacoes.error) {

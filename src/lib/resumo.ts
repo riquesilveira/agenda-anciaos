@@ -28,15 +28,16 @@ export interface Resumo {
 type Identificacao = Pick<Perfil, "nome" | "papel"> & { tratamento?: string | null };
 
 export function tratamento(p: Identificacao): string {
-  const padrao = p.papel === "pastor" ? "Pastor" : "Ancião";
-  return `${p.tratamento?.trim() || padrao} ${p.nome}`;
+  const padrao = p.papel === "pastor" ? "Pastor" : p.papel === "anciao" ? "Ancião" : "";
+  return `${p.tratamento?.trim() || padrao} ${p.nome}`.trim();
 }
 
 /**
  * Quais programações entram no resumo de alguém:
  * - ancião: só as dos departamentos pelos quais é responsável;
  * - pastor: todas, menos as da Associação sem departamento (essas são o pano
- *   de fundo do calendário; com centenas por ano, afogariam o resumo).
+ *   de fundo do calendário; com centenas por ano, afogariam o resumo);
+ * - líder: as dos departamentos que lidera.
  */
 export function programacoesDe(
   pessoa: Pick<Perfil, "id" | "papel">,
@@ -46,7 +47,13 @@ export function programacoesDe(
   if (pessoa.papel === "pastor") {
     return programacoes.filter((p) => p.departamento_id || p.origem !== "associacao");
   }
-  const meus = new Set(departamentos.filter((d) => d.anciao_id === pessoa.id).map((d) => d.id));
+  const meus = new Set(
+    departamentos
+      .filter((d) =>
+        pessoa.papel === "lider" ? d.lideres?.some((l) => l.perfil_id === pessoa.id) : d.anciao_id === pessoa.id,
+      )
+      .map((d) => d.id),
+  );
   return programacoes.filter((p) => p.departamento_id && meus.has(p.departamento_id));
 }
 
@@ -62,12 +69,17 @@ export function ultimoDiaDoMes(mes: string): string {
   return `${mes}-${String(new Date(Date.UTC(a, m, 0)).getUTCDate()).padStart(2, "0")}`;
 }
 
-function linhaItem(item: ItemResumo, nomesAnciaos: Map<string, string>): string {
+function linhaItem(item: ItemResumo, nomesAnciaos: Map<string, string>, paraLider: boolean): string {
   const p = item.programacao;
   const d = item.departamento;
   const hora = p.hora_inicio ? ` ${horaCurta(p.hora_inicio)}` : "";
   const dep = d ? ` (${d.nome})` : "";
   const linhas = [`• ${periodoCurto(p)}${hora}: ${p.titulo}${dep}`];
+
+  if (d && paraLider) {
+    linhas.push(`  Você lidera ${d.nome}. (${descreverPrazo(item.diasRestantes)})`);
+    return linhas.join("\n");
+  }
 
   if (d) {
     const lider = d.lider_nome ? `${d.lider_nome} (líder de ${d.nome})` : `o líder de ${d.nome}`;
@@ -125,9 +137,11 @@ export function gerarResumo(opcoes: {
   const assunto =
     tipo === "mensal"
       ? `Programações de ${nomeDoMes(mes)}`
-      : `Lembretes da semana: ${itens.filter((i) => !i.avisado).length} líder(es) para avisar`;
+      : destinatario.papel === "lider"
+        ? `Suas programações dos próximos ${JANELA_SEMANAL_DIAS} dias`
+        : `Lembretes da semana: ${itens.filter((i) => !i.avisado).length} líder(es) para avisar`;
 
-  const texto = [introducao, ...itens.map((i) => linhaItem(i, nomesAnciaos))].join("\n\n");
+  const texto = [introducao, ...itens.map((i) => linhaItem(i, nomesAnciaos, destinatario.papel === "lider"))].join("\n\n");
 
   return {
     tipo,

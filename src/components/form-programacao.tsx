@@ -10,10 +10,14 @@ export function FormProgramacao({
   programacao,
   departamentos,
   dataInicial,
+  soLocal = false,
 }: {
   programacao?: Programacao;
+  /** Só os departamentos em que a pessoa pode cadastrar. */
   departamentos: Departamento[];
   dataInicial?: string;
+  /** Líder: origem fixa "local" e departamento obrigatório. */
+  soLocal?: boolean;
 }) {
   const [estado, acao, enviando] = useActionState<EstadoFormProgramacao, FormData>(salvarProgramacao, {});
   const confirmar = useRef<HTMLInputElement>(null);
@@ -63,18 +67,28 @@ export function FormProgramacao({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="rotulo" htmlFor="origem">Origem *</label>
-          <select className="campo" id="origem" name="origem" defaultValue={p?.origem ?? "local"}>
-            {(Object.keys(ORIGENS) as Origem[]).map((o) => (
-              <option key={o} value={o}>{ORIGENS[o].nome}</option>
-            ))}
-          </select>
-        </div>
+        {soLocal ? (
+          <input type="hidden" name="origem" value="local" />
+        ) : (
+          <div>
+            <label className="rotulo" htmlFor="origem">Origem *</label>
+            <select className="campo" id="origem" name="origem" defaultValue={p?.origem ?? "local"}>
+              {(Object.keys(ORIGENS) as Origem[]).map((o) => (
+                <option key={o} value={o}>{ORIGENS[o].nome}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="rotulo" htmlFor="departamento_id">Departamento</label>
-          <select className="campo" id="departamento_id" name="departamento_id" defaultValue={p?.departamento_id ?? ""}>
-            <option value="">Igreja toda / sem departamento</option>
+          <select
+            className="campo"
+            id="departamento_id"
+            name="departamento_id"
+            required={soLocal}
+            defaultValue={p?.departamento_id ?? (soLocal && departamentos.length === 1 ? departamentos[0].id : "")}
+          >
+            {!soLocal && <option value="">Igreja toda / sem departamento</option>}
             {departamentos.map((d) => (
               <option key={d.id} value={d.id}>{d.nome}</option>
             ))}

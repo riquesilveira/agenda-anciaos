@@ -4,7 +4,10 @@ import type { Departamento, Perfil, Programacao } from "./tipos";
 export async function listarDepartamentos(supabase: SupabaseClient) {
   const { data } = await supabase
     .from("departamentos")
-    .select("*, anciao:perfis(id, nome)")
+    // !fkey: departamentos chega em perfis por dois caminhos (anciao_id e departamento_lideres)
+    .select(
+      "*, anciao:perfis!departamentos_anciao_id_fkey(id, nome), lideres:departamento_lideres(perfil_id, perfil:perfis(id, nome, email, whatsapp, papel, tratamento))",
+    )
     .order("nome")
     .returns<Departamento[]>();
   return data ?? [];

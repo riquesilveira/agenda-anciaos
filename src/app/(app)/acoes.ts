@@ -2,9 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { detectarConflitos, type Conflito } from "@/lib/conflitos";
 import { exigirPerfil } from "@/lib/sessao";
-import { listarProgramacoes } from "@/lib/consultas";
+import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
+import { notificarNovaProgramacao } from "@/lib/notificacoes";
+import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
+import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
 
 export interface EstadoFormProgramacao {
@@ -26,7 +30,8 @@ export async function salvarProgramacao(
   const { supabase, perfil } = await exigirPerfil();
 
   const id = texto(form, "id");
-  const origem = texto(form, "origem") as Origem;
+  // Líder só cadastra programações locais (as da Associação/distrito são dos anciãos).
+  const origem = (perfil.papel === "lider" ? "local" : texto(form, "origem")) as Origem;
   const dados = {
     titulo: texto(form, "titulo"),
     descricao: texto(form, "descricao"),
@@ -49,6 +54,13 @@ export async function salvarProgramacao(
   if (dados.hora_inicio && dados.hora_fim && dados.hora_fim < dados.hora_inicio) {
     return { erro: "O horário de término é antes do início." };
   }
+  if (perfil.papel === "lider") {
+    // O banco (RLS) também recusa; aqui é só para dar uma mensagem clara.
+    const permitidos = departamentosParaCriar(perfil, await listarDepartamentos(supabase));
+    if (!dados.departamento_id || !permitidos.some((d) => d.id === dados.departamento_id)) {
+      return { erro: "Você só pode cadastrar programações dos departamentos que lidera." };
+    }
+  }
 
   // Conflitos são só aviso: na primeira tentativa mostramos, e o usuário
   // pode confirmar com "Salvar mesmo assim".
@@ -64,15 +76,22 @@ export async function salvarProgramacao(
       .update({ ...dados, atualizado_por: perfil.id })
       .eq("id", id);
     if (error) return { erro: "Não foi possível salvar. Tente de novo." };
-  } else {
-    const { error } = await supabase
-      .from("programacoes")
-      .insert({ ...dados, igreja_id: perfil.igreja_id, criado_por: perfil.id, atualizado_por: perfil.id });
-    if (error) return { erro: "Não foi possível salvar. Tente de novo." };
+    revalidatePath("/", "layout");
+    redirect(`/?mes=${dados.data.slice(0, 7)}`);
   }
 
+  const { data: criada, error } = await supabase
+    .from("programacoes")
+    .insert({ ...dados, igreja_id: perfil.igreja_id, criado_por: perfil.id, atualizado_por: perfil.id })
+    .select("id")
+    .single();
+  if (error || !criada) return { erro: "Não foi possível salvar. Tente de novo." };
+
+  // Aviso por e-mail depois da resposta: nunca atrasa (nem derruba) o cadastro.
+  after(() => notificarNovaProgramacao(criada.id));
   revalidatePath("/", "layout");
-  redirect(`/?mes=${dados.data.slice(0, 7)}`);
+  // Página do evento com o botão "Avisar no WhatsApp".
+  redirect(`/programacoes/${criada.id}?criado=1`);
 }
 
 export async function excluirProgramacao(form: FormData) {
@@ -100,6 +119,7 @@ export async function marcarAvisado(form: FormData) {
 
 export async function salvarDepartamento(form: FormData) {
   const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
   const id = texto(form, "id");
   const dados = {
     nome: texto(form, "nome"),
@@ -116,7 +136,8 @@ export async function salvarDepartamento(form: FormData) {
 }
 
 export async function excluirDepartamento(form: FormData) {
-  const { supabase } = await exigirPerfil();
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
   await supabase.from("departamentos").delete().eq("id", String(form.get("id")));
   revalidatePath("/", "layout");
 }
@@ -136,5 +157,86 @@ export async function salvarMeuPerfil(form: FormData) {
     .from("perfis")
     .update({ nome, tratamento: texto(form, "tratamento"), whatsapp: texto(form, "whatsapp") })
     .eq("id", perfil.id);
+  revalidatePath("/", "layout");
+}
+
+export interface EstadoConvite {
+  erro?: string;
+  link?: string;
+  nome?: string;
+  whatsapp?: string | null;
+  departamento?: string;
+}
+
+/**
+ * Anciãos/pastor convidam o líder de um departamento. Gera um link de uso
+ * único (válido por 24h) para a pessoa criar a própria senha; o ancião envia
+ * pelo WhatsApp. Não depende de e-mail.
+ */
+export async function convidarLider(_anterior: EstadoConvite, form: FormData): Promise<EstadoConvite> {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem convidar líderes." };
+
+  const departamentoId = texto(form, "departamento_id");
+  const nome = texto(form, "nome");
+  const email = texto(form, "email")?.toLowerCase() ?? null;
+  const whatsapp = texto(form, "whatsapp");
+  if (!departamentoId || !nome || !email) return { erro: "Preencha nome e e-mail." };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { erro: "E-mail inválido." };
+
+  // O departamento precisa ser desta igreja (o cliente com sessão só enxerga os dela).
+  const { data: dep } = await supabase.from("departamentos").select("id, nome").eq("id", departamentoId).single();
+  if (!dep) return { erro: "Departamento não encontrado." };
+
+  const admin = supabaseAdmin();
+  const { data: existente } = await admin.from("perfis").select("id, igreja_id, papel").eq("email", email).maybeSingle();
+  if (existente && existente.igreja_id !== perfil.igreja_id) {
+    return { erro: "Este e-mail já está cadastrado em outra igreja." };
+  }
+
+  // Usuário novo: convite. Já existente: link para (re)definir a senha.
+  let tipo: "invite" | "recovery" = existente ? "recovery" : "invite";
+  let gerado = existente
+    ? await admin.auth.admin.generateLink({ type: "recovery", email })
+    : await admin.auth.admin.generateLink({ type: "invite", email, options: { data: { nome } } });
+  if (gerado.error && tipo === "invite" && /registered|exists/i.test(gerado.error.message)) {
+    tipo = "recovery";
+    gerado = await admin.auth.admin.generateLink({ type: "recovery", email });
+  }
+  if (gerado.error || !gerado.data.user) {
+    console.error("Falha ao gerar convite", gerado.error);
+    return { erro: "Não foi possível gerar o convite. Tente de novo." };
+  }
+  const usuarioId = gerado.data.user.id;
+
+  if (!existente) {
+    const { error } = await admin.from("perfis").insert({
+      id: usuarioId,
+      igreja_id: perfil.igreja_id,
+      nome,
+      papel: "lider",
+      email,
+      whatsapp,
+    });
+    if (error) return { erro: "Não foi possível cadastrar o líder." };
+  }
+  await admin.from("departamento_lideres").upsert({ departamento_id: dep.id, perfil_id: usuarioId });
+  // Mantém nome/WhatsApp do líder visíveis no departamento (usados nos lembretes).
+  await admin.from("departamentos").update({ lider_nome: nome, lider_whatsapp: whatsapp }).eq("id", dep.id);
+
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const link = `${base}/definir-senha?token_hash=${encodeURIComponent(gerado.data.properties.hashed_token)}&type=${tipo}`;
+  revalidatePath("/departamentos");
+  return { link, nome, whatsapp, departamento: dep.nome };
+}
+
+export async function removerLider(form: FormData) {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
+  await supabase
+    .from("departamento_lideres")
+    .delete()
+    .eq("departamento_id", String(form.get("departamento_id")))
+    .eq("perfil_id", String(form.get("perfil_id")));
   revalidatePath("/", "layout");
 }

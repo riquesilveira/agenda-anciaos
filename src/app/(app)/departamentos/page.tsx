@@ -3,7 +3,9 @@ import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
 import { tratamento } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Departamento, Perfil } from "@/lib/tipos";
-import { excluirDepartamento, salvarDepartamento } from "../acoes";
+import { ehLideranca } from "@/lib/permissoes";
+import { excluirDepartamento, removerLider, salvarDepartamento } from "../acoes";
+import { ConvidarLider } from "./convidar-lider";
 
 function FormDepartamento({ d, perfis }: { d?: Departamento; perfis: Perfil[] }) {
   return (
@@ -39,9 +41,66 @@ function FormDepartamento({ d, perfis }: { d?: Departamento; perfis: Perfil[] })
   );
 }
 
+function Lideres({ d, podeGerir }: { d: Departamento; podeGerir: boolean }) {
+  const lideres = d.lideres ?? [];
+  return (
+    <div className="space-y-2 border-t border-slate-100 pt-3">
+      <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">Líderes com acesso ao sistema</p>
+      {lideres.length === 0 ? (
+        <p className="text-sm text-slate-500">Nenhum ainda.</p>
+      ) : (
+        <ul className="flex flex-wrap gap-2">
+          {lideres.map((l) => (
+            <li key={l.perfil_id} className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm">
+              {l.perfil ? tratamento(l.perfil) : "—"}
+              {podeGerir && (
+                <form action={removerLider}>
+                  <input type="hidden" name="departamento_id" value={d.id} />
+                  <input type="hidden" name="perfil_id" value={l.perfil_id} />
+                  <BotaoConfirmar
+                    mensagem={`Tirar ${l.perfil?.nome ?? "esta pessoa"} da liderança de ${d.nome}? Ela continua podendo ver a agenda.`}
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    remover
+                  </BotaoConfirmar>
+                </form>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {podeGerir && <ConvidarLider departamentoId={d.id} departamento={d.nome} />}
+    </div>
+  );
+}
+
 export default async function PaginaDepartamentos() {
-  const { supabase } = await exigirPerfil();
-  const [departamentos, perfis] = await Promise.all([listarDepartamentos(supabase), listarPerfis(supabase)]);
+  const { supabase, perfil } = await exigirPerfil();
+  const [departamentos, todos] = await Promise.all([listarDepartamentos(supabase), listarPerfis(supabase)]);
+  // Responsável (ancionato) só pode ser ancião ou pastor.
+  const perfis = todos.filter((p) => ehLideranca(p));
+
+  if (!ehLideranca(perfil)) {
+    return (
+      <div className="space-y-5">
+        <div>
+          <h1 className="text-lg font-semibold">Departamentos</h1>
+          <p className="text-sm text-slate-500">Quem acompanha e quem lidera cada departamento.</p>
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {departamentos.map((d) => (
+            <li key={d.id} className="cartao space-y-1 text-sm">
+              <p className="flex items-center gap-2 font-medium">
+                <span className="h-3 w-3 rounded-full" style={{ background: d.cor }} /> {d.nome}
+              </p>
+              <p><span className="text-slate-500">Ancionato:</span> {todos.find((x) => x.id === d.anciao_id) ? tratamento(todos.find((x) => x.id === d.anciao_id)!) : "—"}</p>
+              <p><span className="text-slate-500">Líder:</span> {(d.lideres ?? []).map((l) => l.perfil?.nome).filter(Boolean).join(", ") || d.lider_nome || "—"}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -59,8 +118,9 @@ export default async function PaginaDepartamentos() {
 
       <ul className="space-y-3">
         {departamentos.map((d) => (
-          <li key={d.id} className="cartao space-y-2">
+          <li key={d.id} className="cartao space-y-3">
             <FormDepartamento d={d} perfis={perfis} />
+            <Lideres d={d} podeGerir />
             <form action={excluirDepartamento} className="text-right">
               <input type="hidden" name="id" value={d.id} />
               <BotaoConfirmar

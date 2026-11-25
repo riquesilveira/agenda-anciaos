@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Bell, Users, Plus, LogOut, UserRound } from "lucide-react";
+import { CalendarDays, Bell, Users, Plus, LogOut, UserRound, Sparkles } from "lucide-react";
 import { exigirPerfil } from "@/lib/sessao";
 import { tratamento } from "@/lib/resumo";
 import { sair } from "./acoes";
@@ -7,11 +7,23 @@ import { sair } from "./acoes";
 const LINKS = [
   { href: "/", rotulo: "Calendário", icone: CalendarDays },
   { href: "/minhas", rotulo: "Minhas", icone: Bell },
+  { href: "/novidades", rotulo: "Novidades", icone: Sparkles },
   { href: "/departamentos", rotulo: "Departamentos", icone: Users },
 ];
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
-  const { perfil } = await exigirPerfil();
+  const { supabase, perfil } = await exigirPerfil();
+  // Contador de "Novidades": cadastradas por outros desde a última visita.
+  const { count: novidades } = await supabase
+    .from("programacoes")
+    .select("id", { count: "exact", head: true })
+    .gt("created_at", perfil.novidades_vistas_em)
+    .neq("criado_por", perfil.id)
+    .not("criado_por", "is", null);
+  const Contador = ({ href }: { href: string }) =>
+    href === "/novidades" && novidades ? (
+      <span className="ml-0.5 rounded-full bg-red-600 px-1.5 text-[10px] leading-4 font-semibold text-white">{novidades}</span>
+    ) : null;
 
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
@@ -22,6 +34,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
             {LINKS.map(({ href, rotulo, icone: Icone }) => (
               <Link key={href} href={href} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
                 <Icone size={16} /> {rotulo}
+                <Contador href={href} />
               </Link>
             ))}
           </nav>
@@ -51,10 +64,14 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
       </Link>
 
       {/* Navegação inferior no celular */}
-      <nav className="fixed inset-x-0 bottom-0 grid grid-cols-3 border-t border-slate-200 bg-white sm:hidden">
+      <nav className="fixed inset-x-0 bottom-0 grid grid-cols-4 border-t border-slate-200 bg-white sm:hidden">
         {LINKS.map(({ href, rotulo, icone: Icone }) => (
-          <Link key={href} href={href} className="flex flex-col items-center gap-0.5 py-2 text-xs text-slate-600">
-            <Icone size={20} /> {rotulo}
+          <Link key={href} href={href} className="relative flex flex-col items-center gap-0.5 py-2 text-xs text-slate-600">
+            <Icone size={20} />
+            <span className="flex items-center">
+              {rotulo}
+              <Contador href={href} />
+            </span>
           </Link>
         ))}
       </nav>

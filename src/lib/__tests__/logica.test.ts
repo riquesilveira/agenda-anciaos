@@ -4,9 +4,9 @@ import { hojeISO } from "../datas";
 import { gerarResumo, linkWhatsapp, mensagemParaLider, normalizarWhatsapp } from "../resumo";
 import type { Departamento, Perfil, Programacao } from "../tipos";
 
-const henrique: Perfil = { id: "a1", igreja_id: "i", nome: "Henrique", papel: "anciao", email: "h@x", whatsapp: null, tratamento: null };
-const outro: Perfil = { id: "a2", igreja_id: "i", nome: "Paulo", papel: "anciao", email: "p@x", whatsapp: null, tratamento: null };
-const pastor: Perfil = { id: "p1", igreja_id: "i", nome: "Marcos", papel: "pastor", email: "m@x", whatsapp: null, tratamento: null };
+const henrique: Perfil = { id: "a1", igreja_id: "i", nome: "Henrique", papel: "anciao", email: "h@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01" };
+const outro: Perfil = { id: "a2", igreja_id: "i", nome: "Paulo", papel: "anciao", email: "p@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01" };
+const pastor: Perfil = { id: "p1", igreja_id: "i", nome: "Marcos", papel: "pastor", email: "m@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01" };
 
 const jovens: Departamento = { id: "d1", igreja_id: "i", nome: "Jovens", cor: "#000", anciao_id: "a1", lider_nome: "Ana", lider_whatsapp: "(11) 98888-7777" };
 const musica: Departamento = { id: "d2", igreja_id: "i", nome: "Música", cor: "#000", anciao_id: "a2", lider_nome: null, lider_whatsapp: null };
@@ -14,7 +14,7 @@ const musica: Departamento = { id: "d2", igreja_id: "i", nome: "Música", cor: "
 function prog(p: Partial<Programacao>): Programacao {
   return {
     id: Math.random().toString(), igreja_id: "i", titulo: "X", descricao: null, data: "2026-12-14", data_fim: null,
-    fonte: null, chave_importacao: null, hora_inicio: null, hora_fim: null, local: null, origem: "local", departamento_id: null,
+    fonte: null, chave_importacao: null, created_at: "2026-01-01", hora_inicio: null, hora_fim: null, local: null, origem: "local", departamento_id: null,
     lider_avisado_em: null, lider_avisado_por: null, criado_por: null, atualizado_por: null, ...p,
   };
 }
@@ -127,4 +127,24 @@ describe("eventos de vários dias", () => {
 
 it("hojeISO usa o fuso de Brasília", () => {
   expect(hojeISO(new Date("2026-12-01T02:00:00Z"))).toBe("2026-11-30");
+});
+
+describe("líder de departamento", () => {
+  const ana: Perfil = { id: "l1", igreja_id: "i", nome: "Ana", papel: "lider", email: "a@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01" };
+  const jovensComLider: Departamento = { ...jovens, lideres: [{ perfil_id: "l1" }] };
+
+  it("resumo do líder: só os departamentos que lidera, sem 'lembre o líder'", () => {
+    const r = gerarResumo({
+      tipo: "mensal", destinatario: ana, departamentos: [jovensComLider, musica], perfis: [ana, henrique], hoje: "2026-12-01",
+      programacoes: [
+        prog({ titulo: "Culto Jovem", data: "2026-12-14", departamento_id: "d1" }),
+        prog({ titulo: "Cantata", data: "2026-12-21", departamento_id: "d2" }),
+      ],
+    });
+    expect(r.itens.map((i) => i.programacao.titulo)).toEqual(["Culto Jovem"]);
+    expect(r.introducao.startsWith("Ana, em dezembro")).toBe(true);
+    expect(r.texto).toContain("Você lidera Jovens.");
+    expect(r.texto).not.toContain("lembre");
+    expect(r.texto).not.toContain("avisado");
+  });
 });
