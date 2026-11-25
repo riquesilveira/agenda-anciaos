@@ -366,6 +366,24 @@ do $$ begin
   end;
 end $$;
 
+-- Igreja nova recebe o calendário da ANP e liga os departamentos pelo nome.
+reset role;
+set role service_role;
+do $$
+declare nova uuid; dep uuid; n int;
+begin
+  insert into departamentos (id, igreja_id, nome) values ('d0000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-00000000000a', 'Embaixadores');
+  insert into programacoes (igreja_id, titulo, data, origem, chave_importacao, departamento_id)
+    values ('00000000-0000-0000-0000-00000000000a', 'Congresso JA', '2027-03-10', 'associacao', 'anp-2027-x', 'd0000000-0000-0000-0000-0000000000a1');
+  insert into igrejas (nome) values ('Igreja Nova') returning id into nova;
+  select count(*) into n from programacoes where igreja_id = nova and origem = 'associacao';
+  assert n >= 1, 'igreja nova não recebeu o calendário da ANP';
+  insert into departamentos (igreja_id, nome) values (nova, 'embaixadores') returning id into dep;
+  assert (select departamento_id from programacoes where igreja_id = nova and chave_importacao = 'anp-2027-x') = dep,
+    'evento da ANP não foi ligado ao departamento novo';
+  assert copiar_calendario_associacao(nova) = 0, 'copiou de novo (duplicou)';
+end $$;
+
 -- Chave de administrador (cron/scripts) lê e grava tudo.
 reset role;
 set role service_role;

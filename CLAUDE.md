@@ -12,7 +12,8 @@ Tailwind 4 + date-fns + lucide-react. E-mail via Resend, site no Render, agendam
 - `src/app/(app)/acoes.ts`: todas as Server Actions (gravação).
 - `src/app/api/cron/resumos`: envio dos resumos por e-mail (service role).
 - `scripts/extrair-calendario-pdf.py` (PDF da Associação -> `dados/*.json`) e
-  `scripts/importar.ts` (JSON -> banco). Regras de departamento em `src/lib/importacao.ts`.
+  `scripts/importar.ts` (JSON -> banco, em todas as igrejas: o calendário da ANP
+  vale para todas; igreja nova recebe a cópia pelo trigger `igrejas_copiar_anp`). Regras de departamento em `src/lib/importacao.ts`.
 
 ## Convenções (manter)
 - **Toda coluna/relação nova no banco precisa de um campo em `src/lib/tipos.ts`.**

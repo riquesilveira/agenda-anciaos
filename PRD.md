@@ -91,6 +91,11 @@ equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" 
 "Não vou poder") os próximos dias. Quem ativou recebe o lembrete às 18h da
 véspera, fica marcado como avisado e sai da lista "para avisar" do líder. Uma
 recusa notifica o líder na hora.
+**Calendário da ANP em todas as igrejas:** os eventos da Associação valem para
+todas. `scripts/importar.ts` grava o PDF novo em todas as igrejas; igreja nova
+recebe a cópia sozinha (trigger em `igrejas`, função
+`copiar_calendario_associacao`) e, ao cadastrar um departamento, os eventos da
+ANP com esse nome se ligam a ele. O calendário do distrito não é copiado.
 **Fotos:** cada pessoa põe a própria foto em Minha conta; o associado que tem
 conta no sistema aparece na escala com a foto da conta (casado pelo WhatsApp ou,
 sem ele, pelo nome único). Não há envio de foto na escala. Storage, bucket
