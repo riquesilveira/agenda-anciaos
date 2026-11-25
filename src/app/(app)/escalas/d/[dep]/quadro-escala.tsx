@@ -9,7 +9,7 @@ import { BotaoConfirmar } from "@/components/botao-confirmar";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala } from "@/lib/escalas";
 import { linkWhatsapp } from "@/lib/resumo";
-import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Perfil, Programacao } from "@/lib/tipos";
+import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Programacao } from "@/lib/tipos";
 import {
   adicionarMembro,
   avisoPessoa,
