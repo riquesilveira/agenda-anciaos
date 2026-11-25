@@ -10,7 +10,7 @@ import { gerarNovoLinkEntrada } from "../acoes";
 export function LinkEntrada({ link, igreja }: { link: string; igreja: string }) {
   const [copiado, setCopiado] = useState(false);
   const mensagem =
-    `Líderes da ${/^igreja\b/i.test(igreja) ? igreja : `Igreja ${igreja}`}: para acessar a agenda da igreja e montar as escalas do seu departamento, ` +
+    `Líderes da ${/^(igreja|iasd)\b/i.test(igreja) ? igreja : `Igreja ${igreja}`}: para acessar a agenda da igreja e montar as escalas do seu departamento, ` +
     `crie seu acesso por este link: ${link}`;
   return (
     <section className="cartao space-y-3 border-indigo-200 bg-indigo-50/40">
