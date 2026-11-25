@@ -554,3 +554,28 @@ export async function escalarNaData(
   if (r.erro) return { erro: negado };
   return { diaId, pessoaId: r.id };
 }
+
+/** Culto ainda sem responsável: quem cadastra o pregador já assume o culto. */
+export async function assumirComPregador(_anterior: EstadoPregacao, form: FormData): Promise<EstadoPregacao> {
+  const { supabase, perfil } = await exigirPerfil();
+  const data = String(form.get("data") ?? "");
+  const culto = String(form.get("culto") ?? "");
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem cadastrar a pregação." };
+  if (!cultoValido(data, culto)) return { erro: "Culto inválido." };
+  const pregador = texto(form, "pregador_nome");
+  const { error } = await supabase.from("escala_pregacao").insert({
+    igreja_id: perfil.igreja_id,
+    data,
+    culto,
+    anciao_id: perfil.id,
+    pregador_nome: pregador,
+    observacoes: texto(form, "observacoes"),
+    status: pregador ? "confirmado" : "a_convidar",
+  });
+  if (error) {
+    console.error("Falha ao assumir culto", error);
+    return { erro: error.code === "23505" ? "Outro ancião acabou de assumir este culto. Recarregue a página." : "Não foi possível salvar." };
+  }
+  revalidatePath("/escalas", "layout");
+  redirect(`/escalas?mes=${data.slice(0, 7)}`);
+}

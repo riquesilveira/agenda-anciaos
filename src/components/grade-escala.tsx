@@ -5,7 +5,6 @@ import type { Pregacao } from "@/lib/tipos";
 
 const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
-const DEFINIDO = { texto: "✓", classe: "bg-emerald-500 text-white", titulo: "pregador definido" };
 
 /**
  * Grade do mês da escala: em cada dia de culto, a sigla (inicial) do ancião
@@ -43,7 +42,6 @@ export function GradeEscala({
           const c = foraDoMes ? undefined : cultoDoDia.get(d);
           const e = c ? porChave.get(`${c.data}|${c.culto}`) : undefined;
           const quem = e ? siglas.get(e.anciao_id) : undefined;
-          const sinal = e?.pregador_nome ? DEFINIDO : null;
           const passou = d < hoje;
           const numero = (
             <span
@@ -57,27 +55,25 @@ export function GradeEscala({
           const conteudo = c ? (
             <>
               {numero}
-              <span className="mt-0.5 text-[9px] font-medium tracking-wide text-slate-400 uppercase sm:text-[10px]">
-                {CULTOS[c.culto].curto.split(" ")[0].slice(0, 3)}
-              </span>
-              <span className="relative mt-0.5">
+              {e?.pregador_nome ? (
+                <span className="mt-1 line-clamp-2 w-full px-0.5 text-center text-[11px] leading-tight font-semibold text-slate-900 sm:text-[13px]">
+                  {e.pregador_nome}
+                </span>
+              ) : (
+                <span className="mt-1 text-center text-[10px] leading-tight text-slate-400 sm:text-xs">a definir</span>
+              )}
+              {/* ancião responsável: pequeno, no canto de baixo */}
+              <span className="mt-auto pt-1">
                 {quem ? (
                   <span
-                    className={`flex h-8 min-w-8 items-center justify-center rounded-full px-1.5 text-sm font-bold text-white shadow-sm sm:h-9 sm:min-w-9 ${quem.cor}`}
+                    title="Ancião responsável"
+                    className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${quem.cor}`}
                   >
                     {quem.sigla}
                   </span>
                 ) : (
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-sm font-bold text-slate-400 sm:h-9 sm:w-9">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-slate-300 text-[10px] text-slate-400">
                     ?
-                  </span>
-                )}
-                {sinal && (
-                  <span
-                    title={sinal.titulo}
-                    className={`absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] leading-none font-bold ring-2 ring-white ${sinal.classe}`}
-                  >
-                    {sinal.texto}
                   </span>
                 )}
               </span>
@@ -85,7 +81,7 @@ export function GradeEscala({
           ) : (
             numero
           );
-          const classe = `flex min-h-[4.5rem] flex-col items-center border-r border-b border-slate-100 py-1.5 sm:min-h-24 [&:nth-child(7n)]:border-r-0 ${
+          const classe = `flex min-h-[5rem] flex-col items-center border-r border-b border-slate-100 py-1.5 sm:min-h-24 [&:nth-child(7n)]:border-r-0 ${
             foraDoMes ? "bg-slate-50/70" : ""
           } ${passou && c ? "opacity-50" : ""}`;
           return c ? (

@@ -99,7 +99,6 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-[10px] font-bold text-slate-400">?</span>
           sem responsável
         </span>
-        <span className="text-slate-400">✓ pregador definido</span>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">

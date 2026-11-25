@@ -10,7 +10,8 @@ import {
   linkWhatsapp,
 } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
-import { assumirCulto, liberarCulto } from "../../../acoes";
+import { liberarCulto } from "../../../acoes";
+import { FormNovaPregacao } from "./form-nova-pregacao";
 import { FormPregacao } from "./form-pregacao";
 
 export default async function CultoPregacao({ params }: { params: Promise<{ data: string; culto: string }> }) {
@@ -32,16 +33,11 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
       </div>
 
       {!p && (
-        <section className="cartao space-y-3">
-          <p className="text-sm text-slate-600">Nenhum ancião assumiu este culto ainda.</p>
-          {ehLideranca(perfil) && data >= hoje && (
-            <form action={assumirCulto}>
-              <input type="hidden" name="data" value={data} />
-              <input type="hidden" name="culto" value={culto} />
-              <button className="botao">Assumir este culto</button>
-            </form>
-          )}
-        </section>
+        ehLideranca(perfil) && data >= hoje ? (
+          <FormNovaPregacao data={data} culto={culto} dataTexto={`${maiuscula(dataLonga(data))} · ${CULTOS[culto].curto}`} />
+        ) : (
+          <section className="cartao text-sm text-slate-600">Nenhum pregador cadastrado para este culto.</section>
+        )
       )}
 
       {p && !meu && (
