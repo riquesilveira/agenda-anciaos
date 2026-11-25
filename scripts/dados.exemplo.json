@@ -5,25 +5,29 @@
       "email": "henrique@exemplo.com",
       "nome": "Henrique",
       "papel": "anciao",
-      "tratamento": null
+      "tratamento": null,
+      "cor": null
     },
     {
       "email": "anciao2@exemplo.com",
       "nome": "Ancião 2",
       "papel": "anciao",
-      "tratamento": null
+      "tratamento": null,
+      "cor": null
     },
     {
       "email": "anciao3@exemplo.com",
       "nome": "Ancião 3",
       "papel": "anciao",
-      "tratamento": null
+      "tratamento": null,
+      "cor": null
     },
     {
       "email": "pastor@exemplo.com",
       "nome": "Pastor",
       "papel": "pastor",
-      "tratamento": null
+      "tratamento": null,
+      "cor": null
     }
   ],
   "departamentos": [
@@ -70,5 +74,5 @@
       "lider_whatsapp": null
     }
   ],
-  "_leia": "Copie para dados.local.json (fora do git). \"tratamento\" é como a pessoa é chamada nos resumos: \"Ancião\", \"Anciã\", \"Pastor\"... vazio = padrão."
+  "_leia": "Copie para dados.local.json (fora do git). \"tratamento\" é como a pessoa é chamada nos resumos: \"Ancião\", \"Anciã\", \"Pastor\"... vazio = padrão. \"cor\": laranja, verde_escuro, rosa, azul, roxo, azul_claro, amarelo ou verde_agua (cor na escala)."
 }

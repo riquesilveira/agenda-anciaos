@@ -16,7 +16,7 @@ import { createClient } from "@supabase/supabase-js";
 // que NÃO vai para o git (o repositório é público). Sem ele, usa o exemplo.
 interface Dados {
   igreja: string;
-  usuarios: { email: string; nome: string; papel: "anciao" | "pastor"; tratamento?: string | null }[];
+  usuarios: { email: string; nome: string; papel: "anciao" | "pastor"; tratamento?: string | null; cor?: string | null }[];
   departamentos: { nome: string; cor: string; anciao: string | null; lider_nome: string | null; lider_whatsapp: string | null }[];
 }
 const arquivoLocal = join(__dirname, "dados.local.json");
@@ -73,6 +73,7 @@ async function main() {
         papel: u.papel,
         email: u.email,
         tratamento: u.tratamento ?? null,
+        cor: u.cor ?? null,
       }),
     );
   }

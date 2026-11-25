@@ -10,7 +10,7 @@ import { notificarNovaProgramacao } from "@/lib/notificacoes";
 import { enviarPush } from "@/lib/push";
 import { departamentosParaCriar, ehLideranca } from "@/lib/permissoes";
 import { limparSigla, sugerirSigla } from "@/lib/siglas";
-import { cultoValido } from "@/lib/pregacao";
+import { CORES_PESSOA, cultoValido } from "@/lib/pregacao";
 import { supabaseAdmin } from "@/lib/supabase/servidor";
 import type { Origem } from "@/lib/tipos";
 
@@ -202,10 +202,16 @@ export async function salvarMeuPerfil(
   const { supabase, perfil } = await exigirPerfil();
   const nome = texto(form, "nome");
   if (!nome) return { erro: "Informe seu nome." };
+  const cor = texto(form, "cor");
   // Só o próprio perfil (id da sessão); papel e igreja não são editáveis (grant por coluna).
   const { error } = await supabase
     .from("perfis")
-    .update({ nome, tratamento: texto(form, "tratamento"), whatsapp: texto(form, "whatsapp") })
+    .update({
+      nome,
+      tratamento: texto(form, "tratamento"),
+      whatsapp: texto(form, "whatsapp"),
+      cor: cor && cor in CORES_PESSOA ? cor : null,
+    })
     .eq("id", perfil.id);
   if (error) {
     console.error("Falha ao salvar perfil", perfil.id, error);

@@ -45,6 +45,8 @@ export interface Perfil {
   tratamento: string | null;
   /** Até quando a pessoa já viu as programações criadas pelos outros. */
   novidades_vistas_em: string;
+  /** Cor na grade da escala (laranja, verde_escuro, rosa…). */
+  cor: string | null;
 }
 
 /** Líder (com login) de um departamento. */

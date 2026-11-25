@@ -51,3 +51,16 @@ describe("siglasAnciaos", () => {
     expect([s.get("1")?.sigla, s.get("2")?.sigla, s.get("3")?.sigla]).toEqual(["JO", "JU", "E"]);
   });
 });
+
+it("respeita a cor escolhida por cada pessoa", () => {
+  const s = siglasAnciaos([
+    { id: "h", nome: "Henrique", cor: "laranja" },
+    { id: "j", nome: "Jurandir", cor: "verde_escuro" },
+    { id: "d", nome: "Denise", cor: "rosa" },
+    { id: "x", nome: "Xavier" },
+  ]);
+  expect(s.get("h")?.cor).toBe("bg-orange-500");
+  expect(s.get("j")?.cor).toBe("bg-green-800");
+  expect(s.get("d")?.cor).toBe("bg-rose-500");
+  expect(s.get("x")?.cor).toMatch(/^bg-/);
+});

@@ -64,17 +64,21 @@ export function mensagemLembrete(
   );
 }
 
-/** Cores fixas para os anciãos na grade da escala (na ordem alfabética dos nomes). */
-export const CORES_ANCIAOS = [
-  "bg-indigo-600",
-  "bg-emerald-600",
-  "bg-rose-600",
-  "bg-amber-500",
-  "bg-sky-600",
-  "bg-violet-600",
-  "bg-teal-600",
-  "bg-orange-600",
-];
+/** Cores que a pessoa pode escolher (classes fixas para o Tailwind encontrar). */
+export const CORES_PESSOA = {
+  laranja: { nome: "Laranja", classe: "bg-orange-500" },
+  verde_escuro: { nome: "Verde-escuro", classe: "bg-green-800" },
+  rosa: { nome: "Vermelho-rosado", classe: "bg-rose-500" },
+  azul: { nome: "Azul", classe: "bg-indigo-600" },
+  roxo: { nome: "Roxo", classe: "bg-violet-600" },
+  azul_claro: { nome: "Azul-claro", classe: "bg-sky-500" },
+  amarelo: { nome: "Amarelo", classe: "bg-amber-500" },
+  verde_agua: { nome: "Verde-água", classe: "bg-teal-500" },
+} as const;
+export type CorPessoa = keyof typeof CORES_PESSOA;
+
+/** Cores usadas para quem ainda não escolheu (na ordem alfabética dos nomes). */
+export const CORES_ANCIAOS = ["bg-indigo-600", "bg-violet-600", "bg-sky-500", "bg-teal-500", "bg-amber-500", "bg-slate-600"];
 
 function semAcento(texto: string) {
   return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
@@ -85,7 +89,9 @@ function semAcento(texto: string) {
  * Se duas pessoas começam com a mesma letra, usa as duas primeiras (JO, JU),
  * e assim por diante até ficar único. Também devolve uma cor fixa para cada um.
  */
-export function siglasAnciaos(pessoas: { id: string; nome: string }[]): Map<string, { sigla: string; cor: string }> {
+export function siglasAnciaos(
+  pessoas: { id: string; nome: string; cor?: string | null }[],
+): Map<string, { sigla: string; cor: string }> {
   const ordenadas = [...pessoas].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   const limpos = ordenadas.map((p) => semAcento(p.nome) || "?");
   const saida = new Map<string, { sigla: string; cor: string }>();
@@ -93,7 +99,8 @@ export function siglasAnciaos(pessoas: { id: string; nome: string }[]): Map<stri
     let tam = 1;
     const sigla = () => limpos[i].slice(0, tam);
     while (tam < limpos[i].length && limpos.some((outro, j) => j !== i && outro.slice(0, tam) === sigla())) tam++;
-    saida.set(p.id, { sigla: sigla(), cor: CORES_ANCIAOS[i % CORES_ANCIAOS.length] });
+    const escolhida = p.cor && p.cor in CORES_PESSOA ? CORES_PESSOA[p.cor as CorPessoa].classe : null;
+    saida.set(p.id, { sigla: sigla(), cor: escolhida ?? CORES_ANCIAOS[i % CORES_ANCIAOS.length] });
   });
   return saida;
 }
