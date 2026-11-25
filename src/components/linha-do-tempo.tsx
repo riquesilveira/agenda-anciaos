@@ -283,10 +283,12 @@ export function LinhaDoTempo({
                   <span className="h-px flex-1 bg-slate-200/80" />
                 </div>
                 {h < ultima && (
-                  <div
-                    className="absolute right-0 left-[3.75rem] border-t border-dashed border-slate-100 sm:left-[4.25rem]"
-                    style={{ top: y(h + 30) }}
-                  />
+                  <div className="absolute inset-x-0 flex items-center gap-3" style={{ top: y(h + 30) - 7 }}>
+                    <span className="w-12 shrink-0 text-right text-[10px] text-slate-300 tabular-nums sm:w-14 sm:text-[11px]">
+                      {hhmm(h + 30)}
+                    </span>
+                    <span className="flex-1 border-t border-dashed border-slate-200/70" />
+                  </div>
                 )}
               </div>
             ))}
