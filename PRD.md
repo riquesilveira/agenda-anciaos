@@ -111,6 +111,10 @@ aparecem as iniciais.
 **Trocar pessoa no dia:** no painel do dia, "Trocar" substitui quem foi escalado
 (o aviso recomeça para a nova pessoa); fica em destaque quando a pessoa
 respondeu "Não vou poder".
+**Pregador em qualquer dia:** na grade da pregação, dia sem pregador fica limpo;
+ancião/pastor clica em qualquer dia e um cartão (como o da agenda) pede culto,
+pregador e observação (`definirPregador`: assume se o culto está livre,
+atualiza se já é dele). Clicar no nome do pregador abre os detalhes.
 **Culto especial na pregação:** além dos cultos fixos (quarta, sábado de manhã,
 domingo à noite), qualquer dia pode ter um culto especial com nome próprio
 (semana de oração, Santa Ceia…): o "+" no dia da grade abre o cadastro.

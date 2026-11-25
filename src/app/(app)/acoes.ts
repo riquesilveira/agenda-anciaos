@@ -677,6 +677,45 @@ export async function escalarNaData(
 }
 
 /** Culto ainda sem responsável: quem cadastra o pregador já assume o culto. */
+/**
+ * Cadastro rápido do pregador (clicar no dia da escala de pregação). Se o culto
+ * ainda não tem responsável, quem cadastra assume; se já é seu, atualiza.
+ */
+export async function definirPregador(_anterior: EstadoPregacao, form: FormData): Promise<EstadoPregacao> {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return { erro: "Só anciãos e o pastor podem cadastrar a pregação." };
+  const data = String(form.get("data") ?? "");
+  const culto = String(form.get("culto") ?? "");
+  if (!cultoValido(data, culto)) return { erro: "Escolha o culto." };
+  const pregador = texto(form, "pregador_nome");
+  const titulo = culto === "especial" ? (texto(form, "titulo")?.slice(0, 80) ?? "Culto especial") : null;
+  const dados = {
+    pregador_nome: pregador,
+    observacoes: texto(form, "observacoes"),
+    status: pregador ? "confirmado" : "a_convidar",
+    titulo,
+  } as const;
+
+  const { data: existente } = await supabase
+    .from("escala_pregacao")
+    .select("id, anciao_id, anciao:perfis(nome)")
+    .eq("data", data)
+    .eq("culto", culto)
+    .maybeSingle<{ id: string; anciao_id: string; anciao: { nome: string } | null }>();
+  if (existente && existente.anciao_id !== perfil.id) {
+    return { erro: `Este culto já é de ${existente.anciao?.nome ?? "outro ancião"}. Só ele pode mudar o pregador.` };
+  }
+  const { error } = existente
+    ? await supabase.from("escala_pregacao").update(dados).eq("id", existente.id)
+    : await supabase.from("escala_pregacao").insert({ ...dados, igreja_id: perfil.igreja_id, data, culto, anciao_id: perfil.id });
+  if (error) {
+    console.error("Falha ao definir pregador", error);
+    return { erro: error.code === "23505" ? "Outro ancião acabou de assumir este culto. Recarregue a página." : "Não foi possível salvar." };
+  }
+  revalidatePath("/escalas", "layout");
+  return { ok: true };
+}
+
 export async function assumirComPregador(_anterior: EstadoPregacao, form: FormData): Promise<EstadoPregacao> {
   const { supabase, perfil } = await exigirPerfil();
   const data = String(form.get("data") ?? "");

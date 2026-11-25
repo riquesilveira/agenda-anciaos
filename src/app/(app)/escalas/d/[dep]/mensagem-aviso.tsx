@@ -22,6 +22,7 @@ export function MensagemAviso({
   const [texto, setTexto] = useState(modelo ?? MODELO_SUGERIDO);
   const [estado, setEstado] = useState<"" | "salvando" | "salvo">("");
   const [erro, setErro] = useState("");
+  const [aberto, setAberto] = useState(false);
   const campo = useRef<HTMLTextAreaElement>(null);
   const amanha = new Date(new Date(`${hoje}T12:00:00`).getTime() + 86_400_000).toISOString().slice(0, 10);
   const exemplo = aplicarModelo(texto, {
@@ -53,12 +54,17 @@ export function MensagemAviso({
       setEstado("");
       return setErro(r.erro);
     }
-    setEstado("salvo");
+    setEstado("");
     aoSalvar(valor.trim() ? valor.trim() : null);
+    setAberto(false); // salvou: fecha a caixa
   }
 
   return (
-    <details className="group border-t border-slate-100 pt-3" open={false}>
+    <details
+      className="group border-t border-slate-100 pt-3"
+      open={aberto}
+      onToggle={(e) => setAberto((e.currentTarget as HTMLDetailsElement).open)}
+    >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-800">
         <MessageSquareText size={16} /> Mensagem do aviso
         {modelo && <span className="rounded-full bg-indigo-50 px-1.5 text-[10px] font-medium text-indigo-700">personalizada</span>}

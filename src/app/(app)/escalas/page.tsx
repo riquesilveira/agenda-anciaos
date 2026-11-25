@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GradeEscala } from "@/components/grade-escala";
+import { NovoPregadorRapido } from "@/components/novo-pregador-rapido";
 import { AbasEscalas } from "@/components/abas-escalas";
 import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
@@ -115,6 +116,19 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           {resumo}
         </div>
         <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} podeAdicionar={lideranca} />
+        {lideranca && (
+          <NovoPregadorRapido
+            existentes={escala.map((e) => ({
+              data: e.data,
+              culto: e.culto,
+              pregador_nome: e.pregador_nome,
+              observacoes: e.observacoes,
+              titulo: e.titulo,
+              meu: e.anciao_id === perfil.id,
+              responsavel: e.anciao?.nome ?? null,
+            }))}
+          />
+        )}
       </Moldura>
 
       <ul className="space-y-2">
