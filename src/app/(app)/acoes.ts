@@ -371,8 +371,8 @@ export async function assumirCulto(form: FormData) {
   await supabase
     .from("escala_pregacao")
     .insert({ igreja_id: perfil.igreja_id, data, culto, anciao_id: perfil.id });
-  revalidatePath("/pregacao");
-  redirect(`/pregacao/${data}/${culto}`);
+  revalidatePath("/escalas");
+  redirect(`/escalas/${data}/${culto}`);
 }
 
 export interface EstadoPregacao {
@@ -406,8 +406,8 @@ export async function salvarPregacao(_anterior: EstadoPregacao, form: FormData):
     if (error) console.error("Falha ao salvar pregação", id, error);
     return { erro: "Só o ancião responsável por este culto pode alterar." };
   }
-  revalidatePath("/pregacao", "layout");
-  if (anciaoId !== perfil.id) redirect(`/pregacao/${data[0].data}/${data[0].culto}`);
+  revalidatePath("/escalas", "layout");
+  if (anciaoId !== perfil.id) redirect(`/escalas/${data[0].data}/${data[0].culto}`);
   return { ok: true };
 }
 
@@ -415,6 +415,6 @@ export async function liberarCulto(form: FormData) {
   const { supabase } = await exigirPerfil();
   const id = String(form.get("id"));
   const { data } = await supabase.from("escala_pregacao").delete().eq("id", id).select("data").maybeSingle();
-  revalidatePath("/pregacao", "layout");
-  redirect(data ? `/pregacao?mes=${String(data.data).slice(0, 7)}` : "/pregacao");
+  revalidatePath("/escalas", "layout");
+  redirect(data ? `/escalas?mes=${String(data.data).slice(0, 7)}` : "/escalas");
 }

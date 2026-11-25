@@ -3,6 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { listarDepartamentos, listarPerfis, listarProgramacoes } from "@/lib/consultas";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
+import { Voltar } from "@/components/voltar";
 import { fimDe, hojeISO, horaCurta, maiuscula, nomeDoMes, periodoCurto, somarDias } from "@/lib/datas";
 import {
   descreverPrazo,
@@ -52,6 +53,7 @@ export default async function MinhasProgramacoes({
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
+      <Voltar href="/" />
       <div className="space-y-2">
         <h1 className="text-lg font-semibold">Minhas programações</h1>
         <p className="text-sm text-slate-500">

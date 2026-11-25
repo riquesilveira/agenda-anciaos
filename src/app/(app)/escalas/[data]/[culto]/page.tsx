@@ -23,7 +23,7 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <Voltar href={`/pregacao?mes=${data.slice(0, 7)}`} rotulo="Voltar à escala" />
+      <Voltar href={`/escalas?mes=${data.slice(0, 7)}`} rotulo="Voltar às escalas" />
       <div>
         <p className="text-sm font-medium text-indigo-700">{CULTOS[culto].nome}</p>
         <h1 className="text-xl font-bold">{maiuscula(dataLonga(data))}</h1>

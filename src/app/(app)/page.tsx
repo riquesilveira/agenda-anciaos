@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -23,7 +23,7 @@ export default async function PaginaCalendario({
   searchParams: Promise<{ mes?: string; dep?: string; origem?: string; dia?: string }>;
 }) {
   const params = await searchParams;
-  const { supabase } = await exigirPerfil();
+  const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
   // Dia selecionado (toque no celular ou "+N" no computador): a lista mostra só ele.
@@ -39,8 +39,17 @@ export default async function PaginaCalendario({
     listarProgramacoes(supabase, dias[0], dias[dias.length - 1]),
   ]);
 
+  // "meus": departamentos que a pessoa acompanha (ancião responsável) ou lidera.
+  const meusDeps = new Set(
+    departamentos
+      .filter((d) => d.anciao_id === perfil.id || d.lideres?.some((l) => l.perfil_id === perfil.id))
+      .map((d) => d.id),
+  );
   const programacoes = todas.filter(
-    (p) => (!params.dep || p.departamento_id === params.dep) && (!params.origem || p.origem === params.origem),
+    (p) =>
+      (!params.dep ||
+        (params.dep === "meus" ? Boolean(p.departamento_id && meusDeps.has(p.departamento_id)) : p.departamento_id === params.dep)) &&
+      (!params.origem || p.origem === params.origem),
   );
   // Eventos de vários dias aparecem em cada dia do período.
   const porDia = new Map<string, Programacao[]>();
@@ -74,6 +83,9 @@ export default async function PaginaCalendario({
           {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
         </h1>
         <div className="flex items-center gap-1.5">
+          <Link href="/minhas" className="botao-secundario px-3 py-1.5">
+            <Bell size={16} /> Minhas
+          </Link>
           {mes !== mesDeHoje && (
             <Link href={link({ mes: mesDeHoje })} className="botao-secundario px-3 py-1.5">
               Hoje
@@ -121,6 +133,7 @@ export default async function PaginaCalendario({
           className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 sm:max-w-xs"
         >
           <option value="">Todos os departamentos</option>
+          <option value="meus">⭐ Meus departamentos</option>
           {departamentos.map((d) => (
             <option key={d.id} value={d.id}>
               {d.sigla ? `${d.sigla} · ${d.nome}` : d.nome}

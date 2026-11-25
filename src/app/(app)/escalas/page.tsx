@@ -40,25 +40,30 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-3xl space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="flex items-center gap-1.5 text-sm font-medium text-indigo-700">
-            <Mic size={16} /> Escala de pregação
-          </p>
+          <p className="text-sm font-medium text-slate-500">Escalas</p>
           <h1 className="text-2xl font-bold tracking-tight">
             {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
           </h1>
         </div>
         <div className="flex items-center gap-1.5">
           {mes !== hoje.slice(0, 7) && (
-            <Link href={`/pregacao?mes=${hoje.slice(0, 7)}`} className="botao-secundario px-3 py-1.5">Hoje</Link>
+            <Link href={`/escalas?mes=${hoje.slice(0, 7)}`} className="botao-secundario px-3 py-1.5">Hoje</Link>
           )}
-          <Link href={`/pregacao?mes=${format(addMonths(inicio, -1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Mês anterior">
+          <Link href={`/escalas?mes=${format(addMonths(inicio, -1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Mês anterior">
             <ChevronLeft size={18} />
           </Link>
-          <Link href={`/pregacao?mes=${format(addMonths(inicio, 1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Próximo mês">
+          <Link href={`/escalas?mes=${format(addMonths(inicio, 1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Próximo mês">
             <ChevronRight size={18} />
           </Link>
         </div>
       </div>
+
+      {/* Abas de escala (por enquanto só Pregação; outras escalas entram aqui) */}
+      <nav className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm" aria-label="Escalas">
+        <span aria-current="page" className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white sm:flex-none">
+          <Mic size={16} /> Pregação
+        </span>
+      </nav>
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
         <span>
@@ -78,7 +83,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           return (
             <li key={`${c.data}|${c.culto}`} className={passou ? "opacity-55" : ""}>
               <div className={`flex items-center gap-3 rounded-xl border bg-white p-2.5 shadow-sm ${meu ? "border-indigo-300" : "border-slate-200"}`}>
-                <Link href={`/pregacao/${c.data}/${c.culto}`} className="flex min-w-0 flex-1 items-center gap-3">
+                <Link href={`/escalas/${c.data}/${c.culto}`} className="flex min-w-0 flex-1 items-center gap-3">
                   <div className={`flex w-14 shrink-0 flex-col items-center rounded-lg py-1.5 ${c.culto === "sabado_manha" ? "bg-indigo-50" : "bg-slate-50"}`}>
                     <span className="text-[10px] font-bold tracking-wider text-indigo-700 uppercase">
                       {format(d, "MMM", { locale: ptBR }).replace(".", "")}
