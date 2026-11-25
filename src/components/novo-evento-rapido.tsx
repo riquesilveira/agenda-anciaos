@@ -25,6 +25,12 @@ import {
 import { dataLonga, horaCurta, maiuscula, periodoCurto } from "@/lib/datas";
 import { ORIGENS, type Departamento, type Origem } from "@/lib/tipos";
 
+/** Sem um dia na tela (botão da lateral): no meio da tela; no celular, tela cheia. */
+function centralizado(): Posicao {
+  if (window.innerWidth < 640) return { modo: "folha" };
+  return { modo: "flutuante", x: Math.max(8, window.innerWidth / 2 - 168), y: 96, largura: 336 };
+}
+
 /**
  * Cadastro rápido: clicar num dia do calendário abre este cartão ao lado do
  * dia (no celular, sobe de baixo). As células marcam o dia com data-novo-dia="yyyy-MM-dd".
@@ -57,9 +63,9 @@ export function NovoEventoRapido({
       const alvo = e.target as HTMLElement;
       if (cartao.current?.contains(alvo)) return;
       const celula = alvo.closest<HTMLElement>("[data-novo-dia]");
-      // Clique em evento (link) segue para o evento. No celular, tocar no dia só
-      // seleciona (o link do dia); o cadastro abre pelo "+".
-      if (!celula || alvo.closest("a") || window.innerWidth < 640) {
+      // Só o "+" do dia abre o cadastro; clicar no dia apenas seleciona (e
+      // mostra a linha do tempo). No celular o cadastro abre pelo "+" flutuante.
+      if (!celula || !alvo.closest("[data-abrir-novo]") || window.innerWidth < 640) {
         if (aberto && !celula) setAberto(null);
         return;
       }
@@ -82,7 +88,7 @@ export function NovoEventoRapido({
       setAberto({
         data,
         celula,
-        posicao: celula ? posicaoPara(celula, 520) : { modo: "folha" },
+        posicao: celula ? posicaoPara(celula, 520) : centralizado(),
         linkDia: celula?.dataset.linkDia ?? null,
         qtd: Number(celula?.dataset.qtd ?? 0),
       });

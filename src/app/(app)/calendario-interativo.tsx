@@ -6,6 +6,7 @@ import { Bell, Plus } from "lucide-react";
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { CalendarioMes } from "@/components/calendario-mes";
 import { FiltroDepartamento } from "@/components/filtro-departamento";
+import { LinhaDoTempo } from "@/components/linha-do-tempo";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
 import { dataLonga, fimDe, maiuscula } from "@/lib/datas";
@@ -181,9 +182,18 @@ export function CalendarioInterativo({
       <Moldura
         lateral={
           <>
-            <Link href="/programacoes/nova" className="botao w-full py-2.5">
-              <Plus size={18} /> Nova programação
-            </Link>
+            {podeCriar && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  document.dispatchEvent(new CustomEvent("nova-programacao", { detail: { data: dia ?? (hoje.startsWith(mes) ? hoje : `${mes}-01`) } }));
+                }}
+                className="botao w-full py-2.5"
+              >
+                <Plus size={18} /> Nova programação
+              </button>
+            )}
             <div className="space-y-2">
               <TituloLateral>Departamento</TituloLateral>
               {filtroDep}
@@ -241,7 +251,7 @@ export function CalendarioInterativo({
                 Mês todo
               </button>
             </div>
-            <ListaProgramacoes programacoes={porDia.get(dia) ?? []} hoje={hoje} />
+            <LinhaDoTempo dia={dia} programacoes={porDia.get(dia) ?? []} hoje={hoje} />
           </>
         ) : (
           <>

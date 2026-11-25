@@ -44,7 +44,16 @@ export function CalendarioMes({
               data-novo-dia={podeCriar ? d : undefined}
               data-link-dia={podeCriar ? linkDoDia(d) : undefined}
               data-qtd={podeCriar ? doDia.length : undefined}
-              className={`group relative ${podeCriar ? "sm:cursor-pointer sm:hover:bg-slate-50/70" : ""} min-h-[4rem] border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
+              onClick={
+                aoEscolherDia
+                  ? (e) => {
+                      // O "+" abre o cadastro e o nome da programação abre ela: não selecionam o dia.
+                      if ((e.target as HTMLElement).closest("[data-abrir-novo], a")) return;
+                      aoEscolherDia(d);
+                    }
+                  : undefined
+              }
+              className={`group relative ${aoEscolherDia ? "sm:cursor-pointer sm:hover:bg-slate-50/70" : ""} min-h-[4rem] border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
                 selecionado ? "z-10 bg-indigo-50/60 ring-2 ring-indigo-500 ring-inset" : ""
               }`}
             >
@@ -59,13 +68,15 @@ export function CalendarioMes({
               <div className="mb-1 flex items-center justify-center sm:mb-2 sm:justify-between">
                 <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />
                 {podeCriar && (
-                  <span
-                    className="hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 opacity-0 transition group-hover:opacity-100 sm:inline-flex"
+                  <button
+                    type="button"
+                    data-abrir-novo
+                    className="hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-indigo-100 hover:text-indigo-700 focus:opacity-100 sm:inline-flex"
                     title="Nova programação neste dia"
-                    aria-hidden
+                    aria-label={`Nova programação em ${dataLonga(d)}`}
                   >
                     <Plus size={16} />
-                  </span>
+                  </button>
                 )}
               </div>
 

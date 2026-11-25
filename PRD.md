@@ -111,6 +111,12 @@ aparecem as iniciais.
 **Trocar pessoa no dia:** no painel do dia, "Trocar" substitui quem foi escalado
 (o aviso recomeça para a nova pessoa); fica em destaque quando a pessoa
 respondeu "Não vou poder".
+**Calendário no aparelho:** a página do calendário recebe o mês atual e os
+vizinhos e filtra/troca de dia e de mês no próprio aparelho (arrastar para o
+lado troca o mês); meses mais distantes vêm em segundo plano
+(`programacoesDoPeriodo`). Ao escolher um dia, aparece a linha do tempo do dia
+(horários à esquerda, blocos do início ao fim, faixa "Dia todo", linha do agora).
+No computador, clicar no dia seleciona; o "+" do dia abre o cadastro rápido.
 **Pregador em qualquer dia:** na grade da pregação, dia sem pregador fica limpo;
 ancião/pastor clica em qualquer dia e um cartão (como o da agenda) pede culto,
 pregador e observação (`definirPregador`: assume se o culto está livre,
