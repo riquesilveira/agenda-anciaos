@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -108,12 +108,7 @@ export default async function PaginaCalendario({
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">{maiuscula(dataLonga(dia))}</h2>
-              <div className="flex gap-2">
-                <Link href={link({})} className="botao-secundario">Mês todo</Link>
-                <Link href={`/programacoes/nova?data=${dia}`} className="botao">
-                  <Plus size={16} /> Nova neste dia
-                </Link>
-              </div>
+              <Link href={link({})} className="botao-secundario">Mês todo</Link>
             </div>
             <ListaProgramacoes programacoes={porDia.get(dia) ?? programacoes.filter((p) => p.data <= dia && fimDe(p) >= dia)} hoje={hoje} />
           </>
