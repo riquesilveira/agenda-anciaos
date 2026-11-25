@@ -13,7 +13,6 @@ import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Perfil, Programaca
 import {
   adicionarMembro,
   avisoPessoa,
-  definirFuncaoPessoa,
   escalarNaData,
   excluirDiaEscala,
   removerMembro,
@@ -320,24 +319,6 @@ export function QuadroEscala({
                   return (
                     <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-sm">
                       <span className="font-medium">{nome}</span>
-                      {podeEditar ? (
-                        <input
-                          defaultValue={p.funcao ?? ""}
-                          placeholder="função"
-                          aria-label={`Função de ${nome}`}
-                          disabled={provisorio}
-                          onBlur={(e) => {
-                            const v = e.target.value.trim() || null;
-                            if (v !== p.funcao && !provisorio) {
-                              mudarPessoa(p.id, { funcao: v });
-                              iniciar(() => definirFuncaoPessoa(p.id, e.target.value));
-                            }
-                          }}
-                          className="w-28 rounded border border-transparent bg-transparent px-1 text-xs text-slate-600 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-400 focus:bg-white focus:outline-none"
-                        />
-                      ) : (
-                        p.funcao && <span className="text-xs text-slate-500">({p.funcao})</span>
-                      )}
                       {podeEditar && (
                         <span className="ml-auto flex items-center gap-1">
                           <a
