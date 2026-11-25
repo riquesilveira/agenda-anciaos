@@ -3,9 +3,10 @@ import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { addMonths, format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GradeEscala } from "@/components/grade-escala";
-import { listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
+import { AbasEscalas } from "@/components/abas-escalas";
+import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataCurta, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
-import { ehLideranca } from "@/lib/permissoes";
+import { departamentosQueLidera, ehLideranca } from "@/lib/permissoes";
 import { CULTOS, cultosDoMes, siglasAnciaos } from "@/lib/pregacao";
 import {
   linkWhatsapp,
@@ -21,10 +22,12 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
-  const [escala, igreja, perfis] = await Promise.all([
+  const [escala, igreja, perfis, departamentos, comEquipe] = await Promise.all([
     listarEscala(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
     nomeDaIgreja(supabase),
     listarPerfis(supabase),
+    listarDepartamentos(supabase),
+    departamentosComEquipe(supabase),
   ]);
   const ancionato = perfis.filter((x) => ehLideranca(x));
   const siglas = siglasAnciaos(ancionato);
@@ -50,7 +53,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-3xl space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-500">Escala de pregação</p>
+          <p className="text-sm font-medium text-slate-500">Escalas</p>
           <h1 className="text-2xl font-bold tracking-tight">
             {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
           </h1>
@@ -68,6 +71,14 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
         </div>
       </div>
 
+
+      <AbasEscalas
+        ativa="pregacao"
+        departamentos={departamentos}
+        comEquipe={comEquipe}
+        editaveis={new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id))}
+        podeAbrirOutros={lideranca}
+      />
 
       <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
 

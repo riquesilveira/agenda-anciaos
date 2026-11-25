@@ -109,3 +109,34 @@ export interface Pregacao {
   observacoes: string | null;
   anciao?: Pick<Perfil, "id" | "nome" | "papel" | "tratamento"> | null;
 }
+
+/** Associado de um departamento (sem login), ex: músico, sonoplasta, diácono. */
+export interface MembroDepartamento {
+  id: string;
+  departamento_id: string;
+  nome: string;
+  whatsapp: string | null;
+  ativo: boolean;
+}
+
+/** Pessoa escalada num dia, com a função dela. */
+export interface EscalaDiaPessoa {
+  id: string;
+  escala_dia_id: string;
+  membro_id: string;
+  funcao: string | null;
+  avisado_em: string | null;
+  ordem: number;
+  membro?: MembroDepartamento | null;
+}
+
+/** Um dia da escala de um departamento (qualquer data). */
+export interface EscalaDia {
+  id: string;
+  departamento_id: string;
+  data: string;
+  horario: string | null;
+  titulo: string | null;
+  observacao: string | null;
+  pessoas?: EscalaDiaPessoa[];
+}

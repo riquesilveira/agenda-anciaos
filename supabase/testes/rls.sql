@@ -260,6 +260,74 @@ begin
   assert n = 0, 'quem passou o culto não edita mais';
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- Escalas dos departamentos: líder do departamento (e anciãos) editam.
+-- ---------------------------------------------------------------------------
+-- Ana lidera Jovens (d1) e também Música (d2, vinculada pelo ancião acima).
+-- Cria uma equipe e um dia de escala em Jovens.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '30000000-0000-0000-0000-000000000003', false);
+do $$
+declare dia uuid; m1 uuid; n int;
+begin
+  insert into departamento_membros (id, departamento_id, nome, whatsapp)
+    values ('f1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'Pedro', '43999990000')
+    returning id into m1;
+  insert into escala_dias (id, departamento_id, data, titulo)
+    values ('f2000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', '2026-12-05', 'Culto Divino')
+    returning id into dia;
+  insert into escala_dia_pessoas (escala_dia_id, membro_id, funcao) values (dia, m1, 'Teclado');
+  update escala_dia_pessoas set avisado_em = now() where escala_dia_id = dia;
+  get diagnostics n = row_count;
+  assert n = 1, 'líder deveria marcar avisado';
+end $$;
+
+-- Outro ancião vê; um líder de outro departamento não edita.
+reset role;
+insert into auth.users values ('50000000-0000-0000-0000-000000000005', 'b@x');
+insert into perfis (id, igreja_id, nome, papel, email) values
+  ('50000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-00000000000a', 'Bruno', 'lider', 'b@x');
+insert into departamentos (id, igreja_id, nome) values
+  ('d3000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000a', 'Sonoplastia');
+insert into departamento_lideres (departamento_id, perfil_id) values
+  ('d3000000-0000-0000-0000-000000000003', '50000000-0000-0000-0000-000000000005');
+set role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-0000-0000-000000000005', false);
+do $$
+declare n int;
+begin
+  select count(*) into n from escala_dias;
+  assert n >= 1, 'líder de outro departamento deveria ver a escala';
+  update escala_dias set titulo = 'hack' where id = 'f2000000-0000-0000-0000-000000000001';
+  get diagnostics n = row_count;
+  assert n = 0, 'líder de outro departamento não pode editar';
+  delete from departamento_membros where id = 'f1000000-0000-0000-0000-000000000001';
+  get diagnostics n = row_count;
+  assert n = 0, 'líder de outro departamento não pode apagar equipe alheia';
+  begin
+    insert into departamento_membros (departamento_id, nome) values ('d1000000-0000-0000-0000-000000000001', 'Intruso');
+    raise exception 'FALHOU: cadastrou na equipe de outro departamento';
+  exception when insufficient_privilege then null;
+  end;
+  -- não pode colocar membro de outro departamento na própria escala
+  insert into escala_dias (id, departamento_id, data) values ('f2000000-0000-0000-0000-000000000003', 'd3000000-0000-0000-0000-000000000003', '2026-12-06');
+  begin
+    insert into escala_dia_pessoas (escala_dia_id, membro_id) values ('f2000000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000001');
+    raise exception 'FALHOU: usou membro de outro departamento';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
+-- Ancião edita qualquer escala.
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$
+declare n int;
+begin
+  update escala_dias set observacao = 'ok' where id = 'f2000000-0000-0000-0000-000000000001';
+  get diagnostics n = row_count;
+  assert n = 1, 'ancião deveria editar a escala do departamento';
+end $$;
+
 -- Notificações: cada um só mexe nas próprias inscrições.
 reset role;
 insert into push_inscricoes (perfil_id, endpoint, p256dh, auth) values

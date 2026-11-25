@@ -74,6 +74,14 @@ observações, pode passar para outro ancião ou liberar. Botões de WhatsApp co
 mensagem pronta de **convite** e de **lembrete**, e "Compartilhar escala" do mês.
 Todos da igreja veem a escala. Regras garantidas no RLS (`escala_pregacao`).
 
+### Escalas dos departamentos
+Música, Sonoplastia, Diaconato… O líder cadastra a **equipe** (associados sem
+login, com WhatsApp) e monta os **dias da escala em qualquer data**, com
+várias pessoas e a função de cada uma. Quadro interativo: arrastar o nome
+até o dia (computador) ou tocar no nome e no dia (celular). Botão **Avisar**
+abre o WhatsApp do próprio líder com a mensagem pronta e marca como avisado.
+Todos veem; editam o líder do departamento e anciãos/pastor (RLS).
+
 ## Fora da v1
 - Importar do Google Agenda (ainda não se sabe se o calendário da Associação chega por lá)
 - Outras igrejas do distrito

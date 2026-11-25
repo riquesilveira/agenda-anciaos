@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Departamento, Perfil, Pregacao, Programacao } from "./tipos";
+import type { Departamento, EscalaDia, MembroDepartamento, Perfil, Pregacao, Programacao } from "./tipos";
 
 export async function listarDepartamentos(supabase: SupabaseClient) {
   const { data } = await supabase
@@ -49,4 +49,35 @@ export async function listarEscala(supabase: SupabaseClient, de: string, ate: st
     .order("data")
     .returns<Pregacao[]>();
   return data ?? [];
+}
+
+export async function listarMembros(supabase: SupabaseClient, departamentoId: string) {
+  const { data } = await supabase
+    .from("departamento_membros")
+    .select("*")
+    .eq("departamento_id", departamentoId)
+    .eq("ativo", true)
+    .order("nome")
+    .returns<MembroDepartamento[]>();
+  return data ?? [];
+}
+
+/** Dias da escala de um departamento entre duas datas, com as pessoas. */
+export async function listarDiasEscala(supabase: SupabaseClient, departamentoId: string, de: string, ate: string) {
+  const { data } = await supabase
+    .from("escala_dias")
+    .select("*, pessoas:escala_dia_pessoas(*, membro:departamento_membros(*))")
+    .eq("departamento_id", departamentoId)
+    .gte("data", de)
+    .lte("data", ate)
+    .order("data")
+    .order("horario", { nullsFirst: true })
+    .returns<EscalaDia[]>();
+  return (data ?? []).map((d) => ({ ...d, pessoas: [...(d.pessoas ?? [])].sort((a, b) => a.ordem - b.ordem) }));
+}
+
+/** Departamentos que já usam escala (têm equipe cadastrada). */
+export async function departamentosComEquipe(supabase: SupabaseClient): Promise<Set<string>> {
+  const { data } = await supabase.from("departamento_membros").select("departamento_id").eq("ativo", true);
+  return new Set((data ?? []).map((x) => x.departamento_id as string));
 }

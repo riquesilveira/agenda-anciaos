@@ -421,3 +421,101 @@ export async function liberarCulto(form: FormData) {
   revalidatePath("/escalas", "layout");
   redirect(data ? `/escalas?mes=${String(data.data).slice(0, 7)}` : "/escalas");
 }
+
+// ---------------------------------------------------------------------------
+// Escalas dos departamentos (equipe + dias). Permissão garantida no RLS:
+// líder do departamento ou ancião/pastor.
+// ---------------------------------------------------------------------------
+
+export async function adicionarMembro(form: FormData) {
+  const { supabase } = await exigirPerfil();
+  const departamentoId = texto(form, "departamento_id");
+  const nome = texto(form, "nome");
+  if (!departamentoId || !nome) return;
+  await supabase.from("departamento_membros").insert({ departamento_id: departamentoId, nome, whatsapp: texto(form, "whatsapp") });
+  revalidatePath("/escalas", "layout");
+}
+
+export async function removerMembro(form: FormData) {
+  const { supabase } = await exigirPerfil();
+  // Desativa em vez de apagar, para não sumir das escalas antigas.
+  await supabase.from("departamento_membros").update({ ativo: false }).eq("id", String(form.get("id")));
+  revalidatePath("/escalas", "layout");
+}
+
+export interface EstadoDiaEscala {
+  ok?: boolean;
+  erro?: string;
+}
+
+/** Cria ou atualiza os dados de um dia da escala (data, horário, título, observação). */
+export async function salvarDiaEscala(_anterior: EstadoDiaEscala, form: FormData): Promise<EstadoDiaEscala> {
+  const { supabase } = await exigirPerfil();
+  const id = texto(form, "id");
+  const departamentoId = texto(form, "departamento_id");
+  const data = texto(form, "data");
+  if (!departamentoId || !data || !/^\d{4}-\d{2}-\d{2}$/.test(data)) return { erro: "Informe a data." };
+  const dados = {
+    departamento_id: departamentoId,
+    data,
+    horario: texto(form, "horario"),
+    titulo: texto(form, "titulo"),
+    observacao: texto(form, "observacao"),
+  };
+  const salvo = id
+    ? await supabase.from("escala_dias").update(dados).eq("id", id).select("id").single()
+    : await supabase.from("escala_dias").insert(dados).select("id").single();
+  if (salvo.error || !salvo.data) {
+    console.error("Falha ao salvar dia da escala", salvo.error);
+    return { erro: "Só o líder deste departamento (ou um ancião) pode alterar a escala." };
+  }
+  revalidatePath("/escalas", "layout");
+  return { ok: true };
+}
+
+/** Arrastar (ou tocar) um nome num dia: coloca a pessoa na escala daquele dia. */
+export async function adicionarPessoaDia(diaId: string, membroId: string): Promise<{ id?: string; erro?: string }> {
+  const { supabase } = await exigirPerfil();
+  const { count } = await supabase.from("escala_dia_pessoas").select("id", { count: "exact", head: true }).eq("escala_dia_id", diaId);
+  const { data, error } = await supabase
+    .from("escala_dia_pessoas")
+    .insert({ escala_dia_id: diaId, membro_id: membroId, ordem: count ?? 0 })
+    .select("id")
+    .single();
+  if (error || !data) {
+    console.error("Falha ao escalar pessoa", error);
+    return { erro: "Não foi possível escalar. Só o líder deste departamento (ou um ancião) pode alterar." };
+  }
+  revalidatePath("/escalas", "layout");
+  return { id: data.id as string };
+}
+
+export async function removerPessoaDia(id: string): Promise<void> {
+  const { supabase } = await exigirPerfil();
+  await supabase.from("escala_dia_pessoas").delete().eq("id", id);
+  revalidatePath("/escalas", "layout");
+}
+
+export async function definirFuncaoPessoa(id: string, funcao: string): Promise<void> {
+  const { supabase } = await exigirPerfil();
+  await supabase.from("escala_dia_pessoas").update({ funcao: funcao.trim() || null }).eq("id", id);
+  revalidatePath("/escalas", "layout");
+}
+
+export async function avisoPessoa(id: string, avisado: boolean): Promise<void> {
+  const { supabase } = await exigirPerfil();
+  await supabase.from("escala_dia_pessoas").update({ avisado_em: avisado ? new Date().toISOString() : null }).eq("id", id);
+  revalidatePath("/escalas", "layout");
+}
+
+export async function excluirDiaEscala(form: FormData) {
+  const { supabase } = await exigirPerfil();
+  const { data } = await supabase
+    .from("escala_dias")
+    .delete()
+    .eq("id", String(form.get("id")))
+    .select("departamento_id, data")
+    .maybeSingle();
+  revalidatePath("/escalas", "layout");
+  redirect(data ? `/escalas/d/${data.departamento_id}?mes=${String(data.data).slice(0, 7)}` : "/escalas");
+}
