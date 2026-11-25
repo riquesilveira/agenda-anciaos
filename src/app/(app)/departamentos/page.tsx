@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
 import { Sigla } from "@/components/sigla";
 import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
@@ -69,9 +70,10 @@ function Cartao({ d, todos, podeGerir }: { d: Departamento; todos: Perfil[]; pod
             <input type="hidden" name="id" value={d.id} />
             <BotaoConfirmar
               mensagem={`Excluir ${d.nome}? As programações dele ficam sem departamento.`}
-              className="text-xs text-red-600 hover:underline"
+              rotulo={`Excluir ${d.nome}`}
+              className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
             >
-              Excluir
+              <Trash2 size={18} />
             </BotaoConfirmar>
           </form>
         </div>
