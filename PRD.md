@@ -94,9 +94,10 @@ recusa notifica o líder na hora.
 **Culto especial na pregação:** além dos cultos fixos (quarta, sábado de manhã,
 domingo à noite), qualquer dia pode ter um culto especial com nome próprio
 (semana de oração, Santa Ceia…): o "+" no dia da grade abre o cadastro.
-**Escala em imagem:** "Compartilhar" gera uma imagem da escala do mês
-(`/escalas/imagem` e `/escalas/d/<dep>/imagem`, com `next/og`) e abre o
-compartilhar do celular; no computador, baixa o arquivo.
+**Escala em imagem:** "Compartilhar" gera uma imagem da escala do mês no
+próprio aparelho (`html-to-image`, em `components/compartilhar-imagem.tsx`) e
+abre o compartilhar do celular; no computador, baixa o arquivo. Não gerar no
+servidor: no plano free do Render isso trava o processo e derruba o site.
 **Mensagem padrão do aviso:** cada departamento pode ter o próprio texto do
 botão Avisar (tabela `escala_mensagens`), com marcadores {nome}, {quando},
 {data}, {horario}, {programacao}, {funcao}, {departamento}. Sem texto próprio,

@@ -5,7 +5,7 @@ import { GradeEscala } from "@/components/grade-escala";
 import { AbasEscalas } from "@/components/abas-escalas";
 import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
-import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis } from "@/lib/consultas";
+import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { departamentosQueLidera, ehLideranca } from "@/lib/permissoes";
 import { cultosComEspeciais, nomeDoCulto, siglasAnciaos } from "@/lib/pregacao";
@@ -20,8 +20,9 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const { supabase, perfil } = await exigirPerfil();
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(params.mes ?? "") ? params.mes! : hoje.slice(0, 7);
-  const [escala, perfis, departamentos, comEquipe] = await Promise.all([
+  const [escala, igreja, perfis, departamentos, comEquipe] = await Promise.all([
     listarEscala(supabase, `${mes}-01`, ultimoDiaDoMes(mes)),
+    nomeDaIgreja(supabase),
     listarPerfis(supabase),
     listarDepartamentos(supabase),
     departamentosComEquipe(supabase),
@@ -68,9 +69,14 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
         <b>{definidos}</b> de <b>{cultos.length}</b> cultos com pregador definido
       </p>
       <CompartilharImagem
-        url={`/escalas/imagem?mes=${mes}`}
+        titulo="Escala de pregação"
+        mes={maiuscula(nomeDoMes(mes))}
+        igreja={igreja}
+        linhas={cultos.map((c) => {
+          const e = porChave.get(`${c.data}|${c.culto}`);
+          return { data: c.data, titulo: nomeDoCulto({ culto: c.culto, titulo: e?.titulo }), nomes: e?.pregador_nome ? [e.pregador_nome] : [] };
+        })}
         arquivo={`escala-pregacao-${mes}.png`}
-        titulo={`Escala de pregação: ${maiuscula(nomeDoMes(mes))}`}
         rotulo="Compartilhar escala"
       />
     </div>

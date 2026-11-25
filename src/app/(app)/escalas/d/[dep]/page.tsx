@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { AbasEscalas } from "@/components/abas-escalas";
 import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, TituloLateral } from "@/components/moldura";
-import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes } from "@/lib/consultas";
-import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes, nomeDaIgreja } from "@/lib/consultas";
+import { hojeISO, horaCurta, maiuscula, nomeDoMes } from "@/lib/datas";
 import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
 import { ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
@@ -23,7 +23,11 @@ export default async function EscalaDepartamento({
   const hoje = hojeISO();
   const mes = /^\d{4}-\d{2}$/.test(mesParam ?? "") ? mesParam! : hoje.slice(0, 7);
 
-  const [departamentos, comEquipe] = await Promise.all([listarDepartamentos(supabase), departamentosComEquipe(supabase)]);
+  const [departamentos, comEquipe, igreja] = await Promise.all([
+    listarDepartamentos(supabase),
+    departamentosComEquipe(supabase),
+    nomeDaIgreja(supabase),
+  ]);
   const departamento = departamentos.find((d) => d.id === dep);
   if (!departamento) notFound();
   const [membros, dias, programacoesMes, { data: mensagem }] = await Promise.all([
@@ -52,9 +56,15 @@ export default async function EscalaDepartamento({
   const compartilhar =
     dias.length > 0 ? (
       <CompartilharImagem
-        url={`/escalas/d/${dep}/imagem?mes=${mes}`}
+        titulo={`Escala de ${departamento.nome}`}
+        mes={maiuscula(nomeDoMes(mes))}
+        igreja={igreja}
+        linhas={dias.map((d) => ({
+          data: d.data,
+          titulo: [d.titulo, d.horario ? horaCurta(d.horario) : null].filter(Boolean).join(" · "),
+          nomes: (d.pessoas ?? []).map((p) => `${p.membro?.nome ?? "?"}${p.funcao ? ` (${p.funcao})` : ""}`),
+        }))}
         arquivo={`escala-${departamento.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-")}-${mes}.png`}
-        titulo={`Escala de ${departamento.nome}: ${maiuscula(nomeDoMes(mes))}`}
         rotulo="Compartilhar a escala do mês"
       />
     ) : null;
