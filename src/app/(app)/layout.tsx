@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { LogOut, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
 import { BotaoNova } from "@/components/botao-nova";
 import { NavInferior, NavTopo } from "@/components/navegacao";
 import { exigirPerfil } from "@/lib/sessao";
 import { tratamento } from "@/lib/resumo";
-import { sair } from "./acoes";
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
   const { supabase, perfil } = await exigirPerfil();
@@ -40,11 +39,6 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
               </span>
               <span className="hidden md:inline">{tratamento(perfil)}</span>
             </Link>
-            <form action={sair}>
-              <button className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="Sair" aria-label="Sair">
-                <LogOut size={18} />
-              </button>
-            </form>
           </div>
         </div>
       </header>
