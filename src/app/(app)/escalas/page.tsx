@@ -126,7 +126,11 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
               titulo: e.titulo,
               meu: e.anciao_id === perfil.id,
               responsavel: e.anciao?.nome ?? null,
+              pregador_whatsapp: e.pregador_whatsapp,
+              tema: e.tema,
             }))}
+            igreja={igreja}
+            remetente={{ nome: perfil.nome, papel: perfil.papel, tratamento: perfil.tratamento }}
           />
         )}
       </Moldura>

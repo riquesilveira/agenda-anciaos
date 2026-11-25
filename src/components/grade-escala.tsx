@@ -57,13 +57,11 @@ export function GradeEscala({
               </span>
               {doDia.map(({ c, e }) => {
                 const quem = e ? siglas.get(e.anciao_id) : undefined;
-                return (
-                  <Link
-                    key={c.culto}
-                    href={`/escalas/${c.data}/${c.culto}`}
-                    title={`${nomeDoCulto({ culto: c.culto, titulo: e?.titulo })}${e?.pregador_nome ? ` · ${e.pregador_nome}` : ""}`}
-                    className="flex min-w-0 items-center gap-1.5 rounded-md border-l-2 border-l-indigo-500 bg-indigo-50 px-1 py-1 text-[10px] leading-tight font-semibold text-indigo-900 hover:bg-indigo-100 sm:px-2 sm:text-xs"
-                  >
+                const titulo = `${nomeDoCulto({ culto: c.culto, titulo: e?.titulo })}${e?.pregador_nome ? ` · ${e.pregador_nome}` : ""}`;
+                const classe =
+                  "flex w-full min-w-0 items-center gap-1.5 rounded-md border-l-2 border-l-indigo-500 bg-indigo-50 px-1 py-1 text-left text-[10px] leading-tight font-semibold text-indigo-900 hover:bg-indigo-100 sm:px-2 sm:text-xs";
+                const conteudo = (
+                  <>
                     {quem && (
                       <span
                         title="Ancião responsável"
@@ -78,6 +76,16 @@ export function GradeEscala({
                       )}
                       {e?.pregador_nome ?? <span className="font-normal text-indigo-400">sem pregador</span>}
                     </span>
+                  </>
+                );
+                // Anciãos/pastor: abre o mesmo cartão do cadastro (NovoPregadorRapido), já preenchido.
+                return clicavel ? (
+                  <button key={c.culto} type="button" data-pregacao-culto={c.culto} title={titulo} className={classe}>
+                    {conteudo}
+                  </button>
+                ) : (
+                  <Link key={c.culto} href={`/escalas/${c.data}/${c.culto}`} title={titulo} className={classe}>
+                    {conteudo}
                   </Link>
                 );
               })}

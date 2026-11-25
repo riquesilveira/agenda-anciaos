@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
-import { AlignLeft, Church, Mic, X } from "lucide-react";
+import Link from "next/link";
+import { AlignLeft, Church, MessageCircle, Mic, X } from "lucide-react";
 import { definirPregador, type EstadoPregacao } from "@/app/(app)/acoes";
 import { dataLonga, maiuscula } from "@/lib/datas";
-import { CULTOS } from "@/lib/pregacao";
+import { CULTOS, mensagemConvite, mensagemLembrete } from "@/lib/pregacao";
+import { linkWhatsapp } from "@/lib/resumo";
 import type { CultoPregacao } from "@/lib/tipos";
 
 const LARGURA = 336;
@@ -18,6 +20,8 @@ export interface PregacaoDoDia {
   titulo: string | null;
   meu: boolean;
   responsavel: string | null;
+  pregador_whatsapp: string | null;
+  tema: string | null;
 }
 
 /**
@@ -25,7 +29,15 @@ export interface PregacaoDoDia {
  * abre este cartão ao lado do dia. Culto fixo do dia já vem escolhido; nos
  * outros dias é um culto especial com nome.
  */
-export function NovoPregadorRapido({ existentes }: { existentes: PregacaoDoDia[] }) {
+export function NovoPregadorRapido({
+  existentes,
+  igreja,
+  remetente,
+}: {
+  existentes: PregacaoDoDia[];
+  igreja: string;
+  remetente: { nome: string; papel: "anciao" | "pastor" | "lider"; tratamento?: string | null };
+}) {
   const router = useRouter();
   const [aberto, setAberto] = useState<{ data: string; x: number; y: number } | null>(null);
   const [culto, setCulto] = useState<CultoPregacao>("especial");
@@ -63,9 +75,10 @@ export function NovoPregadorRapido({ existentes }: { existentes: PregacaoDoDia[]
       const y = Math.max(72, Math.min(r.top, window.innerHeight - 470));
       const data = celula.dataset.pregacaoDia!;
       const opcoes = opcoesDoDia(data);
-      // Sugere o culto do dia que ainda não tem pregador (senão, o primeiro).
+      // Clicou no nome de um pregador: abre aquele culto. Senão, sugere o culto livre do dia.
+      const clicado = alvo.closest<HTMLElement>("[data-pregacao-culto]")?.dataset.pregacaoCulto as CultoPregacao | undefined;
       const livre = opcoes.find((c) => !existentes.some((x) => x.data === data && x.culto === c && x.pregador_nome));
-      setCulto(livre ?? opcoes[0]);
+      setCulto(clicado ?? livre ?? opcoes[0]);
       setAberto({ data, x, y });
       setChave((k) => k + 1);
     }
@@ -95,7 +108,7 @@ export function NovoPregadorRapido({ existentes }: { existentes: PregacaoDoDia[]
     >
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
         <div>
-          <h2 className="font-semibold text-slate-900">Pregador</h2>
+          <h2 className="font-semibold text-slate-900">{existente?.pregador_nome ? "Editar pregador" : "Pregador"}</h2>
           <p className="text-xs text-slate-500">{maiuscula(dataLonga(aberto.data))}</p>
         </div>
         <button type="button" onClick={() => setAberto(null)} className="rounded-md p-1 text-slate-500 hover:bg-slate-100" aria-label="Fechar">
@@ -177,8 +190,34 @@ export function NovoPregadorRapido({ existentes }: { existentes: PregacaoDoDia[]
           </>
         )}
 
+        {existente?.meu && existente.pregador_nome && (
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={linkWhatsapp(existente.pregador_whatsapp, mensagemConvite(existente, igreja, remetente))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+            >
+              <MessageCircle size={14} /> Enviar convite
+            </a>
+            <a
+              href={linkWhatsapp(existente.pregador_whatsapp, mensagemLembrete(existente, igreja, remetente))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <MessageCircle size={14} /> Enviar lembrete
+            </a>
+          </div>
+        )}
+
         {estado.erro && <p className="text-sm text-red-600">{estado.erro}</p>}
-        <div className="flex justify-end gap-2 pt-1">
+        <div className="flex items-center justify-end gap-2 pt-1">
+          {existente && (
+            <Link href={`/escalas/${aberto.data}/${culto}`} className="mr-auto text-xs font-medium text-slate-500 hover:text-indigo-700">
+              Mais opções
+            </Link>
+          )}
           <button type="button" onClick={() => setAberto(null)} className="botao-secundario px-3.5 py-1.5">
             {deOutro ? "Fechar" : "Cancelar"}
           </button>
