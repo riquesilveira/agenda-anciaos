@@ -35,14 +35,13 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
 
   const definidos = cultos.filter((c) => porChave.get(`${c.data}|${c.culto}`)?.pregador_nome).length;
 
-  const abas = (vertical: boolean) => (
+  const abas = (
     <AbasEscalas
       ativa="pregacao"
       departamentos={departamentos}
       comEquipe={comEquipe}
       editaveis={new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id))}
       podeAbrirOutros={lideranca}
-      vertical={vertical}
     />
   );
   // Legenda: sigla de cada ancião e o sinal de "sem responsável".
@@ -77,7 +76,7 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           return { data: c.data, titulo: nomeDoCulto({ culto: c.culto, titulo: e?.titulo }), nomes: e?.pregador_nome ? [e.pregador_nome] : [] };
         })}
         arquivo={`escala-pregacao-${mes}.png`}
-        rotulo="Compartilhar escala"
+        rotulo="Compartilhar a escala"
       />
     </div>
   );
@@ -88,10 +87,6 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
         lateral={
           <>
             <div className="space-y-2">
-              <TituloLateral>Escalas</TituloLateral>
-              {abas(true)}
-            </div>
-            <div className="space-y-2 border-t border-slate-200 pt-5">
               <TituloLateral>Anciãos</TituloLateral>
               {legenda}
             </div>
@@ -104,8 +99,8 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           link={(m) => `/escalas?mes=${m}`}
           direita={<span className="hidden text-sm font-medium text-slate-500 sm:inline">Escala de pregação</span>}
         />
+        <div className="px-4 pb-3 sm:px-5">{abas}</div>
         <div className="space-y-3 px-4 pb-3 lg:hidden">
-          {abas(false)}
           {legenda}
           {resumo}
         </div>

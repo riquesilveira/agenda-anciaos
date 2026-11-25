@@ -9,8 +9,8 @@ import { maiuscula, nomeDoMes } from "@/lib/datas";
  */
 export function Moldura({ lateral, children }: { lateral: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="hidden space-y-5 border-r border-slate-200 p-5 lg:block">{lateral}</aside>
+    <div className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${lateral ? "lg:grid lg:grid-cols-[16rem_1fr]" : ""}`}>
+      {lateral && <aside className="hidden space-y-5 border-r border-slate-200 p-5 lg:block">{lateral}</aside>}
       <div className="min-w-0">{children}</div>
     </div>
   );

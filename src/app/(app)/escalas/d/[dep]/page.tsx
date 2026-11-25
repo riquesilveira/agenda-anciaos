@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { AbasEscalas } from "@/components/abas-escalas";
 import { CompartilharImagem } from "@/components/compartilhar-imagem";
-import { CabecalhoMes, TituloLateral } from "@/components/moldura";
+import { CabecalhoMes } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarPerfis, listarProgramacoes, nomeDaIgreja } from "@/lib/consultas";
 import { hojeISO, horaCurta, maiuscula, nomeDoMes } from "@/lib/datas";
 import { fotosDosMembros } from "@/lib/escalas";
@@ -50,14 +50,13 @@ export default async function EscalaDepartamento({
   const editaveis = new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id));
   const link = (m: string) => `/escalas/d/${dep}?mes=${m}`;
 
-  const abas = (vertical: boolean) => (
+  const abas = (
     <AbasEscalas
       ativa={dep}
       departamentos={departamentos}
       comEquipe={comEquipe}
       editaveis={editaveis}
       podeAbrirOutros={ehLideranca(perfil)}
-      vertical={vertical}
     />
   );
   const compartilhar =
@@ -72,7 +71,7 @@ export default async function EscalaDepartamento({
           nomes: (d.pessoas ?? []).map((p) => `${p.membro?.nome ?? "?"}${p.funcao ? ` (${p.funcao})` : ""}`),
         }))}
         arquivo={`escala-${departamento.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-")}-${mes}.png`}
-        rotulo="Compartilhar a escala do mês"
+        rotulo="Compartilhar a escala"
       />
     ) : null;
 
@@ -89,27 +88,14 @@ export default async function EscalaDepartamento({
         urlBase={URL_SITE}
         modeloMensagem={mensagem?.texto ?? null}
         diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
-        lateral={
-          <>
-            <div className="space-y-2">
-              <TituloLateral>Escalas</TituloLateral>
-              {abas(true)}
-            </div>
-            {compartilhar}
-          </>
-        }
+        abas={abas}
+        compartilhar={compartilhar}
         cabecalho={
           <CabecalhoMes
             mes={mes}
             link={link}
             direita={<span className="hidden truncate text-sm font-medium text-slate-500 sm:inline">Escala de {departamento.nome}</span>}
           />
-        }
-        abasCelular={
-          <div className="space-y-2">
-            {abas(false)}
-            {compartilhar}
-          </div>
         }
       />
     </div>

@@ -42,9 +42,9 @@ export function QuadroEscala({
   programacoes,
   diaInicial,
   urlBase,
-  lateral,
+  abas,
   cabecalho,
-  abasCelular,
+  compartilhar,
   modeloMensagem,
 }: {
   departamento: { id: string; nome: string };
@@ -59,12 +59,12 @@ export function QuadroEscala({
   diaInicial?: string | null;
   /** Endereço do site, para montar o link pessoal do associado. */
   urlBase: string;
-  /** Topo da lateral (abas das escalas, compartilhar). */
-  lateral: React.ReactNode;
+  /** Abas das escalas (Pregação, departamentos), logo abaixo do mês. */
+  abas: React.ReactNode;
   /** Mês + navegação. */
   cabecalho: React.ReactNode;
-  /** Abas das escalas no celular (a lateral some). */
-  abasCelular?: React.ReactNode;
+  /** Botão "Compartilhar a escala" (fica embaixo da equipe). */
+  compartilhar?: React.ReactNode;
   /** Mensagem padrão do aviso escrita pelo líder (null = texto do sistema). */
   modeloMensagem: string | null;
 }) {
@@ -316,6 +316,13 @@ export function QuadroEscala({
     </>
   );
 
+  const equipeECompartilhar = (
+    <>
+      {equipe}
+      {compartilhar && <div className="border-t border-slate-100 pt-3">{compartilhar}</div>}
+    </>
+  );
+
   return (
     <div className="space-y-4">
       {erro && (
@@ -325,17 +332,14 @@ export function QuadroEscala({
         </p>
       )}
 
-      <Moldura
-        lateral={
-          <>
-            {lateral}
-            {podeEditar && <div className="space-y-3 border-t border-slate-200 pt-5">{equipe}</div>}
-          </>
-        }
-      >
+      <Moldura lateral={podeEditar ? <div className="space-y-3">{equipeECompartilhar}</div> : compartilhar}>
         {cabecalho}
-        {abasCelular && <div className="px-4 pb-3 lg:hidden">{abasCelular}</div>}
-        {podeEditar && <div className="space-y-3 border-t border-slate-200 p-4 lg:hidden">{equipe}</div>}
+        <div className="px-4 pb-3 sm:px-5">{abas}</div>
+        {podeEditar ? (
+          <div className="space-y-3 border-t border-slate-200 p-4 lg:hidden">{equipeECompartilhar}</div>
+        ) : (
+          compartilhar && <div className="px-4 pb-3 lg:hidden">{compartilhar}</div>
+        )}
           {podeEditar && atalhos.length > 0 && (
             <div className="flex flex-wrap gap-2 px-4 pb-3 sm:px-5">
               {atalhos.map((a) => (
