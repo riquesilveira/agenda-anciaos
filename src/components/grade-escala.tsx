@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import { CabecalhoSemana, NumeroDia } from "@/components/moldura";
 import { CULTOS, type CultoDoMes } from "@/lib/pregacao";
 import type { Pregacao } from "@/lib/tipos";
 
-const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
 
 /**
@@ -30,12 +30,8 @@ export function GradeEscala({
   const cultoDoDia = new Map(cultos.map((c) => [c.data, c]));
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/80 text-center text-[11px] font-semibold tracking-wide text-slate-500 uppercase">
-        {DIAS_SEMANA.map((d) => (
-          <div key={d} className="py-2">{d}</div>
-        ))}
-      </div>
+    <div>
+      <CabecalhoSemana />
       <div className="grid grid-cols-7">
         {dias.map((d) => {
           const foraDoMes = !d.startsWith(mes);
@@ -43,52 +39,45 @@ export function GradeEscala({
           const e = c ? porChave.get(`${c.data}|${c.culto}`) : undefined;
           const quem = e ? siglas.get(e.anciao_id) : undefined;
           const passou = d < hoje;
-          const numero = (
-            <span
-              className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] ${
-                d === hoje ? "bg-slate-900 font-bold text-white" : foraDoMes ? "text-slate-300" : "text-slate-500"
-              }`}
-            >
-              {Number(d.slice(8))}
-            </span>
-          );
-          const conteudo = c ? (
+          const conteudo = (
             <>
-              {numero}
-              {e?.pregador_nome ? (
-                <span className="mt-1 line-clamp-2 w-full px-0.5 text-center text-[11px] leading-tight font-semibold text-slate-900 sm:text-[13px]">
-                  {e.pregador_nome}
-                </span>
-              ) : (
-                <span className="mt-1 text-center text-[10px] leading-tight text-slate-400 sm:text-xs">a definir</span>
-              )}
-              {/* ancião responsável: pequeno, no canto de baixo */}
-              <span className="mt-auto pt-1">
-                {quem ? (
-                  <span
-                    title="Ancião responsável"
-                    className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${quem.cor}`}
-                  >
-                    {quem.sigla}
-                  </span>
-                ) : (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-slate-300 text-[10px] text-slate-400">
-                    ?
-                  </span>
-                )}
+              <span className="self-center sm:mb-1 sm:self-start">
+                <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />
               </span>
+              {c && (
+                <span
+                  className={`flex min-w-0 items-center gap-1.5 rounded-md border-l-2 px-1 py-1 text-[10px] leading-tight sm:px-2 sm:text-xs ${
+                    e?.pregador_nome
+                      ? "border-l-indigo-500 bg-indigo-50 font-semibold text-indigo-900"
+                      : "border-l-slate-300 bg-slate-50 text-slate-400"
+                  }`}
+                >
+                  {/* ancião responsável: bolinha pequena com a inicial */}
+                  {quem ? (
+                    <span
+                      title="Ancião responsável"
+                      className={`hidden h-4 min-w-4 shrink-0 items-center justify-center rounded-full px-0.5 text-[9px] font-bold text-white sm:flex ${quem.cor}`}
+                    >
+                      {quem.sigla}
+                    </span>
+                  ) : (
+                    <span className="hidden h-4 w-4 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 text-[9px] sm:flex">
+                      ?
+                    </span>
+                  )}
+                  <span className="line-clamp-2 min-w-0">{e?.pregador_nome ?? "a definir"}</span>
+                </span>
+              )}
             </>
-          ) : (
-            numero
           );
-          const classe = `flex min-h-[5rem] flex-col items-center border-r border-b border-slate-100 py-1.5 sm:min-h-24 [&:nth-child(7n)]:border-r-0 ${
-            foraDoMes ? "bg-slate-50/70" : ""
-          } ${passou && c ? "opacity-50" : ""}`;
+          const classe = `flex min-h-[4.5rem] flex-col gap-1 border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
+            passou && c ? "opacity-50" : ""
+          }`;
           return c ? (
             <Link
               key={d}
               href={`/escalas/${c.data}/${c.culto}`}
-              className={`${classe} transition hover:bg-indigo-50`}
+              className={`${classe} transition hover:bg-slate-50`}
               title={`${CULTOS[c.culto].nome}${e?.pregador_nome ? ` · ${e.pregador_nome}` : ""}`}
             >
               {conteudo}

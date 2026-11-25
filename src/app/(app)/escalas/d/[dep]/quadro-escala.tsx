@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
+import { CabecalhoSemana, Moldura, NumeroDia } from "@/components/moldura";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala, mensagemLinkLembretes } from "@/lib/escalas";
 import { linkWhatsapp } from "@/lib/resumo";
@@ -21,7 +22,6 @@ import {
 } from "../../../acoes";
 import { FormDia } from "./form-dia";
 
-const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
 
 /**
@@ -39,6 +39,9 @@ export function QuadroEscala({
   programacoes,
   diaInicial,
   urlBase,
+  lateral,
+  cabecalho,
+  abasCelular,
 }: {
   departamento: { id: string; nome: string };
   membros: MembroDepartamento[];
@@ -52,6 +55,12 @@ export function QuadroEscala({
   diaInicial?: string | null;
   /** Endereço do site, para montar o link pessoal do associado. */
   urlBase: string;
+  /** Topo da lateral (abas das escalas, compartilhar). */
+  lateral: React.ReactNode;
+  /** Mês + navegação. */
+  cabecalho: React.ReactNode;
+  /** Abas das escalas no celular (a lateral some). */
+  abasCelular?: React.ReactNode;
 }) {
   const router = useRouter();
   const [dias, setDias] = useState(diasIniciais);
@@ -151,19 +160,8 @@ export function QuadroEscala({
     setTimeout(() => document.getElementById("painel-dia")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
 
-  return (
-    <div className="space-y-4">
-      {erro && (
-        <p className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          {erro}
-          <button onClick={() => setErro("")} aria-label="Fechar"><X size={16} /></button>
-        </p>
-      )}
-
-      <div className={`grid gap-4 ${podeEditar ? "lg:grid-cols-[15rem_1fr]" : ""}`}>
-        {/* ----- Equipe ----- */}
-        {podeEditar && (
-          <aside className="cartao h-fit space-y-3 lg:sticky lg:top-20">
+  const equipe = (
+    <>
             <div>
               <h2 className="font-semibold">Equipe de {departamento.nome}</h2>
               <p className="text-xs text-slate-500">
@@ -255,25 +253,48 @@ export function QuadroEscala({
                 <Bell size={12} className="inline text-emerald-600" fill="currentColor" /> = já ativou.
               </p>
             )}
+            <details className="group border-t border-slate-100 pt-3" open={membros.length === 0}>
+              <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+                <Plus size={16} className="transition group-open:rotate-45" /> Adicionar associado
+              </summary>
             <form
               action={async (f) => {
                 await adicionarMembro(f);
                 router.refresh();
               }}
-              className="space-y-2 border-t border-slate-100 pt-3"
+              className="space-y-2 pt-2"
             >
-              <h3 className="text-sm font-semibold text-slate-700">Adicionar associado</h3>
               <input type="hidden" name="departamento_id" value={departamento.id} />
               <input className="campo" name="nome" placeholder="Nome" required />
               <input className="campo" name="whatsapp" placeholder="WhatsApp (opcional)" inputMode="tel" />
               <button className="botao w-full bg-emerald-600 py-2.5 hover:bg-emerald-700"><Plus size={18} /> Adicionar à equipe</button>
             </form>
-          </aside>
-        )}
+            </details>
+    </>
+  );
 
-        <div className="min-w-0 space-y-4">
+  return (
+    <div className="space-y-4">
+      {erro && (
+        <p className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          {erro}
+          <button onClick={() => setErro("")} aria-label="Fechar"><X size={16} /></button>
+        </p>
+      )}
+
+      <Moldura
+        lateral={
+          <>
+            {lateral}
+            {podeEditar && <div className="space-y-3 border-t border-slate-200 pt-5">{equipe}</div>}
+          </>
+        }
+      >
+        {cabecalho}
+        {abasCelular && <div className="px-4 pb-3 lg:hidden">{abasCelular}</div>}
+        {podeEditar && <div className="space-y-3 border-t border-slate-200 p-4 lg:hidden">{equipe}</div>}
           {podeEditar && atalhos.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 px-4 pb-3 sm:px-5">
               {atalhos.map((a) => (
                 <button
                   key={a.data}
@@ -289,10 +310,7 @@ export function QuadroEscala({
           )}
 
           {/* ----- Calendário do mês ----- */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/80 text-center text-[11px] font-semibold tracking-wide text-slate-500 uppercase">
-              {DIAS_SEMANA.map((d) => <div key={d} className="py-2">{d}</div>)}
-            </div>
+          <CabecalhoSemana />
             <div className="grid grid-cols-7">
               {grade.map((data) => {
                 const doMes = data.startsWith(mes);
@@ -325,49 +343,45 @@ export function QuadroEscala({
                         setFila(null);
                       }
                     }}
-                    className={`relative flex min-h-[4.25rem] flex-col items-stretch gap-0.5 border-r border-b border-slate-100 p-1 text-left transition sm:min-h-24 sm:p-1.5 [&:nth-child(7n)]:border-r-0 ${
-                      !doMes ? "bg-slate-50/70" : "hover:bg-indigo-50/60"
+                    className={`relative flex min-h-[4.5rem] flex-col items-stretch gap-1 border-r border-b border-slate-200/80 p-1 text-left transition sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
+                      !doMes ? "" : "hover:bg-slate-50"
                     } ${destacado ? "z-10 bg-indigo-50 ring-2 ring-indigo-500 ring-inset" : ""} ${
                       ehAberto && !destacado ? "z-10 ring-2 ring-indigo-300 ring-inset" : ""
                     } ${selecionado && podeEditar && doMes ? "cursor-copy" : ""}`}
                   >
-                    <span
-                      className={`inline-flex h-5 w-5 items-center justify-center self-start rounded-full text-[11px] ${
-                        data === hoje ? "bg-indigo-600 font-bold text-white" : doMes ? "text-slate-600" : "text-slate-300"
-                      }`}
-                    >
-                      {Number(data.slice(8))}
+                    <span className="self-center sm:mb-1 sm:self-start">
+                      <NumeroDia dia={data} hoje={hoje} foraDoMes={!doMes} />
                     </span>
                     {eventos.slice(0, 1).map((e) => (
                       <span
                         key={e.id}
-                        className="truncate rounded-r border-l-2 border-sky-500 bg-sky-50 px-1 text-[10px] leading-4 text-sky-900 sm:text-[11px]"
+                        className="truncate rounded-md border-l-2 border-l-sky-500 bg-sky-50 px-1 py-0.5 text-[10px] leading-4 text-sky-800 sm:px-2 sm:text-xs"
                         title={`Na igreja: ${e.titulo}`}
                       >
                         {e.hora_inicio && <b>{horaCurta(e.hora_inicio)} </b>}
                         {e.titulo}
                       </span>
                     ))}
-                    {eventos.length > 1 && <span className="px-1 text-[10px] text-sky-700">+{eventos.length - 1} na igreja</span>}
+                    {eventos.length > 1 && <span className="px-1 text-[10px] text-sky-700 sm:px-2 sm:text-xs">+{eventos.length - 1} na igreja</span>}
                     {pessoas.slice(0, 3).map((p) => (
                       <span
                         key={p.id}
-                        className={`truncate rounded px-1 text-[10px] leading-4 sm:text-[11px] ${
-                          p.avisado_em ? "bg-emerald-50 text-emerald-800" : "bg-slate-100 text-slate-700"
+                        className={`truncate rounded-md border-l-2 px-1 py-0.5 text-[10px] leading-4 font-medium sm:px-2 sm:text-xs ${
+                          p.avisado_em ? "border-l-emerald-500 bg-emerald-50 text-emerald-800" : "border-l-indigo-500 bg-indigo-50 text-indigo-800"
                         }`}
                         title={`${p.membro?.nome ?? ""}${p.funcao ? ` (${p.funcao})` : ""}`}
                       >
                         {(p.membro?.nome ?? membroPorId.get(p.membro_id)?.nome ?? "?").split(" ")[0]}
                       </span>
                     ))}
-                    {pessoas.length > 3 && <span className="px-1 text-[10px] text-slate-500">+{pessoas.length - 3}</span>}
+                    {pessoas.length > 3 && <span className="px-1 text-[10px] text-slate-500 sm:px-2 sm:text-xs">+{pessoas.length - 3}</span>}
                   </button>
                 );
               })}
             </div>
-          </div>
+      </Moldura>
 
-          {/* ----- Dia aberto ----- */}
+      {/* ----- Dia aberto ----- */}
           {aberto && (
             <section id="painel-dia" className="cartao scroll-mt-20 space-y-3">
               <div className="flex items-start justify-between gap-2">
@@ -522,8 +536,6 @@ export function QuadroEscala({
               </ul>
             </section>
           )}
-        </div>
-      </div>
     </div>
   );
 }

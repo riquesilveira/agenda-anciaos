@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Bell, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
 import {
-  addMonths,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
@@ -12,11 +11,12 @@ import {
 } from "date-fns";
 import { CalendarioMes } from "@/components/calendario-mes";
 import { FiltroDepartamento } from "@/components/filtro-departamento";
+import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
 import { ListaProgramacoes } from "@/components/lista-programacoes";
 import { NovoEventoRapido } from "@/components/novo-evento-rapido";
 import { departamentosParaCriar } from "@/lib/permissoes";
 import { listarDepartamentos, listarProgramacoes } from "@/lib/consultas";
-import { dataLonga, fimDe, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { dataLonga, fimDe, hojeISO, maiuscula } from "@/lib/datas";
 import { exigirPerfil } from "@/lib/sessao";
 import { ORIGENS, type Origem, type Programacao } from "@/lib/tipos";
 
@@ -79,11 +79,7 @@ export default async function PaginaCalendario({
     Object.entries(tudo).forEach(([k, v]) => v && q.set(k, v));
     return `/?${q}`;
   };
-  const anterior = format(addMonths(inicioMes, -1), "yyyy-MM");
-  const proximo = format(addMonths(inicioMes, 1), "yyyy-MM");
 
-  const mesDeHoje = hoje.slice(0, 7);
-  const [nomeMes, ano] = maiuscula(nomeDoMes(mes)).split(" de ");
   const doMes = programacoes.filter((p) => p.data <= `${mes}-31` && fimDe(p) >= `${mes}-01`);
 
   const linkSemDep = (() => {
@@ -124,72 +120,55 @@ export default async function PaginaCalendario({
   return (
     <div className="space-y-5">
       {podeCriar && <NovoEventoRapido departamentos={podeCriarEm} soLocal={soLocal} />}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid lg:grid-cols-[16rem_1fr]">
-        {/* ----- Lateral (computador). No celular os filtros ficam abaixo do mês. ----- */}
-        <aside className="hidden space-y-5 border-r border-slate-200 p-5 lg:block">
-          <Link href="/programacoes/nova" className="botao w-full py-2.5">
-            <Plus size={18} /> Nova programação
-          </Link>
-          <div className="space-y-2">
-            <h2 className="text-sm font-semibold text-slate-900">Departamento</h2>
-            <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
-          </div>
-          <Link
-            href="/minhas"
-            className="flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-700"
-          >
-            <Bell size={16} /> Minhas programações
-          </Link>
-        </aside>
-
-        {/* ----- Calendário ----- */}
-        <div className="min-w-0">
-          <div className="flex items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-4">
-            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-              <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
-                {nomeMes} <span className="font-normal text-slate-500">{ano}</span>
-              </h1>
-              <Link
-                href={link({ mes: mesDeHoje, dia: undefined })}
-                className={`rounded-lg border border-slate-200 px-3 py-1 text-sm font-medium shadow-sm hover:bg-slate-50 ${
-                  mes === mesDeHoje ? "text-slate-400" : "text-slate-700"
-                }`}
-              >
-                Hoje
-              </Link>
-              <div className="flex items-center">
-                <Link href={link({ mes: anterior, dia: undefined })} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Mês anterior">
-                  <ChevronLeft size={20} />
-                </Link>
-                <Link href={link({ mes: proximo, dia: undefined })} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Próximo mês">
-                  <ChevronRight size={20} />
-                </Link>
-              </div>
-            </div>
-            <div className="hidden sm:block">{abasOrigem}</div>
-            <Link href="/minhas" className="botao-secundario px-2.5 py-1.5 sm:hidden" aria-label="Minhas programações" title="Minhas programações">
-              <Bell size={16} />
+      <Moldura
+        lateral={
+          <>
+            <Link href="/programacoes/nova" className="botao w-full py-2.5">
+              <Plus size={18} /> Nova programação
             </Link>
-          </div>
-          <div className="space-y-2.5 px-4 pb-3 sm:hidden">{abasOrigem}</div>
-          <div className="px-4 pb-3 lg:hidden">
-            <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
-          </div>
-          <div className="border-t border-slate-200">
-            <CalendarioMes
-              dias={dias}
-              porDia={porDia}
-              mesAtual={mes}
-              hoje={hoje}
-              diaSelecionado={dia}
-              linkDoDia={(d) => `${link({ dia: d })}#lista`}
-              podeCriar={podeCriar}
-            />
-          </div>
+            <div className="space-y-2">
+              <TituloLateral>Departamento</TituloLateral>
+              <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
+            </div>
+            <Link
+              href="/minhas"
+              className="flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-700"
+            >
+              <Bell size={16} /> Minhas programações
+            </Link>
+          </>
+        }
+      >
+        <CabecalhoMes
+          mes={mes}
+          hoje={hoje}
+          link={(m) => link({ mes: m, dia: undefined })}
+          direita={
+            <>
+              <div className="hidden sm:block">{abasOrigem}</div>
+              <Link href="/minhas" className="botao-secundario px-2.5 py-1.5 sm:hidden" aria-label="Minhas programações" title="Minhas programações">
+                <Bell size={16} />
+              </Link>
+            </>
+          }
+        />
+        <div className="space-y-2.5 px-4 pb-3 sm:hidden">{abasOrigem}</div>
+        <div className="px-4 pb-3 lg:hidden">
+          <FiltroDepartamento departamentos={departamentos} valor={params.dep ?? ""} linkBase={linkSemDep} />
         </div>
-      </div>
+        <CalendarioMes
+          dias={dias}
+          porDia={porDia}
+          mesAtual={mes}
+          hoje={hoje}
+          diaSelecionado={dia}
+          linkDoDia={(d) => `${link({ dia: d })}#lista`}
+          podeCriar={podeCriar}
+        />
+      </Moldura>
 
-      <section id="lista" className="scroll-mt-4 space-y-3">        {dia ? (
+      <section id="lista" className="scroll-mt-4 space-y-3">
+        {dia ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">{maiuscula(dataLonga(dia))}</h2>

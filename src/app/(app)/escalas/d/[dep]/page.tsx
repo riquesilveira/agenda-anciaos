@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
-import { addMonths, format, parseISO } from "date-fns";
+import { MessageCircle } from "lucide-react";
 import { AbasEscalas } from "@/components/abas-escalas";
+import { CabecalhoMes, TituloLateral } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarProgramacoes } from "@/lib/consultas";
 import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { textoEscalaMes } from "@/lib/escalas";
@@ -37,39 +36,32 @@ export default async function EscalaDepartamento({
 
   const podeEditar = podeEditarProgramacao(perfil, { departamento_id: dep }, departamentos);
   const editaveis = new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id));
-  const inicio = parseISO(`${mes}-01`);
-  const [nomeMes, ano] = maiuscula(nomeDoMes(mes)).split(" de ");
   const link = (m: string) => `/escalas/d/${dep}?mes=${m}`;
 
+  const abas = (vertical: boolean) => (
+    <AbasEscalas
+      ativa={dep}
+      departamentos={departamentos}
+      comEquipe={comEquipe}
+      editaveis={editaveis}
+      podeAbrirOutros={ehLideranca(perfil)}
+      vertical={vertical}
+    />
+  );
+  const compartilhar =
+    dias.length > 0 ? (
+      <a
+        href={linkWhatsapp(null, textoEscalaMes(departamento.nome, maiuscula(nomeDoMes(mes)), dias))}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
+      >
+        <MessageCircle size={16} /> Compartilhar a escala do mês
+      </a>
+    ) : null;
+
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-slate-500">Escala de {departamento.nome}</p>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-1.5">
-          {mes !== hoje.slice(0, 7) && <Link href={link(hoje.slice(0, 7))} className="botao-secundario px-3 py-1.5">Hoje</Link>}
-          <Link href={link(format(addMonths(inicio, -1), "yyyy-MM"))} className="botao-secundario px-2 py-1.5" aria-label="Mês anterior"><ChevronLeft size={18} /></Link>
-          <Link href={link(format(addMonths(inicio, 1), "yyyy-MM"))} className="botao-secundario px-2 py-1.5" aria-label="Próximo mês"><ChevronRight size={18} /></Link>
-        </div>
-      </div>
-
-      <AbasEscalas ativa={dep} departamentos={departamentos} comEquipe={comEquipe} editaveis={editaveis} podeAbrirOutros={ehLideranca(perfil)} />
-
-      {dias.length > 0 && (
-        <a
-          href={linkWhatsapp(null, textoEscalaMes(departamento.nome, maiuscula(nomeDoMes(mes)), dias))}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
-        >
-          <MessageCircle size={16} /> Compartilhar a escala do mês
-        </a>
-      )}
-
+    <div className="space-y-4">
       <QuadroEscala
         departamento={{ id: departamento.id, nome: departamento.nome }}
         membros={membros}
@@ -80,6 +72,29 @@ export default async function EscalaDepartamento({
         programacoes={programacoesLocais}
         urlBase={process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com"}
         diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
+        lateral={
+          <>
+            <div className="space-y-2">
+              <TituloLateral>Escalas</TituloLateral>
+              {abas(true)}
+            </div>
+            {compartilhar}
+          </>
+        }
+        cabecalho={
+          <CabecalhoMes
+            mes={mes}
+            hoje={hoje}
+            link={link}
+            direita={<span className="hidden truncate text-sm font-medium text-slate-500 sm:inline">Escala de {departamento.nome}</span>}
+          />
+        }
+        abasCelular={
+          <div className="space-y-2">
+            {abas(false)}
+            {compartilhar}
+          </div>
+        }
       />
     </div>
   );

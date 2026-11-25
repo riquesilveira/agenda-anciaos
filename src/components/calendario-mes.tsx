@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { CabecalhoSemana, NumeroDia } from "@/components/moldura";
 import { dataLonga, horaCurta } from "@/lib/datas";
 import { ORIGENS, type Programacao } from "@/lib/tipos";
 
-const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 /**
  * Grade do mês. Componente só de apresentação (recebe tudo pronto), para
@@ -29,18 +29,11 @@ export function CalendarioMes({
 }) {
   return (
     <div>
-      <div className="grid grid-cols-7 border-b border-slate-200">
-        {DIAS_SEMANA.map((d) => (
-          <div key={d} className="px-1.5 py-2 text-center text-xs font-medium text-slate-500 sm:px-3 sm:text-left sm:text-sm">
-            {d}
-          </div>
-        ))}
-      </div>
+      <CabecalhoSemana />
       <div className="grid grid-cols-7">
         {dias.map((d) => {
           const doDia = porDia.get(d) ?? [];
           const foraDoMes = !d.startsWith(mesAtual);
-          const ehHoje = d === hoje;
           const selecionado = d === diaSelecionado;
           return (
             <div
@@ -54,17 +47,7 @@ export function CalendarioMes({
               <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
 
               <div className="mb-1 flex items-center justify-center sm:mb-2 sm:justify-between">
-                <span
-                  className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-1 text-sm sm:h-9 sm:min-w-9 sm:text-base ${
-                    ehHoje
-                      ? "bg-indigo-600 font-semibold text-white"
-                      : foraDoMes
-                        ? "text-slate-300"
-                        : "text-slate-800"
-                  }`}
-                >
-                  {Number(d.slice(8))}
-                </span>
+                <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />
                 {podeCriar && (
                   <span
                     className="hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 opacity-0 transition group-hover:opacity-100 sm:inline-flex"

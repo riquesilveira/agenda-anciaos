@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
-import { addMonths, format, parseISO } from "date-fns";
+import { MessageCircle } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GradeEscala } from "@/components/grade-escala";
 import { AbasEscalas } from "@/components/abas-escalas";
+import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { dataCurta, hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
 import { departamentosQueLidera, ehLideranca } from "@/lib/permissoes";
@@ -34,8 +35,6 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
   const porChave = new Map(escala.map((e) => [`${e.data}|${e.culto}`, e]));
   const cultos = cultosDoMes(mes);
   const lideranca = ehLideranca(perfil);
-  const inicio = parseISO(`${mes}-01`);
-  const [nomeMes, ano] = maiuscula(nomeDoMes(mes)).split(" de ");
 
   const definidos = cultos.filter((c) => porChave.get(`${c.data}|${c.culto}`)?.pregador_nome).length;
   const textoEscala = [
@@ -49,66 +48,75 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
     }),
   ].join("\n");
 
+  const abas = (vertical: boolean) => (
+    <AbasEscalas
+      ativa="pregacao"
+      departamentos={departamentos}
+      comEquipe={comEquipe}
+      editaveis={new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id))}
+      podeAbrirOutros={lideranca}
+      vertical={vertical}
+    />
+  );
+  // Legenda: sigla de cada ancião e o sinal de "sem responsável".
+  const legenda = (
+    <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-700 lg:flex-col lg:gap-2">
+      {ancionato.map((a) => {
+        const s = siglas.get(a.id)!;
+        return (
+          <li key={a.id} className="flex items-center gap-2">
+            <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${s.cor}`}>{s.sigla}</span>
+            {a.nome}
+          </li>
+        );
+      })}
+      <li className="flex items-center gap-2 text-slate-500">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-[10px] font-bold text-slate-400">?</span>
+        sem responsável
+      </li>
+    </ul>
+  );
+  const resumo = (
+    <div className="space-y-2 text-sm">
+      <p>
+        <b>{definidos}</b> de <b>{cultos.length}</b> cultos com pregador definido
+      </p>
+      <a href={linkWhatsapp(null, textoEscala)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-medium text-emerald-700 hover:underline">
+        <MessageCircle size={16} /> Compartilhar escala
+      </a>
+    </div>
+  );
+
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-slate-500">Escalas</p>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {nomeMes} <span className="font-normal text-slate-400">{ano}</span>
-          </h1>
+    <div className="space-y-5">
+      <Moldura
+        lateral={
+          <>
+            <div className="space-y-2">
+              <TituloLateral>Escalas</TituloLateral>
+              {abas(true)}
+            </div>
+            <div className="space-y-2 border-t border-slate-200 pt-5">
+              <TituloLateral>Anciãos</TituloLateral>
+              {legenda}
+            </div>
+            <div className="border-t border-slate-200 pt-5">{resumo}</div>
+          </>
+        }
+      >
+        <CabecalhoMes
+          mes={mes}
+          hoje={hoje}
+          link={(m) => `/escalas?mes=${m}`}
+          direita={<span className="hidden text-sm font-medium text-slate-500 sm:inline">Escala de pregação</span>}
+        />
+        <div className="space-y-3 px-4 pb-3 lg:hidden">
+          {abas(false)}
+          {legenda}
+          {resumo}
         </div>
-        <div className="flex items-center gap-1.5">
-          {mes !== hoje.slice(0, 7) && (
-            <Link href={`/escalas?mes=${hoje.slice(0, 7)}`} className="botao-secundario px-3 py-1.5">Hoje</Link>
-          )}
-          <Link href={`/escalas?mes=${format(addMonths(inicio, -1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Mês anterior">
-            <ChevronLeft size={18} />
-          </Link>
-          <Link href={`/escalas?mes=${format(addMonths(inicio, 1), "yyyy-MM")}`} className="botao-secundario px-2 py-1.5" aria-label="Próximo mês">
-            <ChevronRight size={18} />
-          </Link>
-        </div>
-      </div>
-
-
-      <AbasEscalas
-        ativa="pregacao"
-        departamentos={departamentos}
-        comEquipe={comEquipe}
-        editaveis={new Set(departamentosQueLidera(perfil, departamentos).map((d) => d.id))}
-        podeAbrirOutros={lideranca}
-      />
-
-      <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
-
-      {/* Legenda: sigla de cada ancião e sinais de situação */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600">
-        {ancionato.map((a) => {
-          const s = siglas.get(a.id)!;
-          return (
-            <span key={a.id} className="flex items-center gap-1.5">
-              <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${s.cor}`}>
-                {s.sigla}
-              </span>
-              {a.nome}
-            </span>
-          );
-        })}
-        <span className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-slate-300 text-[10px] font-bold text-slate-400">?</span>
-          sem responsável
-        </span>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
-        <span>
-          <b>{definidos}</b> de <b>{cultos.length}</b> cultos com pregador definido
-        </span>
-        <a href={linkWhatsapp(null, textoEscala)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-medium text-emerald-700 hover:underline">
-          <MessageCircle size={16} /> Compartilhar escala
-        </a>
-      </div>
+        <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} />
+      </Moldura>
 
       <ul className="space-y-2">
         {cultos.map((c) => {
