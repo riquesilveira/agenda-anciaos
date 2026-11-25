@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#4f46e5" };
+// viewportFit "cover": no iPhone, permite respeitar a barrinha inferior (safe-area).
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#4f46e5", viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
