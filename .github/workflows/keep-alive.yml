@@ -1,0 +1,26 @@
+name: Keep-alive (Render)
+
+# Mantém o site acordado no plano grátis do Render, que "dorme" depois de
+# ~15 min sem uso (e a 1ª abertura mostra a tela "service waking up").
+# A Agenda tem um workspace só dela no Render ("IASD Agenda"), então as
+# 750 h grátis do mês dão para deixá-la ligada o tempo todo.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # a cada 10 minutos (o GitHub pode atrasar um pouco)
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acordar o site
+        run: |
+          URL="https://iasdagenda-pvbl.onrender.com/login"
+          for tentativa in 1 2; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo 000)
+            echo "Tentativa $tentativa: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          exit 1

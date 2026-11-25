@@ -49,7 +49,7 @@ O site roda no Render; banco e login continuam no Supabase.
    cria o serviço `iasdagenda` (plano free) e pede as variáveis do
    `.env.example`. `CRON_SECRET` é gerado sozinho.
 2. Depois do primeiro deploy, preencha `NEXT_PUBLIC_APP_URL` com o endereço
-   do Render (ex: `https://iasdagenda.onrender.com`) e faça **Manual Deploy**.
+   do Render (ex: `https://iasdagenda-pvbl.onrender.com`) e faça **Manual Deploy**.
    Variáveis `NEXT_PUBLIC_*` entram no build, então mudança nelas pede novo deploy.
 3. No Supabase: **Authentication > URL Configuration > Site URL** = o mesmo endereço.
 4. E-mail: crie uma conta no [Resend](https://resend.com), verifique o domínio
@@ -65,10 +65,10 @@ segunda e mensal todo dia 1º. Configure no GitHub
 Para testar: **Actions > Resumos por e-mail > Run workflow** (com `teste = 1`
 mostra os resumos no log sem enviar e-mail).
 
-> **Plano grátis do Render:** o site dorme depois de ~15 min parado e a 1ª
-> abertura demora uns 30 s. **Não** coloque keep-alive aqui: as 750 h grátis
-> por mês são compartilhadas por todos os serviços da conta, e o keep-alive do
-> Helsis já usa quase todas.
+> **Plano grátis do Render:** o serviço fica num workspace só dele
+> ("IASD Agenda"), e `.github/workflows/keep-alive.yml` acessa o site a cada
+> 10 min para ele não dormir. As 750 h grátis são por workspace: **não** coloque
+> outro serviço sempre ligado nesse mesmo workspace.
 
 ## Validar mudanças
 ```bash
