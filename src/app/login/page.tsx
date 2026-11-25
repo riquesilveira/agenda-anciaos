@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
+import { CampoSenha } from "@/components/campo-senha";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 
 function FormLogin() {
@@ -53,7 +54,7 @@ function FormLogin() {
       </div>
       <div>
         <label className="rotulo" htmlFor="senha">Senha</label>
-        <input className="campo" id="senha" name="senha" type="password" autoComplete="current-password" required />
+        <CampoSenha id="senha" name="senha" autoComplete="current-password" />
       </div>
       {erro && <p className="text-sm text-red-600">{erro}</p>}
       <button className="botao w-full" disabled={carregando}>{carregando ? "Entrando…" : "Entrar"}</button>

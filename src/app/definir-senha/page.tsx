@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { CampoSenha } from "@/components/campo-senha";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 
 type Etapa = "verificando" | "senha" | "invalido";
@@ -82,11 +83,11 @@ function DefinirSenha() {
       </div>
       <div>
         <label className="rotulo" htmlFor="senha">Senha</label>
-        <input className="campo" id="senha" name="senha" type="password" autoComplete="new-password" required />
+        <CampoSenha id="senha" name="senha" autoComplete="new-password" />
       </div>
       <div>
         <label className="rotulo" htmlFor="confirmar">Repita a senha</label>
-        <input className="campo" id="confirmar" name="confirmar" type="password" autoComplete="new-password" required />
+        <CampoSenha id="confirmar" name="confirmar" autoComplete="new-password" />
       </div>
       {erro && <p className="text-sm text-red-600">{erro}</p>}
       <button className="botao w-full" disabled={salvando}>{salvando ? "Salvando…" : "Criar senha e entrar"}</button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CampoSenha } from "@/components/campo-senha";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 
 export function FormSenha({ email }: { email: string }) {
@@ -33,11 +34,11 @@ export function FormSenha({ email }: { email: string }) {
       <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
       <div>
         <label className="rotulo" htmlFor="senha">Nova senha</label>
-        <input className="campo" id="senha" name="senha" type="password" autoComplete="new-password" required />
+        <CampoSenha id="senha" name="senha" autoComplete="new-password" />
       </div>
       <div>
         <label className="rotulo" htmlFor="confirmar">Repita a nova senha</label>
-        <input className="campo" id="confirmar" name="confirmar" type="password" autoComplete="new-password" required />
+        <CampoSenha id="confirmar" name="confirmar" autoComplete="new-password" />
       </div>
       {msg && <p className={`text-sm ${msg.tipo === "ok" ? "text-emerald-700" : "text-red-600"}`}>{msg.texto}</p>}
       <button className="botao" disabled={enviando}>{enviando ? "Salvando…" : "Trocar senha"}</button>
