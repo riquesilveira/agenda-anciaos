@@ -251,7 +251,16 @@ export function CalendarioInterativo({
                 Mês todo
               </button>
             </div>
-            <LinhaDoTempo dia={dia} programacoes={porDia.get(dia) ?? []} hoje={hoje} />
+            <LinhaDoTempo
+              dia={dia}
+              programacoes={porDia.get(dia) ?? []}
+              hoje={hoje}
+              aoNova={
+                podeCriar
+                  ? () => document.dispatchEvent(new CustomEvent("nova-programacao", { detail: { data: dia } }))
+                  : undefined
+              }
+            />
           </>
         ) : (
           <>
