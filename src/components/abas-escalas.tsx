@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mic, Plus } from "lucide-react";
+import { IconeDepartamento } from "@/components/icone-departamento";
 import type { Departamento } from "@/lib/tipos";
 
 /**
@@ -34,7 +35,7 @@ export function AbasEscalas({
       </Link>
       {visiveis.map((d) => (
         <Link key={d.id} href={`/escalas/d/${d.id}`} className={classe(ativa === d.id)} aria-current={ativa === d.id ? "page" : undefined}>
-          {d.sigla && <span className="text-[11px] font-bold opacity-80">{d.sigla}</span>}
+          <IconeDepartamento nome={d.nome} sigla={d.sigla} />
           {d.nome}
         </Link>
       ))}
@@ -49,7 +50,7 @@ export function AbasEscalas({
             {outros.map((d) => (
               <li key={d.id}>
                 <Link href={`/escalas/d/${d.id}`} className="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100">
-                  {d.sigla && <b className="mr-1 text-xs">{d.sigla}</b>}
+                  <span className="mr-2 inline-flex align-[-2px] text-slate-500"><IconeDepartamento nome={d.nome} sigla={d.sigla} /></span>
                   {d.nome}
                 </Link>
               </li>
