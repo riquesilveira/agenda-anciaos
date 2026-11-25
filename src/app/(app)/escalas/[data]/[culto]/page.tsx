@@ -51,6 +51,13 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
 
       {p && meu && (
         <>
+          {!p.pregador_nome && (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              Você é o responsável por este culto. Informe o pregador abaixo.
+            </p>
+          )}
+          {p.pregador_nome && (
+          <>
           <section className="flex flex-wrap gap-2">
             <a
               href={linkWhatsapp(p.pregador_whatsapp, mensagemConvite(p, igreja, perfil))}
@@ -71,6 +78,8 @@ export default async function CultoPregacao({ params }: { params: Promise<{ data
           </section>
           {!p.pregador_whatsapp && (
             <p className="text-xs text-slate-500">Sem o WhatsApp do pregador, o botão abre o WhatsApp para você escolher o contato.</p>
+          )}
+          </>
           )}
           <FormPregacao p={p} dataTexto={`${maiuscula(dataLonga(data))} · ${CULTOS[culto].curto}`} ancionato={ancionato} euId={perfil.id} />
           <form action={liberarCulto} className="text-right">

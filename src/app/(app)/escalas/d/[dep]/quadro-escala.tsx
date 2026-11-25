@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, GripVertical, MessageCircle, Plus, X } from "lucide-react";
+import { Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
@@ -12,6 +12,7 @@ import { linkWhatsapp } from "@/lib/resumo";
 import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Programacao } from "@/lib/tipos";
 import {
   adicionarMembro,
+  editarMembro,
   avisoPessoa,
   escalarNaData,
   excluirDiaEscala,
@@ -59,6 +60,7 @@ export function QuadroEscala({
     return diasIniciais[0]?.data ?? null;
   });
   const [erro, setErro] = useState("");
+  const [editandoMembro, setEditandoMembro] = useState<string | null>(null);
   // "Avisar todos": fila de pessoas a avisar, uma de cada vez.
   const [fila, setFila] = useState<string[] | null>(null);
   const [, iniciar] = useTransition();
@@ -162,7 +164,35 @@ export function QuadroEscala({
               </p>
             </div>
             <ul className="flex flex-wrap gap-2 lg:flex-col">
-              {membros.map((m) => (
+              {membros.map((m) =>
+                editandoMembro === m.id ? (
+                <li key={m.id} className="w-full">
+                  <form
+                    action={async (f) => {
+                      await editarMembro(f);
+                      setEditandoMembro(null);
+                      router.refresh();
+                    }}
+                    className="space-y-2 rounded-xl border border-indigo-200 bg-indigo-50/50 p-2"
+                  >
+                    <input type="hidden" name="id" value={m.id} />
+                    <label className="block text-xs font-medium text-slate-600">
+                      Nome
+                      <input className="campo mt-0.5" name="nome" defaultValue={m.nome} required autoFocus />
+                    </label>
+                    <label className="block text-xs font-medium text-slate-600">
+                      WhatsApp
+                      <input className="campo mt-0.5" name="whatsapp" defaultValue={m.whatsapp ?? ""} inputMode="tel" placeholder="(opcional)" />
+                    </label>
+                    <div className="flex gap-2">
+                      <button className="botao flex-1 py-1.5">Salvar</button>
+                      <button type="button" onClick={() => setEditandoMembro(null)} className="botao-secundario flex-1 py-1.5">
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </li>
+                ) : (
                 <li key={m.id} className="group flex items-center gap-1">
                   <button
                     type="button"
@@ -181,14 +211,24 @@ export function QuadroEscala({
                     <GripVertical size={14} className="hidden opacity-50 lg:block" />
                     {m.nome}
                   </button>
-                  <form action={removerMembro} className="hidden group-hover:block">
+                  <button
+                    type="button"
+                    onClick={() => setEditandoMembro(m.id)}
+                    title={`Editar ${m.nome}`}
+                    aria-label={`Editar ${m.nome}`}
+                    className="rounded p-1 text-slate-400 hover:text-indigo-600 lg:opacity-0 lg:group-hover:opacity-100"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <form action={removerMembro} className="lg:opacity-0 lg:group-hover:opacity-100">
                     <input type="hidden" name="id" value={m.id} />
                     <BotaoConfirmar mensagem={`Tirar ${m.nome} da equipe? Ele continua nas escalas já feitas.`} rotulo={`Tirar ${m.nome}`} className="rounded p-1 text-slate-400 hover:text-red-600">
                       <X size={14} />
                     </BotaoConfirmar>
                   </form>
                 </li>
-              ))}
+                ),
+              )}
               {membros.length === 0 && <li className="text-sm text-slate-500">Cadastre a equipe abaixo.</li>}
             </ul>
             <form
@@ -198,6 +238,7 @@ export function QuadroEscala({
               }}
               className="space-y-2 border-t border-slate-100 pt-3"
             >
+              <h3 className="text-sm font-semibold text-slate-700">Adicionar associado</h3>
               <input type="hidden" name="departamento_id" value={departamento.id} />
               <input className="campo" name="nome" placeholder="Nome" required />
               <input className="campo" name="whatsapp" placeholder="WhatsApp (opcional)" inputMode="tel" />

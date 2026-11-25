@@ -436,6 +436,17 @@ export async function adicionarMembro(form: FormData) {
   revalidatePath("/escalas", "layout");
 }
 
+export async function editarMembro(form: FormData) {
+  const { supabase } = await exigirPerfil();
+  const nome = texto(form, "nome");
+  if (!nome) return;
+  await supabase
+    .from("departamento_membros")
+    .update({ nome, whatsapp: texto(form, "whatsapp") })
+    .eq("id", String(form.get("id")));
+  revalidatePath("/escalas", "layout");
+}
+
 export async function removerMembro(form: FormData) {
   const { supabase } = await exigirPerfil();
   // Desativa em vez de apagar, para não sumir das escalas antigas.
