@@ -1,7 +1,9 @@
 name: Keep-alive (Render)
 
-# Mantém o site acordado no plano grátis do Render, que "dorme" depois de
-# ~15 min sem uso (e a 1ª abertura mostra a tela "service waking up").
+# RESERVA. O despertador principal agora é o pg_cron do Supabase (migration
+# 20261208000000_despertador_supabase.sql), porque o agendamento do GitHub
+# atrasa muito ou nem roda. Mantém o site acordado no plano grátis do Render,
+# que "dorme" depois de ~15 min sem uso (tela "service waking up").
 # A Agenda tem um workspace só dela no Render ("IASD Agenda"), então as
 # 750 h grátis do mês dão para deixá-la ligada o tempo todo.
 
@@ -18,7 +20,7 @@ jobs:
         run: |
           # /api/cron/tick mantém o site acordado e, a partir das 18h, dispara
           # (uma vez por dia) o lembrete de véspera da escala para os líderes.
-          URL="https://iasdagenda-pvbl.onrender.com/api/cron/tick"
+          URL="https://7lider.com.br/api/cron/tick"
           for tentativa in 1 2; do
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo 000)
             echo "Tentativa $tentativa: HTTP $code"

@@ -83,8 +83,9 @@ abre o WhatsApp do próprio líder com a mensagem pronta e marca como avisado.
 **Avisar todos** passa pelos pendentes do dia um por um, e o atalho
 "Amanhã: N para avisar" abre direto o dia. Às 18h da véspera o líder (ou,
 sem líder com login, o ancião responsável) recebe uma notificação no celular
-com quem falta avisar (`/api/cron/tick`, chamado pelo keep-alive; roda uma vez
-por dia graças à tabela `execucoes_agendadas`).
+com quem falta avisar (`/api/cron/tick`, chamado a cada 10 min pelo pg_cron do Supabase, que também
+mantém o Render acordado; roda uma vez por dia graças à tabela
+`execucoes_agendadas`; o GitHub Actions fica só de reserva).
 **Lembretes automáticos para associados:** cada associado tem um link pessoal
 (`/m/<token>`, sem login) que o líder envia pelo WhatsApp (ícone do sino na
 equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" /
