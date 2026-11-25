@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { BotaoGoogle } from "@/components/botao-google";
 import { CampoSenha } from "@/components/campo-senha";
@@ -75,9 +76,9 @@ export function FormLogin({ google }: { google: boolean }) {
       <button className="botao w-full" disabled={carregando}>{carregando ? "Entrando…" : "Entrar"}</button>
       <p className="text-center text-sm text-slate-500">
         É líder e ainda não tem acesso?{" "}
-        <a href="/entrar" className="font-medium text-indigo-700 hover:underline">
+        <Link href="/entrar" className="font-medium text-indigo-700 hover:underline">
           Criar meu acesso
-        </a>
+        </Link>
       </p>
     </form>
   );
