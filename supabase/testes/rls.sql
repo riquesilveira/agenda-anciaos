@@ -360,6 +360,16 @@ do $$ begin
   insert into departamentos (igreja_id, nome) values ('00000000-0000-0000-0000-00000000000b', 'Via service_role');
 end $$;
 
+-- Aparelhos dos associados: só o servidor.
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', false);
+do $$ begin
+  perform count(*) from membro_push_inscricoes;
+  raise exception 'FALHOU: usuário logado leu aparelhos de associados';
+exception when insufficient_privilege then null;
+end $$;
+
 -- Sem login não vê nada.
 reset role;
 set role anon;

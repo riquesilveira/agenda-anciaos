@@ -78,6 +78,7 @@ export default async function EscalaDepartamento({
         hoje={hoje}
         mes={mes}
         programacoes={programacoesLocais}
+        urlBase={process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda-pvbl.onrender.com"}
         diaInicial={/^\d{4}-\d{2}-\d{2}$/.test(diaParam ?? "") ? diaParam : null}
       />
     </div>

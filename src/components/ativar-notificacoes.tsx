@@ -15,7 +15,7 @@ type Estado =
 
 const CHAVE_DISPENSADO = "agenda-notificacoes-dispensado";
 
-function chaveVapid(base64: string): Uint8Array<ArrayBuffer> {
+export function chaveVapid(base64: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
   const bruto = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
   const saida = new Uint8Array(new ArrayBuffer(bruto.length));
@@ -23,18 +23,18 @@ function chaveVapid(base64: string): Uint8Array<ArrayBuffer> {
   return saida;
 }
 
-function ehIphone() {
+export function ehIphone() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
 
-function abertoPeloAtalho() {
+export function abertoPeloAtalho() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true
   );
 }
 
-function nomeDoAparelho() {
+export function nomeDoAparelho() {
   const ua = navigator.userAgent;
   if (/iphone/i.test(ua)) return "iPhone";
   if (/ipad/i.test(ua)) return "iPad";

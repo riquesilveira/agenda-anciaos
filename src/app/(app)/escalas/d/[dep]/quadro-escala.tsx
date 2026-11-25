@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
+import { Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
 import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
-import { mensagemAvisoEscala } from "@/lib/escalas";
+import { mensagemAvisoEscala, mensagemLinkLembretes } from "@/lib/escalas";
 import { linkWhatsapp } from "@/lib/resumo";
 import type { EscalaDia, EscalaDiaPessoa, MembroDepartamento, Programacao } from "@/lib/tipos";
 import {
@@ -38,6 +38,7 @@ export function QuadroEscala({
   mes,
   programacoes,
   diaInicial,
+  urlBase,
 }: {
   departamento: { id: string; nome: string };
   membros: MembroDepartamento[];
@@ -49,6 +50,8 @@ export function QuadroEscala({
   programacoes: Programacao[];
   /** Dia para abrir já selecionado (ex: vindo do lembrete de véspera). */
   diaInicial?: string | null;
+  /** Endereço do site, para montar o link pessoal do associado. */
+  urlBase: string;
 }) {
   const router = useRouter();
   const [dias, setDias] = useState(diasIniciais);
@@ -93,7 +96,7 @@ export function QuadroEscala({
     const tmpPessoa = `tmp-${Date.now()}`;
     const existente = porData.get(data)?.[0];
     const tmpDia = existente?.id ?? `tmp-dia-${data}`;
-    const pessoa: EscalaDiaPessoa = { id: tmpPessoa, escala_dia_id: tmpDia, membro_id: membroId, funcao: null, avisado_em: null, ordem: 999, membro };
+    const pessoa: EscalaDiaPessoa = { id: tmpPessoa, escala_dia_id: tmpDia, membro_id: membroId, funcao: null, avisado_em: null, ordem: 999, resposta: null, respondido_em: null, lembrete_enviado_em: null, membro };
     setDias((ds) =>
       existente
         ? ds.map((d) => (d.id === existente.id ? { ...d, pessoas: [...(d.pessoas ?? []), pessoa] } : d))
@@ -130,7 +133,12 @@ export function QuadroEscala({
   }
 
   const diasAbertos = aberto ? porData.get(aberto) ?? [] : [];
-  const pendentesDe = (data: string) => pessoasDoDia(data).filter((p) => !p.avisado_em && !p.id.startsWith("tmp-"));
+  const automatico = (p: EscalaDiaPessoa) => Boolean((p.membro ?? membroPorId.get(p.membro_id))?.lembretes_ativos_em);
+  // Quem já respondeu, já foi avisado ou vai receber o lembrete automático não precisa de WhatsApp.
+  const pendentesDe = (data: string) =>
+    pessoasDoDia(data).filter(
+      (p) => !p.avisado_em && !p.resposta && !p.id.startsWith("tmp-") && !(automatico(p) && data > hoje),
+    );
   const amanha = format(new Date(parseISO(hoje).getTime() + 86_400_000), "yyyy-MM-dd");
   const atalhos = [
     { data: hoje, rotulo: "Hoje" },
@@ -211,6 +219,16 @@ export function QuadroEscala({
                     <GripVertical size={14} className="hidden opacity-50 lg:block" />
                     {m.nome}
                   </button>
+                  <a
+                    href={linkWhatsapp(m.whatsapp, mensagemLinkLembretes(m.nome, departamento.nome, `${urlBase}/m/${m.token}`))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={m.lembretes_ativos_em ? "Lembretes automáticos ativados (toque para reenviar o link)" : "Enviar o link dos lembretes automáticos"}
+                    aria-label={`Link de lembretes de ${m.nome}`}
+                    className={`rounded p-1 ${m.lembretes_ativos_em ? "text-emerald-600" : "text-slate-400 hover:text-indigo-600"}`}
+                  >
+                    {m.lembretes_ativos_em ? <Bell size={14} fill="currentColor" /> : <BellPlus size={14} />}
+                  </a>
                   <button
                     type="button"
                     onClick={() => setEditandoMembro(m.id)}
@@ -231,6 +249,12 @@ export function QuadroEscala({
               )}
               {membros.length === 0 && <li className="text-sm text-slate-500">Cadastre a equipe abaixo.</li>}
             </ul>
+            {membros.length > 0 && (
+              <p className="text-[11px] leading-snug text-slate-500">
+                <BellPlus size={12} className="inline" /> envia ao associado o link para receber lembretes automáticos.{" "}
+                <Bell size={12} className="inline text-emerald-600" fill="currentColor" /> = já ativou.
+              </p>
+            )}
             <form
               action={async (f) => {
                 await adicionarMembro(f);
@@ -439,6 +463,20 @@ export function QuadroEscala({
                   return (
                     <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-sm">
                       <span className="font-medium">{nome}</span>
+                      {p.resposta === "confirmado" && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">✓ Confirmou</span>
+                      )}
+                      {p.resposta === "recusado" && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">Não vai poder</span>
+                      )}
+                      {!p.resposta && (p.lembrete_enviado_em || automatico(p)) && (
+                        <span
+                          title={p.lembrete_enviado_em ? "Lembrete automático entregue" : "Recebe o lembrete automático na véspera, às 18h"}
+                          className="inline-flex items-center gap-0.5 text-[11px] text-slate-500"
+                        >
+                          <Bell size={11} /> {p.lembrete_enviado_em ? "lembrete enviado" : "automático"}
+                        </span>
+                      )}
                       {podeEditar && (
                         <span className="ml-auto flex items-center gap-1">
                           <a

@@ -85,6 +85,12 @@ abre o WhatsApp do próprio líder com a mensagem pronta e marca como avisado.
 sem líder com login, o ancião responsável) recebe uma notificação no celular
 com quem falta avisar (`/api/cron/tick`, chamado pelo keep-alive; roda uma vez
 por dia graças à tabela `execucoes_agendadas`).
+**Lembretes automáticos para associados:** cada associado tem um link pessoal
+(`/m/<token>`, sem login) que o líder envia pelo WhatsApp (ícone do sino na
+equipe). Ali a pessoa ativa as notificações no celular e confirma ("Confirmo" /
+"Não vou poder") os próximos dias. Quem ativou recebe o lembrete às 18h da
+véspera, fica marcado como avisado e sai da lista "para avisar" do líder. Uma
+recusa notifica o líder na hora.
 Todos veem; editam o líder do departamento e anciãos/pastor (RLS).
 
 ## Fora da v1

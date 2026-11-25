@@ -60,7 +60,7 @@ export function lembretesDeVespera(
   const porPessoa = new Map<string, PendentesDoDepartamento[]>();
   for (const p of pendentes) {
     if (!p.pessoas.length) continue;
-    const quem = p.lideres.length ? p.lideres : p.departamento.anciao_id ? [p.departamento.anciao_id] : [];
+    const quem = responsaveisDoDepartamento(p.lideres, p.departamento.anciao_id);
     for (const id of quem) porPessoa.set(id, [...(porPessoa.get(id) ?? []), p]);
   }
   const saida = new Map<string, { titulo: string; corpo: string; url: string; tag: string }>();
@@ -74,4 +74,40 @@ export function lembretesDeVespera(
     });
   }
   return saida;
+}
+
+/** Quem cuida da escala: os líderes com login ou, sem nenhum, o ancião responsável. */
+export function responsaveisDoDepartamento(lideres: string[], anciaoId: string | null): string[] {
+  return lideres.length ? lideres : anciaoId ? [anciaoId] : [];
+}
+
+/** Notificação automática para o associado na véspera do dia dele. */
+export function lembreteAssociado(opcoes: {
+  nome: string;
+  dia: Pick<EscalaDia, "data" | "horario" | "titulo">;
+  departamento: string;
+  token: string;
+  hoje: string;
+}) {
+  const { nome, dia, departamento, token, hoje } = opcoes;
+  const detalhes = [dia.titulo, dia.horario ? `às ${horaCurta(dia.horario)}` : null].filter(Boolean).join(", ");
+  const quando = quandoE(dia.data, hoje);
+  return {
+    titulo: `Escala de ${departamento}: ${quando}`,
+    corpo: `Olá, ${nome}! ${maiusculaInicial(quando)} é o seu dia${detalhes ? `: ${detalhes}` : ""}. Toque para confirmar.`,
+    url: `/m/${token}`,
+    tag: `escala-${token}-${dia.data}`,
+  };
+}
+
+/** Mensagem de WhatsApp com o link pessoal para o associado ativar os lembretes. */
+export function mensagemLinkLembretes(nome: string, departamento: string, link: string): string {
+  return (
+    `Olá, ${nome}! Para receber no celular os lembretes da escala de ${departamento} ` +
+    `(e confirmar os seus dias), abra este link e toque em "Ativar lembretes": ${link}`
+  );
+}
+
+function maiusculaInicial(t: string) {
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }

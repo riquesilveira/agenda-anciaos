@@ -117,6 +117,10 @@ export interface MembroDepartamento {
   nome: string;
   whatsapp: string | null;
   ativo: boolean;
+  /** Link pessoal do associado: /m/<token>. */
+  token: string;
+  /** Quando ativou os lembretes no celular (null = não ativou). */
+  lembretes_ativos_em: string | null;
 }
 
 /** Pessoa escalada num dia, com a função dela. */
@@ -127,6 +131,10 @@ export interface EscalaDiaPessoa {
   funcao: string | null;
   avisado_em: string | null;
   ordem: number;
+  resposta: "confirmado" | "recusado" | null;
+  respondido_em: string | null;
+  /** Quando o lembrete automático (notificação) foi entregue. */
+  lembrete_enviado_em: string | null;
   membro?: MembroDepartamento | null;
 }
 

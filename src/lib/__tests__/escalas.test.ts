@@ -1,5 +1,13 @@
 import { expect, it } from "vitest";
-import { lembretesDeVespera, mensagemAvisoEscala, quandoE, textoEscalaMes } from "../escalas";
+import {
+  lembreteAssociado,
+  lembretesDeVespera,
+  mensagemAvisoEscala,
+  mensagemLinkLembretes,
+  quandoE,
+  responsaveisDoDepartamento,
+  textoEscalaMes,
+} from "../escalas";
 
 it("quandoE", () => {
   expect(quandoE("2026-12-05", "2026-12-05")).toBe("hoje");
@@ -34,7 +42,7 @@ it("mensagem com data e sem função/título", () => {
 it("texto da escala do mês", () => {
   const t = textoEscalaMes("Música", "Dezembro de 2026", [
     { id: "1", departamento_id: "d", data: "2026-12-05", horario: "09:00", titulo: "Culto Divino", observacao: null,
-      pessoas: [{ id: "a", escala_dia_id: "1", membro_id: "m", funcao: "Teclado", avisado_em: null, ordem: 0, membro: { id: "m", departamento_id: "d", nome: "Pedro", whatsapp: null, ativo: true } }] },
+      pessoas: [{ id: "a", escala_dia_id: "1", membro_id: "m", funcao: "Teclado", avisado_em: null, ordem: 0, resposta: null, respondido_em: null, lembrete_enviado_em: null, membro: { id: "m", departamento_id: "d", nome: "Pedro", whatsapp: null, ativo: true, token: "t", lembretes_ativos_em: null } }] },
   ]);
   expect(t).toContain("*Escala de Música: Dezembro de 2026*");
   expect(t).toContain("• sábado, 5 de dezembro, 9h · Culto Divino\n  Pedro (Teclado)");
@@ -57,4 +65,28 @@ it("lembretes de véspera: líderes recebem; sem líder, o ancião", () => {
   });
   expect(r.get("h")?.titulo).toBe("Escala de amanhã: 1 pessoa para avisar");
   expect(r.has("j")).toBe(false);
+});
+
+it("lembrete automático do associado", () => {
+  expect(
+    lembreteAssociado({
+      nome: "Pedro",
+      dia: { data: "2026-12-06", horario: "09:00", titulo: "Culto Divino" },
+      departamento: "Música",
+      token: "abc",
+      hoje: "2026-12-05",
+    }),
+  ).toEqual({
+    titulo: "Escala de Música: amanhã",
+    corpo: "Olá, Pedro! Amanhã é o seu dia: Culto Divino, às 9h. Toque para confirmar.",
+    url: "/m/abc",
+    tag: "escala-abc-2026-12-06",
+  });
+});
+
+it("link de lembretes e responsáveis", () => {
+  expect(mensagemLinkLembretes("Lucas", "Diaconato", "https://x/m/t")).toContain("https://x/m/t");
+  expect(responsaveisDoDepartamento([], "h")).toEqual(["h"]);
+  expect(responsaveisDoDepartamento(["a"], "h")).toEqual(["a"]);
+  expect(responsaveisDoDepartamento([], null)).toEqual([]);
 });
