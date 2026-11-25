@@ -46,10 +46,10 @@ O de 2027 já está extraído em `dados/associacao-2027.json`.
 O site roda no Render; banco e login continuam no Supabase.
 
 1. No Render: **New > Blueprint**, escolha este repositório. O `render.yaml`
-   cria o serviço `agenda-anciaos` (plano free) e pede as variáveis do
+   cria o serviço `iasdagenda` (plano free) e pede as variáveis do
    `.env.example`. `CRON_SECRET` é gerado sozinho.
 2. Depois do primeiro deploy, preencha `NEXT_PUBLIC_APP_URL` com o endereço
-   do Render (ex: `https://agenda-anciaos.onrender.com`) e faça **Manual Deploy**.
+   do Render (ex: `https://iasdagenda.onrender.com`) e faça **Manual Deploy**.
    Variáveis `NEXT_PUBLIC_*` entram no build, então mudança nelas pede novo deploy.
 3. No Supabase: **Authentication > URL Configuration > Site URL** = o mesmo endereço.
 4. E-mail: crie uma conta no [Resend](https://resend.com), verifique o domínio

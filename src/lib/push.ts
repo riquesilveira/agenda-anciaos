@@ -12,7 +12,7 @@ function configurar() {
   if (configurado) return;
   webpush.setVapidDetails(
     // Identificação do remetente exigida pelos serviços de push (URL do site, sem e-mail pessoal).
-    process.env.NEXT_PUBLIC_APP_URL || "https://agenda-anciaos.onrender.com",
+    process.env.NEXT_PUBLIC_APP_URL || "https://iasdagenda.onrender.com",
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!,
   );

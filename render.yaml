@@ -2,10 +2,10 @@
 # As variáveis marcadas com sync: false são pedidas no painel na criação.
 services:
   - type: web
-    name: agenda-anciaos
+    name: iasdagenda
     runtime: node
     plan: free
-    region: oregon
+    region: virginia
     buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /login
