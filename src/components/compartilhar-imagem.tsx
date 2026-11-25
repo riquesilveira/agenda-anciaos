@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ImageDown, Share2 } from "lucide-react";
+import { ImageDown, Image as IconeImagem, MessageCircle, Share2 } from "lucide-react";
+import { linkWhatsapp } from "@/lib/resumo";
 
 export interface LinhaImagem {
   data: string; // yyyy-MM-dd
@@ -22,6 +23,7 @@ export function CompartilharImagem({
   linhas,
   arquivo,
   rotulo,
+  texto,
 }: {
   titulo: string;
   mes: string;
@@ -29,7 +31,10 @@ export function CompartilharImagem({
   linhas: LinhaImagem[];
   arquivo: string;
   rotulo: string;
+  /** Mesma escala em texto formatado para o WhatsApp. */
+  texto: string;
 }) {
+  const [menu, setMenu] = useState(false);
   const [estado, setEstado] = useState<"" | "gerando" | "baixada" | "erro">("");
   const quadro = useRef<HTMLDivElement>(null);
 
@@ -66,13 +71,37 @@ export function CompartilharImagem({
     <div className="space-y-1">
       <button
         type="button"
-        onClick={compartilhar}
+        onClick={() => setMenu((m) => !m)}
+        aria-expanded={menu}
         disabled={estado === "gerando"}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline disabled:opacity-60"
       >
         {estado === "baixada" ? <ImageDown size={16} /> : <Share2 size={16} />}
         {estado === "gerando" ? "Gerando a imagem…" : rotulo}
       </button>
+      {menu && (
+        <div className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setMenu(false);
+              compartilhar();
+            }}
+            className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <IconeImagem size={16} className="text-indigo-600" /> Imagem
+          </button>
+          <a
+            href={linkWhatsapp(null, texto)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenu(false)}
+            className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <MessageCircle size={16} className="text-emerald-600" /> Texto no WhatsApp
+          </a>
+        </div>
+      )}
       {estado === "baixada" && <p className="text-xs text-slate-500">Imagem baixada. É só anexar no WhatsApp.</p>}
       {estado === "erro" && <p className="text-xs text-red-600">Não foi possível gerar a imagem. Tente de novo.</p>}
 

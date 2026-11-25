@@ -33,16 +33,36 @@ export function mensagemAvisoEscala(opcoes: {
   );
 }
 
-/** Texto da escala do mês para compartilhar no grupo. */
-export function textoEscalaMes(departamento: string, mesNome: string, dias: EscalaDia[]): string {
-  const linhas = dias.map((d) => {
-    const quem = (d.pessoas ?? [])
-      .map((p) => `${p.membro?.nome ?? "?"}${p.funcao ? ` (${p.funcao})` : ""}`)
-      .join(", ");
-    const cab = `${dataLonga(d.data)}${d.horario ? `, ${horaCurta(d.horario)}` : ""}${d.titulo ? ` · ${d.titulo}` : ""}`;
-    return `• ${cab}\n  ${quem || "a definir"}`;
+const SEMANA_CURTA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+/**
+ * Escala do mês em texto para o WhatsApp: *negrito* nos dias, uma pessoa por
+ * linha, _itálico_ no mês e no "a definir".
+ */
+export function textoEscalaWhatsapp(opcoes: {
+  titulo: string; // "Escala de Música"
+  emoji: string; // 🎵 / 📖
+  marcador: string; // emoji antes de cada nome
+  mes: string; // "Novembro de 2026"
+  igreja: string;
+  linhas: { data: string; titulo: string; nomes: string[] }[];
+}): string {
+  const { titulo, emoji, marcador, mes, igreja, linhas } = opcoes;
+  const blocos = linhas.map((l) => {
+    const d = new Date(`${l.data}T12:00:00`);
+    const dia = `${SEMANA_CURTA[d.getDay()]}, ${l.data.slice(8)}/${l.data.slice(5, 7)}`;
+    const cabeca = `🗓️ *${dia}*${l.titulo ? ` · ${l.titulo}` : ""}`;
+    const nomes = l.nomes.length ? l.nomes.map((n) => `${marcador} ${n}`) : ["_a definir_"];
+    return [cabeca, ...nomes].join("\n");
   });
-  return [`🗓️ *Escala de ${departamento}: ${mesNome}*`, "", ...linhas].join("\n");
+  return [
+    `${emoji} *${titulo.toUpperCase()}*`,
+    `_${mes} · ${igreja}_`,
+    "",
+    ...(blocos.length ? blocos.flatMap((b, i) => (i ? ["", b] : [b])) : ["_Nenhum dia na escala deste mês._"]),
+    "",
+    "Qualquer imprevisto, me avise com antecedência. 🙏",
+  ].join("\n");
 }
 
 export interface PendentesDoDepartamento {

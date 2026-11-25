@@ -4,7 +4,7 @@ import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarDiasEscala, listarMembros, listarPerfis, listarProgramacoes, nomeDaIgreja } from "@/lib/consultas";
 import { hojeISO, horaCurta, maiuscula, nomeDoMes } from "@/lib/datas";
-import { fotosDosMembros } from "@/lib/escalas";
+import { fotosDosMembros, textoEscalaWhatsapp } from "@/lib/escalas";
 import { departamentosQueLidera, ehLideranca, podeEditarProgramacao } from "@/lib/permissoes";
 import { ultimoDiaDoMes } from "@/lib/resumo";
 import { exigirPerfil } from "@/lib/sessao";
@@ -59,17 +59,26 @@ export default async function EscalaDepartamento({
       podeAbrirOutros={ehLideranca(perfil)}
     />
   );
+  const linhasEscala = dias.map((d) => ({
+    data: d.data,
+    titulo: [d.titulo, d.horario ? horaCurta(d.horario) : null].filter(Boolean).join(" · "),
+    nomes: (d.pessoas ?? []).map((p) => `${p.membro?.nome ?? "?"}${p.funcao ? ` (${p.funcao})` : ""}`),
+  }));
   const compartilhar =
     dias.length > 0 ? (
       <CompartilharImagem
         titulo={`Escala de ${departamento.nome}`}
         mes={maiuscula(nomeDoMes(mes))}
         igreja={igreja}
-        linhas={dias.map((d) => ({
-          data: d.data,
-          titulo: [d.titulo, d.horario ? horaCurta(d.horario) : null].filter(Boolean).join(" · "),
-          nomes: (d.pessoas ?? []).map((p) => `${p.membro?.nome ?? "?"}${p.funcao ? ` (${p.funcao})` : ""}`),
-        }))}
+        linhas={linhasEscala}
+        texto={textoEscalaWhatsapp({
+          titulo: `Escala de ${departamento.nome}`,
+          emoji: "📋",
+          marcador: "👤",
+          mes: maiuscula(nomeDoMes(mes)),
+          igreja,
+          linhas: linhasEscala,
+        })}
         arquivo={`escala-${departamento.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-")}-${mes}.png`}
         rotulo="Compartilhar a escala"
       />

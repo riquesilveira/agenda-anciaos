@@ -9,7 +9,7 @@ import {
   mensagemLinkLembretes,
   quandoE,
   responsaveisDoDepartamento,
-  textoEscalaMes,
+  textoEscalaWhatsapp,
 } from "../escalas";
 
 it("quandoE", () => {
@@ -42,14 +42,35 @@ it("mensagem com data e sem função/título", () => {
   ).toBe("Olá, Lucas! Passando para lembrar que sábado, 12 de dezembro é o seu dia na escala de Diaconato. Conto com você!");
 });
 
-it("texto da escala do mês", () => {
-  const t = textoEscalaMes("Música", "Dezembro de 2026", [
-    { id: "1", departamento_id: "d", data: "2026-12-05", horario: "09:00", titulo: "Culto Divino", observacao: null,
-      pessoas: [{ id: "a", escala_dia_id: "1", membro_id: "m", funcao: "Teclado", avisado_em: null, ordem: 0, resposta: null, respondido_em: null, lembrete_enviado_em: null, membro: { id: "m", departamento_id: "d", nome: "Pedro", whatsapp: null, ativo: true, token: "t", lembretes_ativos_em: null, foto_url: null } }] },
-  ]);
-  expect(t).toContain("*Escala de Música: Dezembro de 2026*");
-  expect(t).toContain("• sábado, 5 de dezembro, 9h · Culto Divino\n  Pedro (Teclado)");
+it("texto da escala para o WhatsApp", () => {
+  const t = textoEscalaWhatsapp({
+    titulo: "Escala de Música",
+    emoji: "🎵",
+    marcador: "👤",
+    mes: "Dezembro de 2026",
+    igreja: "IASD Aeroporto",
+    linhas: [
+      { data: "2026-12-05", titulo: "Culto Divino · 9h", nomes: ["Pedro (Teclado)", "Ana"] },
+      { data: "2026-12-09", titulo: "", nomes: [] },
+    ],
+  });
+  expect(t).toBe(
+    [
+      "🎵 *ESCALA DE MÚSICA*",
+      "_Dezembro de 2026 · IASD Aeroporto_",
+      "",
+      "🗓️ *Sáb, 05/12* · Culto Divino · 9h",
+      "👤 Pedro (Teclado)",
+      "👤 Ana",
+      "",
+      "🗓️ *Qua, 09/12*",
+      "_a definir_",
+      "",
+      "Qualquer imprevisto, me avise com antecedência. 🙏",
+    ].join("\n"),
+  );
 });
+
 
 it("lembretes de véspera: líderes recebem; sem líder, o ancião", () => {
   const r = lembretesDeVespera(

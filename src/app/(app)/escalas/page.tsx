@@ -7,6 +7,7 @@ import { CompartilharImagem } from "@/components/compartilhar-imagem";
 import { CabecalhoMes, Moldura, TituloLateral } from "@/components/moldura";
 import { departamentosComEquipe, listarDepartamentos, listarEscala, listarPerfis, nomeDaIgreja } from "@/lib/consultas";
 import { hojeISO, maiuscula, nomeDoMes } from "@/lib/datas";
+import { textoEscalaWhatsapp } from "@/lib/escalas";
 import { departamentosQueLidera, ehLideranca } from "@/lib/permissoes";
 import { cultosComEspeciais, nomeDoCulto, siglasAnciaos } from "@/lib/pregacao";
 import { ultimoDiaDoMes } from "@/lib/resumo";
@@ -62,6 +63,10 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
       </li>
     </ul>
   );
+  const linhasEscala = cultos.map((c) => {
+    const e = porChave.get(`${c.data}|${c.culto}`);
+    return { data: c.data, titulo: nomeDoCulto({ culto: c.culto, titulo: e?.titulo }), nomes: e?.pregador_nome ? [e.pregador_nome] : [] };
+  });
   const resumo = (
     <div className="space-y-2 text-sm">
       <p>
@@ -71,9 +76,14 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
         titulo="Escala de pregação"
         mes={maiuscula(nomeDoMes(mes))}
         igreja={igreja}
-        linhas={cultos.map((c) => {
-          const e = porChave.get(`${c.data}|${c.culto}`);
-          return { data: c.data, titulo: nomeDoCulto({ culto: c.culto, titulo: e?.titulo }), nomes: e?.pregador_nome ? [e.pregador_nome] : [] };
+        linhas={linhasEscala}
+        texto={textoEscalaWhatsapp({
+          titulo: "Escala de pregação",
+          emoji: "📖",
+          marcador: "🎤",
+          mes: maiuscula(nomeDoMes(mes)),
+          igreja,
+          linhas: linhasEscala,
         })}
         arquivo={`escala-pregacao-${mes}.png`}
         rotulo="Compartilhar a escala"
