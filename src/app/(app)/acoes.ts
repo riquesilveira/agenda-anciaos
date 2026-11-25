@@ -307,10 +307,13 @@ export async function salvarInscricaoPush(inscricao: {
   endpoint: string;
   keys?: { p256dh?: string; auth?: string };
   aparelho?: string;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; erro?: string }> {
   const { supabase, perfil } = await exigirPerfil();
   const { endpoint, keys } = inscricao;
-  if (!endpoint?.startsWith("https://") || !keys?.p256dh || !keys?.auth) return { ok: false };
+  if (!endpoint?.startsWith("https://") || !keys?.p256dh || !keys?.auth) {
+    console.error("Inscrição push incompleta", perfil.id, inscricao.aparelho, Boolean(endpoint), Boolean(keys?.p256dh));
+    return { ok: false, erro: "o aparelho não enviou as chaves da notificação" };
+  }
   // Mesmo aparelho com outra pessoa logada: a inscrição passa a ser de quem está logado agora.
   await supabaseAdmin().from("push_inscricoes").delete().eq("endpoint", endpoint).neq("perfil_id", perfil.id);
   const { error } = await supabase.from("push_inscricoes").upsert(
@@ -323,7 +326,11 @@ export async function salvarInscricaoPush(inscricao: {
     },
     { onConflict: "endpoint" },
   );
-  return { ok: !error };
+  if (error) {
+    console.error("Falha ao salvar inscrição push", perfil.id, inscricao.aparelho, error);
+    return { ok: false, erro: `o servidor recusou (${error.code ?? error.message})` };
+  }
+  return { ok: true };
 }
 
 export async function removerInscricaoPush(endpoint: string): Promise<void> {

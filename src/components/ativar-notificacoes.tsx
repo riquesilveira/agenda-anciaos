@@ -75,7 +75,10 @@ export function AtivarNotificacoes({ modo }: { modo: "aviso" | "conta" }) {
         return setEstado("ativado");
       }
       setEstado("desativado");
-    })().catch(() => setEstado("sem-suporte"));
+    })().catch((e) => {
+      setEstado("sem-suporte");
+      setMensagem(`Erro ao preparar as notificações: ${e instanceof Error ? e.message : String(e)}`);
+    });
   }, [chavePublica]);
 
   async function ativar() {
@@ -92,17 +95,19 @@ export function AtivarNotificacoes({ modo }: { modo: "aviso" | "conta" }) {
       const inscricao =
         (await reg.pushManager.getSubscription()) ??
         (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chaveVapid(chavePublica!) }));
-      const { ok } = await salvarInscricaoPush({
+      const { ok, erro } = await salvarInscricaoPush({
         ...inscricao.toJSON(),
         endpoint: inscricao.endpoint,
         aparelho: nomeDoAparelho(),
       });
-      if (!ok) throw new Error("falha ao salvar");
+      if (!ok) throw new Error(erro ?? "falha ao salvar");
       setEstado("ativado");
       const { enviados } = await testarPush();
       setMensagem(enviados ? "Pronto! Enviamos uma notificação de teste." : "Ativado.");
-    } catch {
-      setMensagem("Não foi possível ativar neste aparelho. Tente de novo.");
+    } catch (e) {
+      // Mostra o motivo para dar para descobrir o problema por um print.
+      const motivo = e instanceof Error ? `${e.name !== "Error" ? e.name + ": " : ""}${e.message}` : String(e);
+      setMensagem(`Não foi possível ativar neste aparelho (${nomeDoAparelho()}). Motivo: ${motivo}`);
     } finally {
       setOcupado(false);
     }
