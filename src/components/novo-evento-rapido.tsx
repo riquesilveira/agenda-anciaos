@@ -16,8 +16,8 @@ import {
   Clock,
   Landmark,
   Users,
-  X,
 } from "lucide-react";
+import { CartaoFlutuante, posicaoPara, type Posicao } from "@/components/cartao-flutuante";
 import {
   salvarProgramacao,
   type EstadoFormProgramacao,
@@ -25,11 +25,9 @@ import {
 import { dataLonga, horaCurta, maiuscula, periodoCurto } from "@/lib/datas";
 import { ORIGENS, type Departamento, type Origem } from "@/lib/tipos";
 
-const LARGURA = 336;
-
 /**
- * Cadastro rápido (computador): clicar num dia do calendário abre este cartão
- * ao lado do dia. As células marcam o dia com data-novo-dia="yyyy-MM-dd".
+ * Cadastro rápido: clicar num dia do calendário abre este cartão ao lado do
+ * dia (no celular, sobe de baixo). As células marcam o dia com data-novo-dia="yyyy-MM-dd".
  * Usa a mesma ação do formulário completo (conflito continua sendo só aviso).
  */
 export function NovoEventoRapido({
@@ -41,8 +39,10 @@ export function NovoEventoRapido({
 }) {
   const [aberto, setAberto] = useState<{
     data: string;
-    x: number;
-    y: number;
+    celula: HTMLElement;
+    posicao: Posicao;
+    linkDia: string | null;
+    qtd: number;
   } | null>(null);
   const [estado, acao, enviando] = useActionState<
     EstadoFormProgramacao,
@@ -57,20 +57,18 @@ export function NovoEventoRapido({
       const alvo = e.target as HTMLElement;
       if (cartao.current?.contains(alvo)) return;
       const celula = alvo.closest<HTMLElement>("[data-novo-dia]");
-      // Clique em evento (link) segue para o evento; no celular o dia abre a lista.
-      if (
-        !celula ||
-        alvo.closest("a") ||
-        !window.matchMedia("(min-width: 640px)").matches
-      ) {
-        if (aberto && !alvo.closest("[data-novo-dia]")) setAberto(null);
+      // Clique em evento (link) segue para o evento.
+      if (!celula || alvo.closest("a")) {
+        if (aberto && !celula) setAberto(null);
         return;
       }
-      const r = celula.getBoundingClientRect();
-      const direita = r.right + 8 + LARGURA < window.innerWidth;
-      const x = direita ? r.right + 8 : Math.max(8, r.left - 8 - LARGURA);
-      const y = Math.max(72, Math.min(r.top, window.innerHeight - 520));
-      setAberto({ data: celula.dataset.novoDia!, x, y });
+      setAberto({
+        data: celula.dataset.novoDia!,
+        celula,
+        posicao: posicaoPara(celula, 520),
+        linkDia: celula.dataset.linkDia ?? null,
+        qtd: Number(celula.dataset.qtd ?? 0),
+      });
       setChave((k) => k + 1);
     }
     function aoTeclar(e: KeyboardEvent) {
@@ -89,24 +87,22 @@ export function NovoEventoRapido({
     "flex w-full items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-xs transition hover:border-slate-300 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/15";
 
   return (
-    <div
-      ref={cartao}
-      role="dialog"
-      aria-label="Nova programação"
-      style={{ left: aberto.x, top: aberto.y, width: LARGURA }}
-      className="fixed z-40 rounded-2xl border border-slate-200 bg-white shadow-2xl"
+    <CartaoFlutuante
+      posicao={aberto.posicao}
+      celula={aberto.celula}
+      titulo="Nova programação"
+      subtitulo={
+        aberto.qtd > 0 && aberto.linkDia ? (
+          <Link href={aberto.linkDia} onClick={() => setAberto(null)} className="font-medium text-indigo-700 hover:underline">
+            Ver {aberto.qtd === 1 ? "a programação" : `as ${aberto.qtd} programações`} deste dia
+          </Link>
+        ) : (
+          maiuscula(dataLonga(aberto.data))
+        )
+      }
+      aoFechar={() => setAberto(null)}
+      cartaoRef={cartao}
     >
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-        <h2 className="font-semibold text-slate-900">Nova programação</h2>
-        <button
-          type="button"
-          onClick={() => setAberto(null)}
-          className="rounded-md p-1 text-slate-500 hover:bg-slate-100"
-          aria-label="Fechar"
-        >
-          <X size={18} />
-        </button>
-      </div>
       <form
         key={chave}
         onSubmit={(e) => {
@@ -121,7 +117,7 @@ export function NovoEventoRapido({
         <input
           name="titulo"
           required
-          autoFocus
+          autoFocus={aberto.posicao.modo === "flutuante"}
           placeholder="Nome da programação"
           className="w-full rounded-xl border border-indigo-500 px-3.5 py-2.5 text-sm shadow-xs ring-4 ring-indigo-500/15 outline-none placeholder:text-slate-400"
         />
@@ -259,6 +255,6 @@ export function NovoEventoRapido({
           </div>
         </div>
       </form>
-    </div>
+    </CartaoFlutuante>
   );
 }

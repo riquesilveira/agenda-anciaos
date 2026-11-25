@@ -694,6 +694,7 @@ export async function definirPregador(_anterior: EstadoPregacao, form: FormData)
     observacoes: texto(form, "observacoes"),
     status: pregador ? "confirmado" : "a_convidar",
     titulo,
+    horario: texto(form, "horario"),
   } as const;
 
   const { data: existente } = await supabase

@@ -3,14 +3,13 @@
 import { useRouter } from "next/navigation";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AlignLeft, Church, MessageCircle, Mic, X } from "lucide-react";
+import { AlignLeft, Church, Clock, MessageCircle, Mic } from "lucide-react";
+import { CartaoFlutuante, posicaoPara, type Posicao } from "@/components/cartao-flutuante";
 import { definirPregador, type EstadoPregacao } from "@/app/(app)/acoes";
 import { dataLonga, maiuscula } from "@/lib/datas";
 import { CULTOS, mensagemConvite, mensagemLembrete } from "@/lib/pregacao";
 import { linkWhatsapp } from "@/lib/resumo";
 import type { CultoPregacao } from "@/lib/tipos";
-
-const LARGURA = 336;
 
 export interface PregacaoDoDia {
   data: string;
@@ -22,6 +21,7 @@ export interface PregacaoDoDia {
   responsavel: string | null;
   pregador_whatsapp: string | null;
   tema: string | null;
+  horario: string | null;
 }
 
 /**
@@ -39,7 +39,7 @@ export function NovoPregadorRapido({
   remetente: { nome: string; papel: "anciao" | "pastor" | "lider"; tratamento?: string | null };
 }) {
   const router = useRouter();
-  const [aberto, setAberto] = useState<{ data: string; x: number; y: number } | null>(null);
+  const [aberto, setAberto] = useState<{ data: string; celula: HTMLElement; posicao: Posicao } | null>(null);
   const [culto, setCulto] = useState<CultoPregacao>("especial");
   const [chave, setChave] = useState(0);
   const [estado, acao, salvando] = useActionState<EstadoPregacao, FormData>(definirPregador, {});
@@ -68,18 +68,13 @@ export function NovoPregadorRapido({
         if (aberto && !celula) setAberto(null);
         return;
       }
-      const r = celula.getBoundingClientRect();
-      const largura = Math.min(LARGURA, window.innerWidth - 16);
-      let x = r.right + 8 + largura < window.innerWidth ? r.right + 8 : r.left - 8 - largura;
-      x = Math.max(8, Math.min(x, window.innerWidth - largura - 8));
-      const y = Math.max(72, Math.min(r.top, window.innerHeight - 470));
       const data = celula.dataset.pregacaoDia!;
       const opcoes = opcoesDoDia(data);
       // Clicou no nome de um pregador: abre aquele culto. Senão, sugere o culto livre do dia.
       const clicado = alvo.closest<HTMLElement>("[data-pregacao-culto]")?.dataset.pregacaoCulto as CultoPregacao | undefined;
       const livre = opcoes.find((c) => !existentes.some((x) => x.data === data && x.culto === c && x.pregador_nome));
       setCulto(clicado ?? livre ?? opcoes[0]);
-      setAberto({ data, x, y });
+      setAberto({ data, celula, posicao: posicaoPara(celula, 470) });
       setChave((k) => k + 1);
     }
     function aoTeclar(e: KeyboardEvent) {
@@ -99,22 +94,14 @@ export function NovoPregadorRapido({
   const deOutro = existente && !existente.meu;
 
   return (
-    <div
-      ref={cartao}
-      role="dialog"
-      aria-label="Pregador"
-      style={{ left: aberto.x, top: aberto.y, width: Math.min(LARGURA, typeof window !== "undefined" ? window.innerWidth - 16 : LARGURA) }}
-      className="fixed z-40 rounded-2xl border border-slate-200 bg-white shadow-2xl"
+    <CartaoFlutuante
+      posicao={aberto.posicao}
+      celula={aberto.celula}
+      titulo={existente?.pregador_nome ? "Editar pregador" : "Pregador"}
+      subtitulo={maiuscula(dataLonga(aberto.data))}
+      aoFechar={() => setAberto(null)}
+      cartaoRef={cartao}
     >
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-        <div>
-          <h2 className="font-semibold text-slate-900">{existente?.pregador_nome ? "Editar pregador" : "Pregador"}</h2>
-          <p className="text-xs text-slate-500">{maiuscula(dataLonga(aberto.data))}</p>
-        </div>
-        <button type="button" onClick={() => setAberto(null)} className="rounded-md p-1 text-slate-500 hover:bg-slate-100" aria-label="Fechar">
-          <X size={18} />
-        </button>
-      </div>
       <form
         key={`${chave}-${culto}`}
         onSubmit={(e) => {
@@ -169,10 +156,20 @@ export function NovoPregadorRapido({
               <span className="sr-only">Nome do pregador</span>
               <input
                 name="pregador_nome"
-                autoFocus={culto !== "especial"}
+                autoFocus={culto !== "especial" && aberto.posicao.modo === "flutuante"}
                 defaultValue={existente?.pregador_nome ?? ""}
                 placeholder="Nome do pregador"
                 className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
+              />
+            </label>
+            <label className={campo}>
+              <Clock size={16} className="shrink-0 text-slate-500" />
+              <span className="sr-only">Horário</span>
+              <input
+                name="horario"
+                type="time"
+                defaultValue={existente?.horario?.slice(0, 5) ?? ""}
+                className="w-full min-w-0 bg-transparent outline-none"
               />
             </label>
             <label className={`${campo} items-start`}>
@@ -228,6 +225,6 @@ export function NovoPregadorRapido({
           )}
         </div>
       </form>
-    </div>
+    </CartaoFlutuante>
   );
 }

@@ -39,12 +39,14 @@ export function CalendarioMes({
             <div
               key={d}
               data-novo-dia={podeCriar ? d : undefined}
+              data-link-dia={podeCriar ? linkDoDia(d) : undefined}
+              data-qtd={podeCriar ? doDia.length : undefined}
               className={`group relative ${podeCriar ? "sm:cursor-pointer sm:hover:bg-slate-50/70" : ""} min-h-[4rem] border-r border-b border-slate-200/80 p-1 sm:min-h-32 sm:p-2 [&:nth-child(7n)]:border-r-0 ${
                 selecionado ? "z-10 bg-indigo-50/60 ring-2 ring-indigo-500 ring-inset" : ""
               }`}
             >
               {/* celular: tocar no dia mostra a lista dele logo abaixo */}
-              <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
+              {!podeCriar && <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />}
 
               <div className="mb-1 flex items-center justify-center sm:mb-2 sm:justify-between">
                 <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />

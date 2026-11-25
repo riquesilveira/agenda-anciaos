@@ -60,7 +60,7 @@ export function NavInferior({ novidades }: { novidades: number }) {
   const caminho = usePathname();
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-slate-200 bg-white/95 shadow-[0_-2px_10px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
+      className="nav-inferior fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-slate-200 bg-white/95 shadow-[0_-2px_10px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {LINKS.map(({ href, curto, icone: Icone }) => {

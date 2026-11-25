@@ -128,6 +128,8 @@ export interface Pregacao {
   culto: CultoPregacao;
   /** Nome do culto especial (ex: Semana de Oração). */
   titulo: string | null;
+  /** Horário do culto (opcional). */
+  horario: string | null;
   anciao_id: string;
   pregador_nome: string | null;
   pregador_whatsapp: string | null;
