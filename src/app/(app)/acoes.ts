@@ -250,6 +250,13 @@ export async function trocarIgreja(igrejaId: string) {
   redirect("/");
 }
 
+/** Programações de um período (o calendário busca os meses vizinhos em segundo plano). RLS. */
+export async function programacoesDoPeriodo(de: string, ate: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(de) || !/^\d{4}-\d{2}-\d{2}$/.test(ate)) return [];
+  const { supabase } = await exigirPerfil();
+  return listarProgramacoes(supabase, de, ate);
+}
+
 export interface EstadoConvite {
   erro?: string;
   link?: string;

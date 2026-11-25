@@ -17,6 +17,7 @@ export function CalendarioMes({
   diaSelecionado,
   linkDoDia,
   podeCriar = false,
+  aoEscolherDia,
 }: {
   dias: string[]; // yyyy-MM-dd, semanas completas
   porDia: Map<string, Programacao[]>;
@@ -26,6 +27,8 @@ export function CalendarioMes({
   linkDoDia: (dia: string) => string;
   /** Computador: clicar no dia abre o cadastro rápido (NovoEventoRapido). */
   podeCriar?: boolean;
+  /** Seleciona o dia na hora (sem recarregar); sem isto, usa o link. */
+  aoEscolherDia?: (dia: string) => void;
 }) {
   return (
     <div>
@@ -47,7 +50,11 @@ export function CalendarioMes({
             >
               {/* celular: tocar no dia mostra a lista dele logo abaixo */}
               {/* celular: tocar no dia seleciona e mostra a lista dele (o "+" abre o cadastro) */}
-              <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
+              {aoEscolherDia ? (
+                <button type="button" onClick={() => aoEscolherDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
+              ) : (
+                <Link href={linkDoDia(d)} className="absolute inset-0 sm:hidden" aria-label={`Ver ${dataLonga(d)}`} />
+              )}
 
               <div className="mb-1 flex items-center justify-center sm:mb-2 sm:justify-between">
                 <NumeroDia dia={d} hoje={hoje} foraDoMes={foraDoMes} />
@@ -85,11 +92,23 @@ export function CalendarioMes({
                     {p.titulo}
                   </Link>
                 ))}
-                {doDia.length > 3 && (
-                  <Link href={linkDoDia(d)} className="block px-2 text-xs font-medium text-slate-500 hover:text-indigo-700">
-                    +{doDia.length - 3} mais
-                  </Link>
-                )}
+                {doDia.length > 3 &&
+                  (aoEscolherDia ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        aoEscolherDia(d);
+                      }}
+                      className="block px-2 text-xs font-medium text-slate-500 hover:text-indigo-700"
+                    >
+                      +{doDia.length - 3} mais
+                    </button>
+                  ) : (
+                    <Link href={linkDoDia(d)} className="block px-2 text-xs font-medium text-slate-500 hover:text-indigo-700">
+                      +{doDia.length - 3} mais
+                    </Link>
+                  ))}
               </div>
             </div>
           );

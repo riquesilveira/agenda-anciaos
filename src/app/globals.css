@@ -66,3 +66,31 @@ body[data-folha-aberta] .nav-inferior {
 .animate-subir {
   animation: subir 0.18s ease-out;
 }
+
+/* Troca de mês no calendário: o mês novo entra deslizando. */
+@keyframes entrar-direita {
+  from {
+    transform: translateX(32px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes entrar-esquerda {
+  from {
+    transform: translateX(-32px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.animate-entrar-direita {
+  animation: entrar-direita 0.2s ease-out;
+}
+.animate-entrar-esquerda {
+  animation: entrar-esquerda 0.2s ease-out;
+}

@@ -1,27 +1,19 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { Departamento } from "@/lib/tipos";
 
-/** Escolher o departamento já filtra (sem botão). */
+/** Escolher o departamento já filtra (sem botão, sem recarregar a página). */
 export function FiltroDepartamento({
   departamentos,
   valor,
-  linkBase,
+  aoMudar,
 }: {
   departamentos: Pick<Departamento, "id" | "nome" | "sigla">[];
   valor: string;
-  /** URL atual sem o parâmetro dep (termina em "?" ou "&"). */
-  linkBase: string;
+  aoMudar: (dep: string) => void;
 }) {
-  const router = useRouter();
   return (
-    <select
-      aria-label="Departamento"
-      value={valor}
-      onChange={(e) => router.push(e.target.value ? `${linkBase}dep=${e.target.value}` : linkBase.replace(/[?&]$/, ""))}
-      className="campo"
-    >
+    <select aria-label="Departamento" value={valor} onChange={(e) => aoMudar(e.target.value)} className="campo">
       <option value="">Todos os departamentos</option>
       <option value="meus">⭐ Meus departamentos</option>
       {departamentos.map((d) => (

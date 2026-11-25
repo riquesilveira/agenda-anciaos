@@ -25,10 +25,14 @@ export function TituloLateral({ children }: { children: React.ReactNode }) {
 export function CabecalhoMes({
   mes,
   link,
+  aoMudar,
   direita,
 }: {
   mes: string; // yyyy-MM
-  link: (mes: string) => string;
+  /** Navega por URL (páginas do servidor)… */
+  link?: (mes: string) => string;
+  /** …ou troca na hora, no próprio aparelho (calendário). */
+  aoMudar?: (mes: string) => void;
   direita?: React.ReactNode;
 }) {
   const inicio = parseISO(`${mes}-01`);
@@ -40,12 +44,24 @@ export function CabecalhoMes({
           {nomeMes} <span className="font-normal text-slate-500">{ano}</span>
         </h1>
         <div className="flex items-center">
-          <Link href={link(format(addMonths(inicio, -1), "yyyy-MM"))} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Mês anterior">
-            <ChevronLeft size={20} />
-          </Link>
-          <Link href={link(format(addMonths(inicio, 1), "yyyy-MM"))} className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100" aria-label="Próximo mês">
-            <ChevronRight size={20} />
-          </Link>
+          {(
+            [
+              [-1, "Mês anterior", <ChevronLeft key="a" size={20} />],
+              [1, "Próximo mês", <ChevronRight key="p" size={20} />],
+            ] as const
+          ).map(([passo, rotulo, icone]) => {
+            const alvo = format(addMonths(inicio, passo), "yyyy-MM");
+            const classe = "rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 active:bg-slate-200";
+            return aoMudar ? (
+              <button key={passo} type="button" onClick={() => aoMudar(alvo)} className={classe} aria-label={rotulo}>
+                {icone}
+              </button>
+            ) : (
+              <Link key={passo} href={link!(alvo)} className={classe} aria-label={rotulo}>
+                {icone}
+              </Link>
+            );
+          })}
         </div>
       </div>
       {direita}
