@@ -194,16 +194,24 @@ export async function sair() {
   redirect("/login");
 }
 
-export async function salvarMeuPerfil(form: FormData) {
+export async function salvarMeuPerfil(
+  _anterior: { ok?: boolean; erro?: string },
+  form: FormData,
+): Promise<{ ok?: boolean; erro?: string }> {
   const { supabase, perfil } = await exigirPerfil();
   const nome = texto(form, "nome");
-  if (!nome) return;
+  if (!nome) return { erro: "Informe seu nome." };
   // Só o próprio perfil (id da sessão); papel e igreja não são editáveis (grant por coluna).
-  await supabase
+  const { error } = await supabase
     .from("perfis")
     .update({ nome, tratamento: texto(form, "tratamento"), whatsapp: texto(form, "whatsapp") })
     .eq("id", perfil.id);
+  if (error) {
+    console.error("Falha ao salvar perfil", perfil.id, error);
+    return { erro: "Não foi possível salvar. Tente de novo." };
+  }
   revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 export interface EstadoConvite {

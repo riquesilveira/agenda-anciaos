@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, BellOff, Share, X } from "lucide-react";
 import { removerInscricaoPush, salvarInscricaoPush, testarPush } from "@/app/(app)/acoes";
+import { ehVersaoAntiga, recarregarUmaVez } from "@/components/versao-nova";
 
 type Estado =
   | "carregando"
@@ -105,6 +106,7 @@ export function AtivarNotificacoes({ modo }: { modo: "aviso" | "conta" }) {
       const { enviados } = await testarPush();
       setMensagem(enviados ? "Pronto! Enviamos uma notificação de teste." : "Ativado.");
     } catch (e) {
+      if (ehVersaoAntiga(e) && recarregarUmaVez()) return;
       // Mostra o motivo para dar para descobrir o problema por um print.
       const motivo = e instanceof Error ? `${e.name !== "Error" ? e.name + ": " : ""}${e.message}` : String(e);
       setMensagem(`Não foi possível ativar neste aparelho (${nomeDoAparelho()}). Motivo: ${motivo}`);

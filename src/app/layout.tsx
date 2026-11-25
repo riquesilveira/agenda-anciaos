@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { VersaoNova } from "@/components/versao-nova";
 
 export const metadata: Metadata = {
   title: "Agenda dos Anciãos",
@@ -17,7 +18,10 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <VersaoNova />
+        {children}
+      </body>
     </html>
   );
 }
