@@ -190,7 +190,7 @@ export function QuadroEscala({
               <h2 className="font-semibold">Equipe de {departamento.nome}</h2>
               <p className="text-xs text-slate-500">
                 <span className="hidden lg:inline">Arraste um nome até o dia do calendário.</span>
-                <span className="lg:hidden">Toque num nome e depois no dia.</span>
+                <span className="lg:hidden">Toque no dia e escolha quem vai.</span>
               </p>
             </div>
             <ul className="flex flex-wrap gap-2 lg:flex-col">
@@ -385,6 +385,7 @@ export function QuadroEscala({
                     onClick={() => {
                       if (!doMes) return;
                       if (selecionado && podeEditar) escalar(data, selecionado);
+                      else if (window.innerWidth < 1024) abrirDia(data); // celular: rola até o painel do dia
                       else {
                         setAberto(data);
                         setFila(null);
@@ -611,10 +612,39 @@ export function QuadroEscala({
                 })}
                 {pessoasDoDia(aberto).length === 0 && (
                   <li className="rounded-lg border border-dashed border-slate-200 px-2 py-3 text-center text-xs text-slate-400">
-                    {podeEditar ? "Arraste (ou toque) um nome da equipe para este dia." : "Ninguém escalado neste dia."}
+                    {podeEditar ? "Ninguém escalado ainda. Escolha abaixo quem vai." : "Ninguém escalado neste dia."}
                   </li>
                 )}
               </ul>
+
+              {/* Escalar tocando no nome (no celular não dá para arrastar). */}
+              {podeEditar && (() => {
+                const livres = membros.filter((m) => !pessoasDoDia(aberto).some((p) => p.membro_id === m.id));
+                if (!membros.length) return null;
+                return (
+                  <div className="space-y-2 border-t border-slate-100 pt-3">
+                    <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Adicionar à escala</p>
+                    {livres.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {livres.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => escalar(aberto, m.id)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pr-3 pl-1 text-sm text-slate-700 shadow-xs transition hover:border-indigo-300 hover:bg-indigo-50 active:scale-95"
+                          >
+                            <Avatar nome={m.nome} foto={m.foto_url} tamanho={24} />
+                            {m.nome}
+                            <Plus size={14} className="text-indigo-600" />
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400">Toda a equipe já está neste dia.</p>
+                    )}
+                  </div>
+                );
+              })()}
             </section>
           )}
     </div>
