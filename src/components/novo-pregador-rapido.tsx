@@ -229,13 +229,16 @@ export function NovoPregadorRapido({
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => abrirCulto(diaCelular, livre ?? "especial")}
-              className="botao w-full py-2.5"
-            >
-              <Plus size={16} /> Adicionar pregador
-            </button>
+            {/* Só quando o dia ainda não tem nenhum pregador (senão, é "Editar" no culto). */}
+            {!existentes.some((x) => x.data === diaCelular && x.pregador_nome) && (
+              <button
+                type="button"
+                onClick={() => abrirCulto(diaCelular, livre ?? "especial")}
+                className="botao w-full py-2.5"
+              >
+                <Plus size={16} /> Adicionar pregador
+              </button>
+            )}
           </div>
         );
       })()
