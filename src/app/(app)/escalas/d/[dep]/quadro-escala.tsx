@@ -572,12 +572,9 @@ export function QuadroEscala({
                       {p.resposta === "recusado" && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">Não vai poder</span>
                       )}
-                      {!p.resposta && (p.lembrete_enviado_em || automatico(p)) && (
-                        <span
-                          title={p.lembrete_enviado_em ? "Lembrete automático entregue" : "Recebe o lembrete automático na véspera, às 18h"}
-                          className="inline-flex items-center gap-0.5 text-[11px] text-slate-500"
-                        >
-                          <Bell size={11} /> {p.lembrete_enviado_em ? "lembrete enviado" : "automático"}
+                      {!p.resposta && p.lembrete_enviado_em && (
+                        <span title="Lembrete automático entregue" className="inline-flex items-center gap-0.5 text-[11px] text-slate-500">
+                          <Bell size={11} /> lembrete enviado
                         </span>
                       )}
                       {podeEditar && (
