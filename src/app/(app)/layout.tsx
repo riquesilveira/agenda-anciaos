@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
+import { Suspense } from "react";
 import { AtivarNotificacoes } from "@/components/ativar-notificacoes";
+import { LembrarPagina } from "@/components/lembrar-pagina";
 import { BotaoNova } from "@/components/botao-nova";
 import { NavInferior, NavTopo } from "@/components/navegacao";
 import { SeletorIgreja } from "@/components/seletor-igreja";
@@ -45,6 +47,9 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
         </div>
       </header>
       <AtivarNotificacoes modo="aviso" />
+      <Suspense>
+        <LembrarPagina />
+      </Suspense>
 
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
 
