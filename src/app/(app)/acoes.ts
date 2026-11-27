@@ -352,6 +352,19 @@ async function gerarConviteLider(
   return { link, nome, whatsapp, departamento: dep.nome };
 }
 
+/** Aprova o pedido de acesso de ancião feito pelo link de entrada. Só anciãos/pastor. */
+export async function aprovarAnciao(form: FormData) {
+  const { supabase, perfil } = await exigirPerfil();
+  if (!ehLideranca(perfil)) return;
+  // Cliente com sessão: o RLS só deixa ver perfis da própria igreja.
+  const { data: alvo } = await supabase.from("perfis").select("id, pedido_anciao_em").eq("id", String(form.get("perfil_id"))).maybeSingle();
+  if (!alvo?.pedido_anciao_em) return;
+  // papel não é editável pelo usuário (grant por coluna): grava com a chave de servidor.
+  const { error } = await supabaseAdmin().from("perfis").update({ papel: "anciao", pedido_anciao_em: null }).eq("id", alvo.id);
+  if (error) console.error("Falha ao aprovar ancião", error);
+  revalidatePath("/", "layout");
+}
+
 /**
  * Remove o acesso de um líder (apaga o usuário). Só anciãos/pastor, só para
  * líderes da própria igreja. As programações que ele cadastrou continuam.
@@ -360,8 +373,13 @@ export async function removerAcesso(form: FormData) {
   const { supabase, perfil } = await exigirPerfil();
   if (!ehLideranca(perfil)) return;
   // Cliente com sessão: o RLS só deixa ver perfis da própria igreja.
-  const { data: alvo } = await supabase.from("perfis").select("id, papel").eq("id", String(form.get("perfil_id"))).maybeSingle();
-  if (!alvo || alvo.papel !== "lider" || alvo.id === perfil.id) return;
+  const { data: alvo } = await supabase
+    .from("perfis")
+    .select("id, papel, entrou_pelo_link_em")
+    .eq("id", String(form.get("perfil_id")))
+    .maybeSingle();
+  // Líderes, ou quem entrou sozinho pelo link (inclusive como ancião).
+  if (!alvo || alvo.id === perfil.id || (alvo.papel !== "lider" && !alvo.entrou_pelo_link_em)) return;
   const { error } = await supabaseAdmin().auth.admin.deleteUser(alvo.id);
   if (error) console.error("Falha ao remover acesso", error);
   revalidatePath("/", "layout");

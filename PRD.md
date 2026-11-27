@@ -140,6 +140,10 @@ lidera e cria o acesso (e-mail/senha ou Google, quando ligado no Supabase); entr
 na hora como líder. O ancionato daquela igreja recebe uma notificação e vê
 "Entraram pelo link" em Departamentos, com "Remover acesso". O card em
 Departamentos manda o link já com a igreja escolhida (`/entrar?igreja=<id>`).
+No link a pessoa escolhe "Líder de departamento" ou "Ancião". Ancião entra
+direto só se a igreja ainda não tem ancião/pastor; senão entra como líder com
+`perfis.pedido_anciao_em`, e um ancião/pastor aprova em Departamentos
+("Aprovar como ancião").
 O convite individual continua existindo.
 Todos veem; editam o líder do departamento e anciãos/pastor (RLS).
 

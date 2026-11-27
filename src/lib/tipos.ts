@@ -61,6 +61,8 @@ export interface Perfil {
   entrou_pelo_link_em: string | null;
   /** Foto (Storage "fotos"/perfis/<id>.jpg). */
   foto_url: string | null;
+  /** Pediu acesso de ancião pelo link de entrada (aguarda aprovação). */
+  pedido_anciao_em: string | null;
   /** Cor na grade da escala (laranja, verde_escuro, rosa…). */
   cor: string | null;
 }

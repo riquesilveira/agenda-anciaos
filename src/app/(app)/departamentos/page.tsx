@@ -5,7 +5,7 @@ import { listarDepartamentos, listarPerfis } from "@/lib/consultas";
 import { ehLideranca } from "@/lib/permissoes";
 import { exigirPerfil } from "@/lib/sessao";
 import type { Departamento, Perfil } from "@/lib/tipos";
-import { excluirDepartamento, removerAcesso, removerLider } from "../acoes";
+import { aprovarAnciao, excluirDepartamento, removerAcesso, removerLider } from "../acoes";
 import { LinkEntrada } from "./link-entrada";
 import { ConvidarLider } from "./convidar-lider";
 import { EditarDepartamento, NovoDepartamento } from "./form-departamento";
@@ -93,7 +93,7 @@ export default async function PaginaDepartamentos() {
   // Quem entrou sozinho pelo link nos últimos 60 dias (para conferir).
   const limite = new Date(Date.now() - 60 * 86_400_000).toISOString();
   const entradas = todos
-    .filter((p) => p.papel === "lider" && p.entrou_pelo_link_em && p.entrou_pelo_link_em >= limite)
+    .filter((p) => p.entrou_pelo_link_em && (p.entrou_pelo_link_em >= limite || p.pedido_anciao_em))
     .sort((a, b) => b.entrou_pelo_link_em!.localeCompare(a.entrou_pelo_link_em!));
   const depsDe = (id: string) => departamentos.filter((d) => d.lideres?.some((l) => l.perfil_id === id)).map((d) => d.nome);
 
@@ -120,11 +120,28 @@ export default async function PaginaDepartamentos() {
             {entradas.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
                 <span className="font-medium">{p.nome}</span>
-                <span className="text-slate-500">{depsDe(p.id).join(", ") || "sem departamento"}</span>
+                {p.pedido_anciao_em ? (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">pediu acesso de ancião</span>
+                ) : p.papel !== "lider" ? (
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800">ancião</span>
+                ) : (
+                  <span className="text-slate-500">{depsDe(p.id).join(", ") || "sem departamento"}</span>
+                )}
                 <span className="text-xs text-slate-400">
                   {new Date(p.entrou_pelo_link_em!).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {p.email}
                 </span>
-                <form action={removerAcesso} className="ml-auto">
+                {p.pedido_anciao_em && (
+                  <form action={aprovarAnciao} className="ml-auto">
+                    <input type="hidden" name="perfil_id" value={p.id} />
+                    <BotaoConfirmar
+                      mensagem={`Dar acesso de ancião para ${p.nome}? Ancião pode tudo na igreja (programações, departamentos, escalas).`}
+                      className="rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-indigo-700"
+                    >
+                      Aprovar como ancião
+                    </BotaoConfirmar>
+                  </form>
+                )}
+                <form action={removerAcesso} className={p.pedido_anciao_em ? "" : "ml-auto"}>
                   <input type="hidden" name="perfil_id" value={p.id} />
                   <BotaoConfirmar
                     mensagem={`Remover o acesso de ${p.nome}? A pessoa não consegue mais entrar no sistema.`}

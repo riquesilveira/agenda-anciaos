@@ -43,7 +43,7 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
           <div className="space-y-2">
             <h1 className="text-3xl leading-tight font-bold lg:text-4xl">Bem-vindo ao 7Líder</h1>
             <p className="text-indigo-100">
-              Crie seu acesso de líder para montar as escalas da sua equipe e cadastrar as programações do seu departamento.
+              Crie seu acesso de líder ou ancião para acompanhar a agenda da igreja, montar as escalas e cadastrar as programações.
             </p>
           </div>
           <ul className="hidden space-y-2.5 text-sm text-indigo-50 lg:block">

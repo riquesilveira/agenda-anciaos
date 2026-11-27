@@ -5,9 +5,9 @@ import { hojeISO } from "../datas";
 import { dddDe, gerarResumo, linkWhatsapp, mensagemParaLider, normalizarWhatsapp, prepararWhatsapp } from "../resumo";
 import type { Departamento, Perfil, Programacao } from "../tipos";
 
-const henrique: Perfil = { id: "a1", igreja_id: "i", nome: "Henrique", papel: "anciao", email: "h@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null };
-const outro: Perfil = { id: "a2", igreja_id: "i", nome: "Paulo", papel: "anciao", email: "p@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null };
-const pastor: Perfil = { id: "p1", igreja_id: "i", nome: "Marcos", papel: "pastor", email: "m@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null };
+const henrique: Perfil = { id: "a1", igreja_id: "i", nome: "Henrique", papel: "anciao", email: "h@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null, pedido_anciao_em: null };
+const outro: Perfil = { id: "a2", igreja_id: "i", nome: "Paulo", papel: "anciao", email: "p@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null, pedido_anciao_em: null };
+const pastor: Perfil = { id: "p1", igreja_id: "i", nome: "Marcos", papel: "pastor", email: "m@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null, pedido_anciao_em: null };
 
 const jovens: Departamento = { id: "d1", igreja_id: "i", nome: "Jovens", sigla: "JA", cor: "#000", anciao_id: "a1", lider_nome: "Ana", lider_whatsapp: "(11) 98888-7777" };
 const musica: Departamento = { id: "d2", igreja_id: "i", nome: "Música", sigla: "MUS", cor: "#000", anciao_id: "a2", lider_nome: null, lider_whatsapp: null };
@@ -131,7 +131,7 @@ it("hojeISO usa o fuso de Brasília", () => {
 });
 
 describe("líder de departamento", () => {
-  const ana: Perfil = { id: "l1", igreja_id: "i", nome: "Ana", papel: "lider", email: "a@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null };
+  const ana: Perfil = { id: "l1", igreja_id: "i", nome: "Ana", papel: "lider", email: "a@x", whatsapp: null, tratamento: null, novidades_vistas_em: "2026-01-01", cor: null, entrou_pelo_link_em: null, foto_url: null, pedido_anciao_em: null };
   const jovensComLider: Departamento = { ...jovens, lideres: [{ perfil_id: "l1" }] };
 
   it("resumo do líder: só os departamentos que lidera, sem 'lembre o líder'", () => {
