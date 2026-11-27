@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { format, parseISO } from "date-fns";
+import { addMonths, format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DeslizarMes } from "@/components/deslizar-mes";
 import { GradeEscala } from "@/components/grade-escala";
 import { NovoPregadorRapido } from "@/components/novo-pregador-rapido";
 import { AbasEscalas } from "@/components/abas-escalas";
@@ -16,6 +17,8 @@ import { exigirPerfil } from "@/lib/sessao";
 import { assumirCulto } from "../acoes";
 
 const DIAS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
+const mesVizinho = (mes: string, passo: number) => format(addMonths(parseISO(`${mes}-01`), passo), "yyyy-MM");
 
 export default async function EscalaPregacao({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const params = await searchParams;
@@ -119,7 +122,9 @@ export default async function EscalaPregacao({ searchParams }: { searchParams: P
           {legenda}
           {resumo}
         </div>
-        <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} podeAdicionar={lideranca} />
+        <DeslizarMes mes={mes} anterior={`/escalas?mes=${mesVizinho(mes, -1)}`} proximo={`/escalas?mes=${mesVizinho(mes, 1)}`}>
+          <GradeEscala mes={mes} hoje={hoje} cultos={cultos} porChave={porChave} siglas={siglas} podeAdicionar={lideranca} />
+        </DeslizarMes>
         {lideranca && (
           <NovoPregadorRapido
             existentes={escala.map((e) => ({

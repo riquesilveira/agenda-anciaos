@@ -57,7 +57,7 @@ export function CabecalhoMes({
                 {icone}
               </button>
             ) : (
-              <Link key={passo} href={link!(alvo)} className={classe} aria-label={rotulo}>
+              <Link key={passo} href={link!(alvo)} prefetch scroll={false} className={classe} aria-label={rotulo}>
                 {icone}
               </Link>
             );

@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftRight, Bell, BellPlus, Check, GripVertical, MessageCircle, Pencil, Plus, X } from "lucide-react";
-import { eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { Avatar } from "@/components/avatar";
 import { BotaoConfirmar } from "@/components/botao-confirmar";
+import { DeslizarMes } from "@/components/deslizar-mes";
 import { CabecalhoSemana, Moldura, NumeroDia } from "@/components/moldura";
 import { dataLonga, fimDe, horaCurta, maiuscula } from "@/lib/datas";
 import { mensagemAvisoEscala, mensagemLinkLembretes } from "@/lib/escalas";
@@ -396,7 +397,12 @@ export function QuadroEscala({
             </div>
           )}
 
-          {/* ----- Calendário do mês ----- */}
+          {/* ----- Calendário do mês (arrastar para o lado troca o mês) ----- */}
+          <DeslizarMes
+            mes={mes}
+            anterior={`/escalas/d/${departamento.id}?mes=${format(addMonths(parseISO(`${mes}-01`), -1), "yyyy-MM")}`}
+            proximo={`/escalas/d/${departamento.id}?mes=${format(addMonths(parseISO(`${mes}-01`), 1), "yyyy-MM")}`}
+          >
           <CabecalhoSemana />
             <div className="grid grid-cols-7">
               {grade.map((data) => {
@@ -467,6 +473,7 @@ export function QuadroEscala({
                 );
               })}
             </div>
+          </DeslizarMes>
       </Moldura>
 
       {/* ----- Dia aberto ----- */}
