@@ -16,8 +16,9 @@ async function lerFormulario(form: FormData) {
   const nome = String(form.get("nome") ?? "").trim().slice(0, 80);
   const whatsapp = String(form.get("whatsapp") ?? "").trim().slice(0, 30) || null;
   // Líder de departamento ou ancião (ancião não precisa de departamento).
-  const comoAnciao = form.get("papel") === "anciao";
   const escolhidos = form.getAll("departamento_id").map(String);
+  // "Ancionato" vem como um departamento especial na lista.
+  const comoAnciao = escolhidos.includes("__ancionato");
   // Só departamentos da igreja escolhida (conferido no banco).
   const departamentos = igreja?.departamentos.filter((d) => escolhidos.includes(d.id)) ?? [];
   const erro = !igreja

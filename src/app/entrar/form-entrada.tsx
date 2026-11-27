@@ -35,7 +35,11 @@ export function FormEntrada({
   const [papel, setPapel] = useState<"lider" | "anciao">("lider");
   const departamentos =
     igrejas.find((i) => i.id === igrejaId)?.departamentos ?? [];
-  const opcoes = departamentos.map((d) => (
+  // "Ancionato" funciona como um departamento: escolhê-lo pede acesso de ancião.
+  const opcoes = [
+    { id: "__ancionato", nome: "Ancionato (sou ancião)" },
+    ...departamentos,
+  ].map((d) => (
     <option key={d.id} value={d.id}>
       {d.nome}
     </option>
@@ -67,6 +71,16 @@ export function FormEntrada({
           return setErro("Conta criada! Agora entre pela tela de login.");
         }
         window.location.assign(papel === "anciao" ? "/" : "/escalas");
+      }}
+      onChange={(e) => {
+        const selecoes = [
+          ...e.currentTarget.querySelectorAll<HTMLSelectElement>(
+            'select[name="departamento_id"]',
+          ),
+        ];
+        setPapel(
+          selecoes.some((x) => x.value === "__ancionato") ? "anciao" : "lider",
+        );
       }}
       className="cartao space-y-4"
     >
@@ -127,29 +141,51 @@ export function FormEntrada({
         </select>
       </div>
 
-      <fieldset>
-        <legend className="rotulo">Você é</legend>
-        <input type="hidden" name="papel" value={papel} />
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              ["lider", "Líder de departamento"],
-              ["anciao", "Ancião"],
-            ] as const
-          ).map(([valor, rotulo]) => (
-            <button
-              key={valor}
-              type="button"
-              onClick={() => setPapel(valor)}
-              aria-pressed={papel === valor}
-              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
-                papel === valor
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-800 ring-4 ring-indigo-500/15"
-                  : "border-slate-200 bg-white text-slate-700"
-              }`}
+      <div>
+        <label className="rotulo" htmlFor="departamento_0">
+          Qual departamento você lidera?
+        </label>
+        <div className="space-y-2">
+          <select
+            key={igrejaId}
+            id="departamento_0"
+            name="departamento_id"
+            required
+            disabled={!igrejaId}
+            defaultValue=""
+            className="campo"
+          >
+            <option value="" disabled>
+              {igrejaId
+                ? "Escolha o departamento"
+                : "Escolha primeiro a igreja"}
+            </option>
+            {opcoes}
+          </select>
+          {extras.map((chave) => (
+            <div
+              key={`${igrejaId}-${chave}`}
+              className="flex items-center gap-2"
             >
-              {rotulo}
-            </button>
+              <select
+                name="departamento_id"
+                defaultValue=""
+                className="campo"
+                aria-label="Outro departamento"
+              >
+                <option value="">Outro departamento</option>
+                {opcoes}
+              </select>
+              <button
+                type="button"
+                onClick={() => setExtras((l) => l.filter((x) => x !== chave))}
+                className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                aria-label="Remover este departamento"
+                title="Remover"
+              >
+                <X size={18} />
+              </button>
+            </div>
           ))}
         </div>
         {papel === "anciao" && (
@@ -158,67 +194,16 @@ export function FormEntrada({
             seu acesso de ancião. Até lá, você entra com acesso de líder.
           </p>
         )}
-      </fieldset>
-
-      {papel === "lider" && (
-        <div>
-          <label className="rotulo" htmlFor="departamento_0">
-            Qual departamento você lidera?
-          </label>
-          <div className="space-y-2">
-            <select
-              key={igrejaId}
-              id="departamento_0"
-              name="departamento_id"
-              required
-              disabled={!igrejaId}
-              defaultValue=""
-              className="campo"
-            >
-              <option value="" disabled>
-                {igrejaId
-                  ? "Escolha o departamento"
-                  : "Escolha primeiro a igreja"}
-              </option>
-              {opcoes}
-            </select>
-            {extras.map((chave) => (
-              <div
-                key={`${igrejaId}-${chave}`}
-                className="flex items-center gap-2"
-              >
-                <select
-                  name="departamento_id"
-                  defaultValue=""
-                  className="campo"
-                  aria-label="Outro departamento"
-                >
-                  <option value="">Outro departamento</option>
-                  {opcoes}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setExtras((l) => l.filter((x) => x !== chave))}
-                  className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                  aria-label="Remover este departamento"
-                  title="Remover"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
-          {igrejaId && extras.length < 3 && (
-            <button
-              type="button"
-              onClick={() => setExtras((l) => [...l, Date.now()])}
-              className="mt-1.5 text-sm font-medium text-indigo-700 hover:underline"
-            >
-              + Lidero outro departamento
-            </button>
-          )}
-        </div>
-      )}
+        {igrejaId && extras.length < 3 && (
+          <button
+            type="button"
+            onClick={() => setExtras((l) => [...l, Date.now()])}
+            className="mt-1.5 text-sm font-medium text-indigo-700 hover:underline"
+          >
+            + Lidero outro departamento
+          </button>
+        )}
+      </div>
 
       <div>
         <label className="rotulo" htmlFor="whatsapp">
