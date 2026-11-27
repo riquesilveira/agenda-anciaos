@@ -184,16 +184,25 @@ export function QuadroEscala({
     setTimeout(() => document.getElementById("painel-dia")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
 
-  const equipe = (
+  // "lateral": computador (nomes para arrastar). "lista": celular, um por linha,
+  // com Escalar (no dia aberto), lembrete, editar e remover.
+  const equipe = (modo: "lateral" | "lista") => (
     <>
             <div>
               <h2 className="font-semibold">Equipe de {departamento.nome}</h2>
               <p className="text-xs text-slate-500">
-                <span className="hidden lg:inline">Arraste um nome até o dia do calendário.</span>
-                <span className="lg:hidden">Toque no dia e escolha quem vai.</span>
+                {modo === "lateral" ? (
+                  "Arraste um nome até o dia do calendário."
+                ) : aberto ? (
+                  <>
+                    Escalando para <b>{dataLonga(aberto)}</b>.
+                  </>
+                ) : (
+                  "Toque num dia do calendário para escalar."
+                )}
               </p>
             </div>
-            <ul className="flex flex-wrap gap-2 lg:flex-col">
+            <ul className={modo === "lateral" ? "flex flex-col gap-2" : "divide-y divide-slate-100"}>
               {membros.map((m) =>
                 editandoMembro === m.id ? (
                 <li key={m.id} className="w-full">
@@ -227,6 +236,41 @@ export function QuadroEscala({
                     </div>
                   </form>
                 </li>
+                ) : modo === "lista" ? (
+                <li key={m.id} className="flex items-center gap-2 py-2">
+                  <Avatar nome={m.nome} foto={m.foto_url} tamanho={34} />
+                  <span className="min-w-0 flex-1 truncate font-medium text-slate-800">{m.nome}</span>
+                  {aberto &&
+                    (pessoasDoDia(aberto).some((x) => x.membro_id === m.id) ? (
+                      <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700">✓ No dia</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => escalar(aberto, m.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white active:scale-95"
+                      >
+                        <Plus size={13} /> Escalar
+                      </button>
+                    ))}
+                  <a
+                    href={linkWhatsapp(m.whatsapp, mensagemLinkLembretes(m.nome, departamento.nome, `${urlBase}/m/${m.token}`))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Link de lembretes de ${m.nome}`}
+                    className={`rounded-lg p-2 ${m.lembretes_ativos_em ? "text-emerald-600" : "text-slate-400"}`}
+                  >
+                    {m.lembretes_ativos_em ? <Bell size={16} fill="currentColor" /> : <BellPlus size={16} />}
+                  </a>
+                  <button type="button" onClick={() => setEditandoMembro(m.id)} aria-label={`Editar ${m.nome}`} className="rounded-lg p-2 text-slate-400">
+                    <Pencil size={16} />
+                  </button>
+                  <form action={removerMembro}>
+                    <input type="hidden" name="id" value={m.id} />
+                    <BotaoConfirmar mensagem={`Tirar ${m.nome} da equipe? Ele continua nas escalas já feitas.`} rotulo={`Tirar ${m.nome}`} className="rounded-lg p-2 text-slate-400 hover:text-red-600">
+                      <X size={16} />
+                    </BotaoConfirmar>
+                  </form>
+                </li>
                 ) : (
                 <li key={m.id} className="group flex items-center gap-1">
                   <button
@@ -245,7 +289,7 @@ export function QuadroEscala({
                   >
                     <Avatar nome={m.nome} foto={m.foto_url} tamanho={22} />
                     {m.nome}
-                    <GripVertical size={14} className="ml-auto hidden opacity-30 lg:block" />
+                    <GripVertical size={14} className="ml-auto opacity-30" />
                   </button>
                   <a
                     href={linkWhatsapp(m.whatsapp, mensagemLinkLembretes(m.nome, departamento.nome, `${urlBase}/m/${m.token}`))}
@@ -262,11 +306,11 @@ export function QuadroEscala({
                     onClick={() => setEditandoMembro(m.id)}
                     title={`Editar ${m.nome}`}
                     aria-label={`Editar ${m.nome}`}
-                    className="rounded p-1 text-slate-400 hover:text-indigo-600 lg:opacity-0 lg:group-hover:opacity-100"
+                    className="rounded p-1 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-indigo-600"
                   >
                     <Pencil size={14} />
                   </button>
-                  <form action={removerMembro} className="lg:opacity-0 lg:group-hover:opacity-100">
+                  <form action={removerMembro} className="opacity-0 group-hover:opacity-100">
                     <input type="hidden" name="id" value={m.id} />
                     <BotaoConfirmar mensagem={`Tirar ${m.nome} da equipe? Ele continua nas escalas já feitas.`} rotulo={`Tirar ${m.nome}`} className="rounded p-1 text-slate-400 hover:text-red-600">
                       <X size={14} />
@@ -316,9 +360,9 @@ export function QuadroEscala({
     </>
   );
 
-  const equipeECompartilhar = (
+  const equipeECompartilhar = (modo: "lateral" | "lista") => (
     <>
-      {equipe}
+      {equipe(modo)}
       {compartilhar && <div className="border-t border-slate-100 pt-3">{compartilhar}</div>}
     </>
   );
@@ -332,14 +376,10 @@ export function QuadroEscala({
         </p>
       )}
 
-      <Moldura lateral={podeEditar ? <div className="space-y-3">{equipeECompartilhar}</div> : compartilhar}>
+      <Moldura lateral={podeEditar ? <div className="space-y-3">{equipeECompartilhar("lateral")}</div> : compartilhar}>
         {cabecalho}
         <div className="px-4 pb-3 sm:px-5">{abas}</div>
-        {podeEditar ? (
-          <div className="space-y-3 border-t border-slate-200 p-4 lg:hidden">{equipeECompartilhar}</div>
-        ) : (
-          compartilhar && <div className="px-4 pb-3 lg:hidden">{compartilhar}</div>
-        )}
+        {!podeEditar && compartilhar && <div className="px-4 pb-3 lg:hidden">{compartilhar}</div>}
           {podeEditar && atalhos.length > 0 && (
             <div className="flex flex-wrap gap-2 px-4 pb-3 sm:px-5">
               {atalhos.map((a) => (
@@ -622,7 +662,7 @@ export function QuadroEscala({
                 const livres = membros.filter((m) => !pessoasDoDia(aberto).some((p) => p.membro_id === m.id));
                 if (!membros.length) return null;
                 return (
-                  <div className="space-y-2 border-t border-slate-100 pt-3">
+                  <div className="hidden space-y-2 border-t border-slate-100 pt-3 lg:block">
                     <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Adicionar à escala</p>
                     {livres.length ? (
                       <div className="flex flex-wrap gap-2">
@@ -647,6 +687,9 @@ export function QuadroEscala({
               })()}
             </section>
           )}
+
+      {/* Celular: a equipe vem depois do calendário (e do dia aberto), um por linha. */}
+      {podeEditar && <section className="cartao space-y-3 lg:hidden">{equipeECompartilhar("lista")}</section>}
     </div>
   );
 }
